@@ -1,0 +1,45 @@
+@font-face {
+  font-family: 'psychology';
+  src:  url('fonts/psychology.eot?d63fci');
+  src:  url('fonts/psychology.eot?d63fci#iefix') format('embedded-opentype'),
+    url('fonts/psychology.ttf?d63fci') format('truetype'),
+    url('fonts/psychology.woff?d63fci') format('woff'),
+    url('fonts/psychology.svg?d63fci#psychology') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="psychology-"], [class*=" psychology-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'psychology' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.psychology-mobile:before {
+  content: "\e902";
+}
+.psychology-menu:before {
+  content: "\e903";
+}
+.psychology-close:before {
+  content: "\e904";
+}
+.psychology-clock:before {
+  content: "\e905";
+}
+.psychology-circle:before {
+  content: "\e900";
+}
+.psychology-thumb:before {
+  content: "\e901";
+}
