@@ -1,0 +1,56 @@
+[31-Mar-2022 13:58:05 UTC] PHP Warning:  call_user_func() expects parameter 1 to be a valid callback, first array member is not a valid class name or object in /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/lib/inc/class-fusion-device-detection.php on line 57
+[31-Mar-2022 13:58:05 UTC] PHP Stack trace:
+[31-Mar-2022 13:58:05 UTC] PHP   1. {main}() /Users/ryelei/rmit/tellegacy/app/public/index.php:0
+[31-Mar-2022 13:58:05 UTC] PHP   2. require() /Users/ryelei/rmit/tellegacy/app/public/index.php:17
+[31-Mar-2022 13:58:05 UTC] PHP   3. require_once() /Users/ryelei/rmit/tellegacy/app/public/wp-blog-header.php:19
+[31-Mar-2022 13:58:05 UTC] PHP   4. include() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/template-loader.php:106
+[31-Mar-2022 13:58:05 UTC] PHP   5. get_template_part() /Users/ryelei/rmit/tellegacy/app/public/wp-content/themes/twentytwentyone/page.php:17
+[31-Mar-2022 13:58:05 UTC] PHP   6. locate_template() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/general-template.php:204
+[31-Mar-2022 13:58:05 UTC] PHP   7. load_template() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/template.php:716
+[31-Mar-2022 13:58:05 UTC] PHP   8. require() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/template.php:772
+[31-Mar-2022 13:58:05 UTC] PHP   9. the_content() /Users/ryelei/rmit/tellegacy/app/public/wp-content/themes/twentytwentyone/template-parts/content/content-page.php:29
+[31-Mar-2022 13:58:05 UTC] PHP  10. apply_filters() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/post-template.php:253
+[31-Mar-2022 13:58:05 UTC] PHP  11. WP_Hook->apply_filters() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/plugin.php:189
+[31-Mar-2022 13:58:05 UTC] PHP  12. do_shortcode() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[31-Mar-2022 13:58:05 UTC] PHP  13. preg_replace_callback() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  14. do_shortcode_tag() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  15. FusionSC_Container->render() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:356
+[31-Mar-2022 13:58:05 UTC] PHP  16. do_shortcode() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/shortcodes/fusion-container.php:1016
+[31-Mar-2022 13:58:05 UTC] PHP  17. preg_replace_callback() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  18. do_shortcode_tag() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  19. FusionSC_Row->render() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:356
+[31-Mar-2022 13:58:05 UTC] PHP  20. do_shortcode() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/class-fusion-row-element.php:104
+[31-Mar-2022 13:58:05 UTC] PHP  21. preg_replace_callback() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  22. do_shortcode_tag() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  23. FusionSC_Column->render() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:356
+[31-Mar-2022 13:58:05 UTC] PHP  24. Fusion_Builder_Conditional_Render_Helper::should_render() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/class-fusion-column-element.php:375
+[31-Mar-2022 13:58:05 UTC] PHP  25. Fusion_Builder_Conditional_Render_Helper::get_value() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/helpers/class-fusion-builder-conditional-render-helper.php:332
+[31-Mar-2022 13:58:05 UTC] PHP  26. Fusion_Device_Detection->is_mobile() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/helpers/class-fusion-builder-conditional-render-helper.php:436
+[31-Mar-2022 13:58:05 UTC] PHP Warning:  call_user_func() expects parameter 1 to be a valid callback, first array member is not a valid class name or object in /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/lib/inc/class-fusion-device-detection.php on line 68
+[31-Mar-2022 13:58:05 UTC] PHP Stack trace:
+[31-Mar-2022 13:58:05 UTC] PHP   1. {main}() /Users/ryelei/rmit/tellegacy/app/public/index.php:0
+[31-Mar-2022 13:58:05 UTC] PHP   2. require() /Users/ryelei/rmit/tellegacy/app/public/index.php:17
+[31-Mar-2022 13:58:05 UTC] PHP   3. require_once() /Users/ryelei/rmit/tellegacy/app/public/wp-blog-header.php:19
+[31-Mar-2022 13:58:05 UTC] PHP   4. include() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/template-loader.php:106
+[31-Mar-2022 13:58:05 UTC] PHP   5. get_template_part() /Users/ryelei/rmit/tellegacy/app/public/wp-content/themes/twentytwentyone/page.php:17
+[31-Mar-2022 13:58:05 UTC] PHP   6. locate_template() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/general-template.php:204
+[31-Mar-2022 13:58:05 UTC] PHP   7. load_template() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/template.php:716
+[31-Mar-2022 13:58:05 UTC] PHP   8. require() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/template.php:772
+[31-Mar-2022 13:58:05 UTC] PHP   9. the_content() /Users/ryelei/rmit/tellegacy/app/public/wp-content/themes/twentytwentyone/template-parts/content/content-page.php:29
+[31-Mar-2022 13:58:05 UTC] PHP  10. apply_filters() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/post-template.php:253
+[31-Mar-2022 13:58:05 UTC] PHP  11. WP_Hook->apply_filters() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/plugin.php:189
+[31-Mar-2022 13:58:05 UTC] PHP  12. do_shortcode() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[31-Mar-2022 13:58:05 UTC] PHP  13. preg_replace_callback() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  14. do_shortcode_tag() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  15. FusionSC_Container->render() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:356
+[31-Mar-2022 13:58:05 UTC] PHP  16. do_shortcode() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/shortcodes/fusion-container.php:1016
+[31-Mar-2022 13:58:05 UTC] PHP  17. preg_replace_callback() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  18. do_shortcode_tag() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  19. FusionSC_Row->render() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:356
+[31-Mar-2022 13:58:05 UTC] PHP  20. do_shortcode() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/class-fusion-row-element.php:104
+[31-Mar-2022 13:58:05 UTC] PHP  21. preg_replace_callback() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  22. do_shortcode_tag() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:228
+[31-Mar-2022 13:58:05 UTC] PHP  23. FusionSC_Column->render() /Users/ryelei/rmit/tellegacy/app/public/wp-includes/shortcodes.php:356
+[31-Mar-2022 13:58:05 UTC] PHP  24. Fusion_Builder_Conditional_Render_Helper::should_render() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/class-fusion-column-element.php:375
+[31-Mar-2022 13:58:05 UTC] PHP  25. Fusion_Builder_Conditional_Render_Helper::get_value() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/helpers/class-fusion-builder-conditional-render-helper.php:332
+[31-Mar-2022 13:58:05 UTC] PHP  26. Fusion_Device_Detection->is_tablet() /Users/ryelei/rmit/tellegacy/app/public/wp-content/plugins/fusion-builder/inc/helpers/class-fusion-builder-conditional-render-helper.php:438
