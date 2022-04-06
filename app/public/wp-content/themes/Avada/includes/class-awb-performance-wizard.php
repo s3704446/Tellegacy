@@ -136,9 +136,9 @@ class AWB_Performance_Wizard {
 		$version = Avada::get_theme_version();
 		wp_enqueue_style( 'awb_performance_css', trailingslashit( Avada::$template_dir_url ) . 'assets/admin/css/awb-wizard.css', [], $version );
 
-		wp_enqueue_script( 'fusion_app_assets', FUSION_LIBRARY_URL . '/inc/fusion-app/model-assets.js', [ 'backbone' ], FUSION_BUILDER_VERSION, true );
+		AWB_Global_Typography()->enqueue();
 
-		wp_enqueue_script( 'awb_performance_js', trailingslashit( Avada::$template_dir_url ) . 'assets/admin/js/awb-wizard.js', [ 'fusion_app_assets', 'jquery' ], $version, true );
+		wp_enqueue_script( 'awb_performance_js', trailingslashit( Avada::$template_dir_url ) . 'assets/admin/js/awb-wizard.js', [ 'jquery' ], $version, true );
 
 		wp_localize_script( 'awb_performance_js', 'fusionBuilderText', fusion_app_textdomain_strings() );
 
@@ -204,16 +204,9 @@ class AWB_Performance_Wizard {
 		);
 
 		// Color fields.
-		wp_enqueue_script( 'wp-color-picker' );
-		wp_enqueue_style( 'wp-color-picker' );
-
-		wp_enqueue_script(
-			'wp-color-picker-alpha',
-			Avada::$template_dir_url . '/assets/admin/js/wp-color-picker-alpha.js',
-			[ 'wp-color-picker' ],
-			$version,
-			false
-		);
+		if ( function_exists( 'AWB_Global_Colors' ) ) {
+			AWB_Global_Colors()->enqueue();
+		}
 
 		// Option type JS.
 		wp_enqueue_script(
@@ -410,7 +403,6 @@ class AWB_Performance_Wizard {
 			];
 		}
 
-
 		if ( ! $youtube ) {
 			$recommendations['status_yt'] = [
 				'value'   => '0',
@@ -533,6 +525,22 @@ class AWB_Performance_Wizard {
 			$recommendations['status_fusion_forms'] = [
 				'value'   => '1',
 				'message' => __( 'Avada forms found, only disable if you are not using them.', 'Avada' ),
+				'dynamic' => true,
+			];
+		}
+
+		// status_awb_Off_Canvas.
+		$avada_off_canvas = new WP_Query( [ 'post_type' => 'awb_off_canvas' ] );
+		if ( ! $avada_off_canvas->have_posts() ) {
+			$recommendations['status_awb_Off_Canvas'] = [
+				'value'   => '0',
+				'message' => __( 'No Avada off canvas found, can be disabled. Alternatively if you haven\'t tried them yet, give them a go.', 'Avada' ),
+				'dynamic' => true,
+			];
+		} else {
+			$recommendations['status_awb_Off_Canvas'] = [
+				'value'   => '1',
+				'message' => __( 'Avada off canvas found, only disable if you are not using them.', 'Avada' ),
 				'dynamic' => true,
 			];
 		}
@@ -1184,7 +1192,6 @@ class AWB_Performance_Wizard {
 				if ( '' === $icon_subset ) {
 					$icon_subset = 'fas';
 				}
-
 
 				// Finally update map array.
 				if ( true === $is_fa4_icon ) {

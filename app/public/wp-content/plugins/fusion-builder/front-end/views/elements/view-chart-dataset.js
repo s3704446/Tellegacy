@@ -78,11 +78,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( '' !== values.background_color ) {
-					chartDatasetShortcode[ 'data-background_color' ] = values.background_color;
+					chartDatasetShortcode[ 'data-background_color' ] = jQuery.AWB_Color( values.background_color ).toRgbaString();
 				}
 
 				if ( '' !== values.border_color ) {
-					chartDatasetShortcode[ 'data-border_color' ] = values.border_color;
+					chartDatasetShortcode[ 'data-border_color' ] = jQuery.AWB_Color( values.border_color ).toRgbaString();
 				}
 
 				return chartDatasetShortcode;

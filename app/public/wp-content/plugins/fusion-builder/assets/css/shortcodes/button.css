@@ -11,9 +11,9 @@
   font-weight: var(--button_typography-font-weight);
   font-style: var(--button_typography-font-style, normal);
   letter-spacing: var(--button_typography-letter-spacing);
-  border-width: var(--button_border_width-top) var(--button_border_width-right) var(--button_border_width-bottom) var(--button_border_width-left);
+  border-width: var(--button_border_width-top, 0) var(--button_border_width-right, 0) var(--button_border_width-bottom, 0) var(--button_border_width-left, 0);
   border-style: solid;
-  border-radius: var(--button-border-radius-top-left) var(--button-border-radius-top-right) var(--button-border-radius-bottom-right) var(--button-border-radius-bottom-left);
+  border-radius: var(--button-border-radius-top-left, 0) var(--button-border-radius-top-right, 0) var(--button-border-radius-bottom-right, 0) var(--button-border-radius-bottom-left, 0);
   text-transform: var(--button_text_transform);
   transition: all 200ms;
 }

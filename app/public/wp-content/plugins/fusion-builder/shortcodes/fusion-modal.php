@@ -322,7 +322,7 @@ if ( fusion_is_element_enabled( 'fusion_modal' ) ) {
 								'label'       => esc_html__( 'Modal Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the background color of the modal popup box.', 'fusion-builder' ),
 								'id'          => 'modal_bg_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -330,7 +330,7 @@ if ( fusion_is_element_enabled( 'fusion_modal' ) ) {
 								'label'       => esc_html__( 'Modal Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the border color of the modal popup box.', 'fusion-builder' ),
 								'id'          => 'modal_border_color',
-								'default'     => '#e2e2e2',
+								'default'     => 'var(--awb-color3)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -496,7 +496,7 @@ function fusion_element_modal() {
 				'preview'         => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-modal-preview.php',
 				'preview_id'      => 'fusion-builder-block-module-modal-preview-template',
 				'allow_generator' => true,
-				'help_url'        => 'https://theme-fusion.com/documentation/fusion-builder/elements/modal-element/',
+				'help_url'        => 'https://theme-fusion.com/documentation/avada/elements/modal-element/',
 				'inline_editor'   => true,
 				'params'          => [
 					[

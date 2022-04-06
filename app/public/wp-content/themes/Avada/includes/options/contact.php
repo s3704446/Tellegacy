@@ -530,7 +530,7 @@ function avada_options_section_contact( $sections ) {
 						'label'           => esc_html__( 'Map Overlay Color', 'Avada' ),
 						'description'     => esc_html__( 'Custom styling setting only. Pick any overlaying color for the map besides pure black or white. Works best with "roadmap" type.', 'Avada' ),
 						'id'              => 'map_overlay_color',
-						'default'         => '#65bc7b',
+						'default'         => 'var(--awb-color4)',
 						'type'            => 'color-alpha',
 						'required'        => [
 							[
@@ -609,7 +609,7 @@ function avada_options_section_contact( $sections ) {
 						'label'           => esc_html__( 'Info Box Background Color', 'Avada' ),
 						'description'     => esc_html__( 'Custom styling setting only. Controls the info box background color.', 'Avada' ),
 						'id'              => 'map_infobox_bg_color',
-						'default'         => 'rgba(255,255,255,0)',
+						'default'         => 'var(--awb-color5)',
 						'type'            => 'color-alpha',
 						'required'        => [
 							[
@@ -639,7 +639,7 @@ function avada_options_section_contact( $sections ) {
 						'label'           => esc_html__( 'Info Box Text Color', 'Avada' ),
 						'description'     => esc_html__( 'Custom styling setting only. Controls the info box text color.', 'Avada' ),
 						'id'              => 'map_infobox_text_color',
-						'default'         => ( 140 < fusion_get_brightness( $settings['map_overlay_color'] ) ) ? '#ffffff' : '#747474',
+						'default'         => 'var(--awb-color1)',
 						'type'            => 'color-alpha',
 						'required'        => [
 							[

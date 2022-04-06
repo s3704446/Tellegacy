@@ -8,19 +8,20 @@
 
 ?>
 <#
-var fieldId     = 'undefined' === typeof param.param_name ? param.id : param.param_name,
-	context     = 'undefined' === typeof param.context ? 'TO' : param.context,
-	hasDemos    = 'object' === typeof param.demos && 'TO' === context && ! _.isEmpty( param.demos );
+var fieldId           = 'undefined' === typeof param.param_name ? param.id : param.param_name,
+	context           = 'undefined' === typeof param.context ? 'TO' : param.context,
+	hasDemos          = 'object' === typeof param.demos && 'TO' === context && ! _.isEmpty( param.demos );
+	shouldRenderDemos = 'object' === typeof param.demos && 'TO' === context;
 #>
 <div class="fusion-form-radio-button-set ui-buttonset fusion-import-mode">
 	<input type="hidden" id="fusion-import-mode" name="fusion-import-mode" value="paste" class="fusion-dont-update button-set-value" />
 	<a href="#" class="ui-button buttonset-item ui-state-active" data-value="paste" aria-label="<?php esc_attr_e( 'Code', 'Avada' ); ?>"><?php esc_attr_e( 'Code', 'Avada' ); ?></a>
 	<a href="#" class="ui-button buttonset-item" data-value="upload" aria-label="<?php esc_attr_e( 'File', 'Avada' ); ?>"><?php esc_attr_e( 'File', 'Avada' ); ?></a>
 	<# if ( hasDemos ) { #>
-		<a href="#" class="ui-button buttonset-item" data-value="demo" aria-label="<?php esc_attr_e( 'Demo', 'Avada' ); ?>"><?php esc_attr_e( 'Demo', 'Avada' ); ?></a>
+		<a href="#" class="ui-button buttonset-item" data-value="demo" aria-label="<?php esc_attr_e( 'Prebuilt Site', 'Avada' ); ?>"><?php esc_attr_e( 'Prebuilt Site', 'Avada' ); ?></a>
 	<# } #>
 
-	<# if ( ! hasDemos && true === FusionApp.data.singular && 'undefined' !== typeof FusionApp.data.savedPageOptions ) { #>
+	<# if ( ! shouldRenderDemos && true === FusionApp.data.singular && 'undefined' !== typeof FusionApp.data.savedPageOptions ) { #>
 		<a href="#" class="ui-button buttonset-item" data-value="saved-page-options" aria-label="<?php esc_attr_e( 'Database', 'Avada' ); ?>"><?php esc_attr_e( 'Database', 'Avada' ); ?></a>
 	<# } #>
 </div>
@@ -36,13 +37,13 @@ var fieldId     = 'undefined' === typeof param.param_name ? param.id : param.par
 			<div class="fusion-select-field<?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>">
 				<div class="fusion-select-preview-wrap">
 					<span class="fusion-select-preview">
-						<span class="fusion-select-placeholder"><?php esc_attr_e( 'Select a Demo', 'Avada' ); ?></span>
+						<span class="fusion-select-placeholder"><?php esc_attr_e( 'Select a Prebuilt Site', 'Avada' ); ?></span>
 					</span>
 					<div class="fusiona-arrow-down"></div>
 				</div>
 				<div class="fusion-select-dropdown">
 					<div class="fusion-select-search">
-						<input type="text" class="fusion-hide-from-atts fusion-dont-update" placeholder="<?php esc_attr_e( 'Search Demos', 'Avada' ); ?>" />
+						<input type="text" class="fusion-hide-from-atts fusion-dont-update" placeholder="<?php esc_attr_e( 'Search Prebuilt Sites', 'Avada' ); ?>" />
 					</div>
 					<div class="fusion-select-options">
 						<# _.each( param.demos, function( name, value ) { #>
@@ -55,7 +56,7 @@ var fieldId     = 'undefined' === typeof param.param_name ? param.id : param.par
 		</div>
 	<# } #>
 
-	<# if ( ! hasDemos && true === FusionApp.data.singular && 'undefined' !== typeof FusionApp.data.savedPageOptions ) { #>
+	<# if ( ! shouldRenderDemos && true === FusionApp.data.singular && 'undefined' !== typeof FusionApp.data.savedPageOptions ) { #>
 		<div data-id="saved-page-options" class="fusion-page-options-import">
 			<div class="fusion-select-field<?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>">
 				<div class="fusion-select-preview-wrap">
@@ -89,6 +90,6 @@ var fieldId     = 'undefined' === typeof param.param_name ? param.id : param.par
 
 <input type="button" class="button fusion-builder-import-button" value="<?php esc_attr_e( 'Import', 'Avada' ); ?>"" data-type="json" data-title="<?php esc_attr_e( 'Import', 'Avada' ); ?>" data-context="{{ context }}"/>
 
-<# if ( ! hasDemos && true === FusionApp.data.singular && 'undefined' !== typeof FusionApp.data.savedPageOptions ) { #>
+<# if ( ! shouldRenderDemos && true === FusionApp.data.singular && 'undefined' !== typeof FusionApp.data.savedPageOptions ) { #>
 <input type="button" class="button fusion-builder-delete-button" value="<?php esc_attr_e( 'Delete', 'Avada' ); ?>" data-title="<?php esc_attr_e( 'Delete', 'Avada' ); ?>" data-context="{{ context }}" style="display:none;"/>
 <# } #>

@@ -3,7 +3,7 @@
  * Plugin Name: Avada Core
  * Plugin URI: https://theme-fusion.com
  * Description: Avada Core Plugin for the advanced, premium drag & drop Avada Website Builder. Streamline your work and save time for the more important things.
- * Version: 5.5
+ * Version: 5.6.1
  * Author: ThemeFusion
  * Author URI: https://theme-fusion.com
  * Requires PHP: 5.6
@@ -14,7 +14,7 @@
 
 // Plugin version.
 if ( ! defined( 'FUSION_CORE_VERSION' ) ) {
-	define( 'FUSION_CORE_VERSION', '5.5' );
+	define( 'FUSION_CORE_VERSION', '5.6.1' );
 }
 
 // Minimum PHP version required.

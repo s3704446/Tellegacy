@@ -1204,6 +1204,18 @@
 .fusion-body .avada-db-card .avada-db-card-notice .avada-db-card-notice-content {
   margin: 1em 0.4em 0 0.4em;
 }
+.fusion-body .avada-db-card .avada-db-card-notice-button {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  margin: 1em -2px 0 -2px;
+}
+.fusion-body .avada-db-card .avada-db-card-notice-button .avada-db-card-notice {
+  margin: 0 2px;
+}
+.fusion-body .avada-db-card .avada-db-card-notice-button .avada-db-card-notice.notice-button {
+  align-items: center;
+}
 .fusion-body .avada-db-card .avada-db-card-error {
   margin-top: 1em;
   padding: 1.4em;
@@ -1607,9 +1619,6 @@
 .avada-dashboard.avada-db-status .get-system-status {
   display: block;
 }
-.avada-dashboard.avada-db-status .debug-report-button {
-  margin-top: 1em;
-}
 .avada-dashboard.avada-db-status .debug-report {
   display: none;
   margin-top: 1em;
@@ -1621,6 +1630,9 @@
   font-family: monospace;
   resize: none;
   outline: 0;
+}
+.avada-dashboard.avada-db-status .debug-report .submit {
+  padding: 1em 0 0 0;
 }
 .avada-dashboard.avada-db-status table {
   border: 1px solid #dfdfdf;
@@ -1947,6 +1959,13 @@
   }
 }
 @media screen and (max-width: 1100px) {
+  .avada-dashboard .avada-db-menu-sticky .avada-db-menu-item-link {
+    flex-flow: column;
+    padding: 1.5em 0;
+  }
+  .avada-dashboard .avada-db-menu-sticky .avada-db-menu-item-link .avada-db-menu-item-text {
+    margin-top: 0.3em;
+  }
   .avada-dashboard .avada-db-card .avada-db-card-grid {
     flex-flow: column;
     margin: 0.85em -0.85em 0 -0.85em;
@@ -1988,18 +2007,23 @@
   .rtl .avada-dashboard .avada-db-menu-sticky .avada-db-menu-item:nth-child(4) .avada-db-menu-sub {
     left: 0;
   }
-  .avada-dashboard .avada-db-menu-sticky .avada-db-menu-item-link {
-    flex-flow: column;
-    padding: 1.5em 0;
-  }
-  .avada-dashboard .avada-db-menu-sticky .avada-db-menu-item-link .avada-db-menu-item-text {
-    margin-top: 0.3em;
-  }
   .ltr .avada-dashboard .avada-db-menu .avada-db-menu-item:last-child .avada-db-menu-sub {
     right: 0;
   }
   .rtl .avada-dashboard .avada-db-menu .avada-db-menu-item:last-child .avada-db-menu-sub {
     left: 0;
+  }
+  .avada-dashboard .avada-db-card-notice-button {
+    flex-flow: column;
+    align-items: stretch;
+    justify-content: space-around;
+    margin: 1em 0 0 0;
+  }
+  .avada-dashboard .avada-db-card-notice-button .avada-db-card-notice {
+    margin: 0;
+  }
+  .avada-dashboard .avada-db-card-notice-button .avada-db-card-notice.notice-button {
+    padding: 0 3.4em 1.4em 3.4em;
   }
   .avada-dashboard .avada-db-footer .avada-db-footer-menu ul,
   .avada-dashboard .avada-db-footer .avada-db-footer-menu-bottom {
@@ -2269,7 +2293,6 @@
 }
 .awb-studio-start .awb-studio-sync {
   display: inline-flex;
-  margin-top: 1em;
   padding-right: 0.4em;
   padding-left: 0.4em;
 }
@@ -2380,6 +2403,13 @@
   transform: translate3d(0, 0, 0);
   opacity: 1;
 }
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance:none) {
+    .awb-studio-content #main-content .previews > article {
+      transform: inherit;
+    }
+  }
+}
 .awb-studio-content #main-content .previews > article.hidden {
   opacity: 0;
   transform: translate3d(0, 40px, 0);
@@ -2488,7 +2518,7 @@
   text-align: center;
   flex: 1;
   margin: 0;
-  padding: 1.4em 0.8em;
+  padding: 1.4em 0.6em;
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: color 0.3s cubic-bezier(0.21, 0.6, 0.35, 1), border-color 0.3s cubic-bezier(0.21, 0.6, 0.35, 1);

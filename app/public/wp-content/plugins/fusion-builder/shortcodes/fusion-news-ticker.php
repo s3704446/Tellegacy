@@ -206,8 +206,8 @@ if ( fusion_is_element_enabled( 'fusion_news_ticker' ) ) {
 			 */
 			public function ticker_attr() {
 				$attr = [
-					'class'     => 'awb-news-ticker awb-news-ticker-' . $this->element_id,
-					'aria-role' => 'marquee',
+					'class' => 'awb-news-ticker awb-news-ticker-' . $this->element_id,
+					'role'  => 'marquee',
 				];
 
 				if ( 'marquee' === $this->args['ticker_type'] ) {

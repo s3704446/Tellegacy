@@ -21,13 +21,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<h1 class="avada-db-status-heading"><?php esc_html_e( 'System Status', 'Avada' ); ?></h1>
 		<p><?php esc_html_e( 'On this page you can see your Avada version history, run conversions and see details regarding your site environment.', 'Avada' ); ?></p>
 
-		<div class="avada-db-card-notice">
-			<i class="fusiona-info-circle"></i>
-			<p class="avada-db-card-notice-heading">
+		<div class="avada-db-card-notice-button">
+			<div class="avada-db-card-notice">
+				<i class="fusiona-info-circle"></i>
+				<p class="avada-db-card-notice-heading">
 				<?php esc_html_e( 'Click the button below to produce a system status report. Add this information to support tickets if you are experiencing technical issues.', 'Avada' ); ?>
+				</p>
+			</div>
+			<div class="avada-db-card-notice notice-button">
 				<span class="get-system-status"><a href="#" class="button-primary debug-report-button"><?php esc_html_e( 'Get System Report', 'Avada' ); ?></a></span>
-			</p>
-		</div>
+			</div>
+		</div>		
 
 		<div class="debug-report">
 			<textarea readonly="readonly"></textarea>
@@ -180,7 +184,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<tr>
 				<td>
 					<?php esc_html_e( 'Avada 5.0 Conversion:', 'Avada' ); ?>
-					<div><a href="https://theme-fusion.com/documentation/fusion-builder/technical/converting-fusion-builder-pages/" target="_blank"><?php esc_html_e( 'Learn More', 'Avada' ); ?></a></div>
+					<div><a href="https://theme-fusion.com/documentation/avada/how-to/how-to-convert-your-website-to-avada-50/" target="_blank"><?php esc_html_e( 'Learn More', 'Avada' ); ?></a></div>
 				</td>
 				<td class="help">&nbsp;</td>
 				<td>

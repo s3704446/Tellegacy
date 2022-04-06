@@ -67,7 +67,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="pyre_metabox_field">
 	<div class="pyre_desc">
 		<label><?php esc_html_e( 'Export Page Options', 'Avada' ); ?></label>
-		<p><?php esc_html_e( 'Click the export button to export your current set of Page Options as a json file.', 'Avada' ); ?></p>
+		<p><?php esc_html_e( 'Click the export button to export your current set of Page Options as a JSON file.', 'Avada' ); ?></p>
 	</div>
 	<div class="pyre_field">
 		<div>&nbsp;</div>
@@ -80,7 +80,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="pyre_metabox_field">
 	<div class="pyre_desc">
 		<label><?php esc_html_e( 'Import Page Options', 'Avada' ); ?></label>
-		<p><?php esc_html_e( 'Click Import to select a set of Page Options (json file) to be used.', 'Avada' ); ?></p>
+		<p><?php esc_html_e( 'Click Import to select a set of Page Options (JSON file) to be used.', 'Avada' ); ?></p>
 	</div>
 	<div class="pyre_field">
 

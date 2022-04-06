@@ -271,7 +271,7 @@ responsive = '';
 				selectors = [ this.baseSelector + ' .awb-imageframe-caption-container .awb-imageframe-caption-title' ];
 				// title color.
 				if ( ! this.isDefault( 'caption_title_color' ) ) {
-					this.addCssProperty( selectors, 'color', atts.values.caption_title_color );
+					this.addCssProperty( selectors, 'color', atts.values.caption_title_color, true );
 				}
 				// title size.
 				if ( ! this.isDefault( 'caption_title_size' ) ) {

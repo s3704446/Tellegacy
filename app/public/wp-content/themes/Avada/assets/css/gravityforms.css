@@ -150,7 +150,15 @@
   margin-top: 3% !important;
 }
 .gform_wrapper .gform_footer {
+  display: inline-flex;
+  align-items: center;
   padding: 0;
+}
+.gform_wrapper .gform_footer .gform_button[type="submit"] {
+  margin-bottom: 0;
+}
+.gform_wrapper .gform_footer .gform_ajax_spinner {
+  padding: 0 5px;
 }
 .gform_wrapper span.ginput_total {
   font-size: 18px;
@@ -187,6 +195,28 @@
 .gform_wrapper .gfield input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="file"]):focus,
 .gform_wrapper .gfield_select[multiple=multiple]:focus {
   border-color: var(--form_focus_border_color);
+}
+.gform_wrapper .gform_submission_error,
+#main .gform_wrapper .gform_submission_error {
+  display: inline-flex;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+.gform_wrapper .gform_submission_error .gform-icon,
+#main .gform_wrapper .gform_submission_error .gform-icon {
+  position: static;
+}
+.gform_wrapper .gfield_error .gfield_validation_message,
+#main .gform_wrapper .gfield_error .gfield_validation_message {
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
 }
 .gfield_time_ampm .gravity-select-parent {
   width: auto !important;

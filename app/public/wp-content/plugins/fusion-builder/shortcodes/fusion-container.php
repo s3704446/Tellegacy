@@ -472,7 +472,6 @@ if ( ! class_exists( 'FusionSC_Container' ) ) {
 			$content = apply_filters( 'fusion_add_globals', $content, 0 );
 
 			$column_opening_positions_index = [];
-			$php_version                    = phpversion();
 
 			foreach ( $needles as $needle ) {
 				$column_array                 = [];
@@ -1957,7 +1956,7 @@ if ( ! class_exists( 'FusionSC_Container' ) ) {
 							'label'       => esc_html__( 'Container Border Color', 'fusion-builder' ),
 							'description' => esc_html__( 'Controls the border color of the container element.', 'fusion-builder' ),
 							'id'          => 'full_width_border_color',
-							'default'     => '#e2e2e2',
+							'default'     => 'var(--awb-color3)',
 							'type'        => 'color-alpha',
 							'transport'   => 'postMessage',
 						],
@@ -1965,7 +1964,7 @@ if ( ! class_exists( 'FusionSC_Container' ) ) {
 							'label'       => esc_html__( 'Container 100% Height Navigation Background Color', 'fusion-builder' ),
 							'description' => esc_html__( 'Controls the background colors of the navigation area and name box when using 100% height containers.', 'fusion-builder' ),
 							'id'          => 'container_scroll_nav_bg_color',
-							'default'     => 'rgba(0,0,0,0.2)',
+							'default'     => 'hsla(var(--awb-color8-h),var(--awb-color8-s),var(--awb-color8-l),calc(var(--awb-color8-a) - 80%))',
 							'type'        => 'color-alpha',
 							'css_vars'    => [
 								[
@@ -1979,7 +1978,7 @@ if ( ! class_exists( 'FusionSC_Container' ) ) {
 							'label'       => esc_html__( 'Container 100% Height Navigation Element Color', 'fusion-builder' ),
 							'description' => esc_html__( 'Controls the color of the navigation circles and text name when using 100% height containers.', 'fusion-builder' ),
 							'id'          => 'container_scroll_nav_bullet_color',
-							'default'     => '#e2e2e2',
+							'default'     => 'var(--awb-color3)',
 							'type'        => 'color-alpha',
 							'css_vars'    => [
 								[
@@ -2149,7 +2148,7 @@ function fusion_builder_add_section() {
 				'name'              => esc_attr__( 'Container', 'fusion-builder' ),
 				'shortcode'         => 'fusion_builder_container',
 				'hide_from_builder' => true,
-				'help_url'          => 'https://theme-fusion.com/documentation/fusion-builder/elements/container-element/',
+				'help_url'          => 'https://theme-fusion.com/documentation/avada/elements/container-element/',
 				'subparam_map'      => [
 					'margin_top'            => 'spacing',
 					'margin_bottom'         => 'spacing',
@@ -3061,49 +3060,53 @@ function fusion_builder_add_section() {
 						],
 					],
 					[
-						'type'        => 'uploadfile',
-						'heading'     => esc_attr__( 'Video MP4 Upload', 'fusion-builder' ),
-						'description' => esc_attr__( 'Add your MP4 video file. This format must be included to render your video with cross-browser compatibility. WebM and OGV are optional. Using videos in a 16:9 aspect ratio is recommended.', 'fusion-builder' ),
-						'param_name'  => 'video_mp4',
-						'value'       => '',
-						'group'       => esc_attr__( 'Background', 'fusion-builder' ),
-						'subgroup'    => [
+						'type'         => 'uploadfile',
+						'heading'      => esc_attr__( 'Video MP4 Upload', 'fusion-builder' ),
+						'description'  => esc_attr__( 'Add your MP4 video file. This format must be included to render your video with cross-browser compatibility. WebM and OGV are optional. Using videos in a 16:9 aspect ratio is recommended.', 'fusion-builder' ),
+						'param_name'   => 'video_mp4',
+						'dynamic_data' => true,
+						'value'        => '',
+						'group'        => esc_attr__( 'Background', 'fusion-builder' ),
+						'subgroup'     => [
 							'name' => 'background_type',
 							'tab'  => 'video',
 						],
 					],
 					[
-						'type'        => 'uploadfile',
-						'heading'     => esc_attr__( 'Video WebM Upload', 'fusion-builder' ),
-						'description' => esc_attr__( 'Add your WebM video file. This is optional, only MP4 is required to render your video with cross-browser compatibility. Using videos in a 16:9 aspect ratio is recommended.', 'fusion-builder' ),
-						'param_name'  => 'video_webm',
-						'value'       => '',
-						'group'       => esc_attr__( 'Background', 'fusion-builder' ),
-						'subgroup'    => [
+						'type'         => 'uploadfile',
+						'heading'      => esc_attr__( 'Video WebM Upload', 'fusion-builder' ),
+						'description'  => esc_attr__( 'Add your WebM video file. This is optional, only MP4 is required to render your video with cross-browser compatibility. Using videos in a 16:9 aspect ratio is recommended.', 'fusion-builder' ),
+						'param_name'   => 'video_webm',
+						'dynamic_data' => true,
+						'value'        => '',
+						'group'        => esc_attr__( 'Background', 'fusion-builder' ),
+						'subgroup'     => [
 							'name' => 'background_type',
 							'tab'  => 'video',
 						],
 					],
 					[
-						'type'        => 'uploadfile',
-						'heading'     => esc_attr__( 'Video OGV Upload', 'fusion-builder' ),
-						'description' => esc_attr__( 'Add your OGV video file. This is optional, only MP4 is required to render your video with cross-browser compatibility. Using videos in a 16:9 aspect ratio is recommended.', 'fusion-builder' ),
-						'param_name'  => 'video_ogv',
-						'value'       => '',
-						'group'       => esc_attr__( 'Background', 'fusion-builder' ),
-						'subgroup'    => [
+						'type'         => 'uploadfile',
+						'heading'      => esc_attr__( 'Video OGV Upload', 'fusion-builder' ),
+						'description'  => esc_attr__( 'Add your OGV video file. This is optional, only MP4 is required to render your video with cross-browser compatibility. Using videos in a 16:9 aspect ratio is recommended.', 'fusion-builder' ),
+						'param_name'   => 'video_ogv',
+						'dynamic_data' => true,
+						'value'        => '',
+						'group'        => esc_attr__( 'Background', 'fusion-builder' ),
+						'subgroup'     => [
 							'name' => 'background_type',
 							'tab'  => 'video',
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'YouTube/Vimeo Video URL or ID', 'fusion-builder' ),
-						'description' => esc_attr__( "Enter the URL to the video or the video ID of your YouTube or Vimeo video you want to use as your background. If your URL isn't showing a video, try inputting the video ID instead. Ads will show up in the video if it has them.", 'fusion-builder' ),
-						'param_name'  => 'video_url',
-						'value'       => '',
-						'group'       => esc_attr__( 'Background', 'fusion-builder' ),
-						'subgroup'    => [
+						'type'         => 'textfield',
+						'heading'      => esc_attr__( 'YouTube/Vimeo Video URL or ID', 'fusion-builder' ),
+						'description'  => esc_attr__( "Enter the URL to the video or the video ID of your YouTube or Vimeo video you want to use as your background. If your URL isn't showing a video, try inputting the video ID instead. Ads will show up in the video if it has them.", 'fusion-builder' ),
+						'param_name'   => 'video_url',
+						'dynamic_data' => true,
+						'value'        => '',
+						'group'        => esc_attr__( 'Background', 'fusion-builder' ),
+						'subgroup'     => [
 							'name' => 'background_type',
 							'tab'  => 'video',
 						],

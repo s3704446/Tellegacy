@@ -460,7 +460,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 				}
 
 				// Start the button.
-				$html .= '<button type="button" class="' . $trigger_class . '" onClick="fusionNavClickExpandBtn(this);" aria-expanded="false">';
+				$html .= '<button type="button" class="' . $trigger_class . '" onClick="fusionNavClickExpandBtn(this);" aria-expanded="false" aria-controls="menu-' . $this->args['menu'] . '">';
 
 				// We use a wrapper span because we set it to flex, so RTL & LTR both work properly
 				// and the icon changes place automagically depending on language direction.
@@ -631,6 +631,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 
 					if ( $disable_megamenu ) {
 						$selectors[] = $this->base_selector . ':not(.submenu-mode-flyout) .fusion-menu-element-list .fusion-megamenu-wrapper';
+						$selectors[] = $this->base_selector . ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled';
 					}
 
 					if ( 'never' !== $this->args['breakpoint'] ) {
@@ -1641,6 +1642,10 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						}
 					} else {
 						$selectors[] = $this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button)';
+
+						if ( $disable_megamenu ) {
+							$selectors[] = $this->base_selector . ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled';
+						}
 					}
 
 					$this->add_css_property( $selectors, 'background-color', $this->args['submenu_bg'] );
@@ -1701,6 +1706,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 							$this->base_selector . ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-title a',
 							$this->base_selector . ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-icon',
 							$this->base_selector . ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-widgets-container .widget_text .textwidget',
+							$this->base_selector . ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled',
 						];
 					}
 
@@ -1815,6 +1821,10 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover > a',
 						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus > a',
 						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus-within > a',
+						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button):hover > a',
+						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover:not(.fusion-menu-item-button) > a',
+						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button):focus > a',
+						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button):focus-within > a',
 						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.expanded > a',
 						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button).current-menu-item > a',
 						$this->base_selector . ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button).current-menu-ancestor > a',
@@ -1916,6 +1926,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						$this->base_selector . ' .avada-menu-login-box .avada-custom-menu-item-contents .fusion-menu-login-box-register',
 					];
 					if ( $disable_megamenu ) {
+						$selectors[] = $this->base_selector . ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled';
 						$selectors[] = $this->base_selector . ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .sub-menu a';
 					}
 					if ( 'never' !== $this->args['breakpoint'] && $disable_megamenu ) {
@@ -1964,6 +1975,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						$this->base_selector . ' .avada-menu-login-box .avada-custom-menu-item-contents .fusion-menu-login-box-register',
 					];
 					if ( $disable_megamenu ) {
+						$selectors[] = $this->base_selector . ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled';
 						$selectors[] = $this->base_selector . ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .sub-menu a';
 					}
 					if ( 'never' !== $this->args['breakpoint'] && $disable_megamenu ) {
@@ -1999,11 +2011,11 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 							[
 								$this->base_selector . ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu',
 								$this->base_selector . ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .fusion-megamenu-border',
+								$this->base_selector . ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled',
 							],
 							'border-color',
 							$this->args['submenu_sep_color']
 						);
-						$this->add_css_property( $this->base_selector . ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled', 'color', $this->args['submenu_sep_color'] );
 					}
 				}
 
@@ -2177,7 +2189,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						];
 
 						if ( $disable_megamenu ) {
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li';
+							$selectors[] = $this->base_selector . 'collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li';
 						}
 
 						$this->add_css_property( $selectors, 'background', $this->args['mobile_bg'], true );
@@ -2201,8 +2213,9 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						];
 
 						if ( $disable_megamenu ) {
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li a';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li .awb-justify-title';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-title a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li .awb-justify-title';
 						}
 
 						$this->add_css_property( $selectors, 'color', $this->args['mobile_color'], true );
@@ -2236,11 +2249,11 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 							$this->base_selector . '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus-within a',
 						];
 						if ( $disable_megamenu ) {
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within';
 						}
 						$this->add_css_property( $selectors, 'background', $this->args['mobile_active_bg'], true );
 					}
@@ -2322,11 +2335,18 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						];
 
 						if ( $disable_megamenu ) {
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item a';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover a';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active a';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus a';
-							$selectors[] = $this->base_selector . '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item > a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover > a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active > a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus > a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within > a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover .fusion-megamenu-title';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover .fusion-megamenu-title .awb-justify-title';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active .fusion-megamenu-title';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active .fusion-megamenu-title .awb-justify-title';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus .fusion-megamenu-title';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus .fusion-megamenu-title .awb-justify-title';
+
 						}
 						$this->add_css_property( $selectors, 'color', $this->args['mobile_active_color'], true );
 					}
@@ -2379,6 +2399,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 						];
 						if ( $disable_megamenu ) {
 							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu-submenu .fusion-megamenu-title a';
+							$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu-submenu .fusion-megamenu-title .awb-justify-title';
 						}
 						$this->add_css_property( $selectors, 'font-size', $this->args['mobile_font_size'] );
 					}
@@ -2392,6 +2413,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 					if ( $disable_megamenu ) {
 						$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu-submenu .fusion-megamenu-title';
 						$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu-submenu .fusion-megamenu-title a';
+						$selectors[] = $this->base_selector . '.collapse-enabled .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu-submenu .fusion-megamenu-title .awb-justify-title';
 					}
 
 					$menu_styles = Fusion_Builder_Element_Helper::get_font_styling( $this->args, 'mobile_typography', 'array' );
@@ -2687,7 +2709,7 @@ function fusion_element_menu() {
 			'description' => esc_html__( 'Select the menu which you want to use.', 'fusion-builder' ),
 			'param_name'  => 'menu',
 			'value'       => $menu_options,
-			'default'     => array_key_first( $menu_options ),
+			'default'     => array_key_first( $menu_options ), // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.array_key_firstFound
 			'callback'    => [
 				'function' => 'fusion_ajax',
 				'action'   => 'get_fusion_menu',
@@ -2894,61 +2916,25 @@ function fusion_element_menu() {
 			],
 		],
 		[
-			'type'        => 'textfield',
-			'heading'     => esc_html__( 'Main Menu Font Size', 'fusion-builder' ),
-			'description' => esc_html__( 'The font-size for main menu item text. Use any valid CSS unit.', 'fusion-builder' ),
-			'param_name'  => 'font_size',
-			'value'       => '',
-			'default'     => '',
-			'group'       => esc_html__( 'Main', 'fusion-builder' ),
-			'callback'    => [
-				'function' => 'fusion_menu',
+			'type'             => 'typography',
+			'heading'          => esc_attr__( 'Main Menu Typography', 'fusion-builder' ),
+			'description'      => esc_html__( 'Controls the typography of the main menu item. Leave empty for the global font family.', 'fusion-builder' ),
+			'param_name'       => 'main_menu_fonts',
+			'choices'          => [
+				'font-family'    => 'typography',
+				'font-size'      => 'font_size',
+				'text-transform' => 'text_transform',
+				'line-height'    => false,
+				'letter-spacing' => 'letter_spacing',
 			],
-		],
-		[
-			'type'             => 'font_family',
-			'remove_from_atts' => true,
-			'heading'          => esc_html__( 'Main Menu Font Family', 'fusion-builder' ),
-			'description'      => esc_html__( 'Controls the font family of the main menu items. Leave empty to use the site default.', 'fusion-builder' ),
-			'param_name'       => 'typography',
-			'group'            => esc_html__( 'Main', 'fusion-builder' ),
 			'default'          => [
-				'font-family'  => '',
-				'font-variant' => '400',
+				'font-family' => '',
+				'variant'     => '400',
 			],
+			'remove_from_atts' => true,
+			'global'           => true,
+			'group'            => esc_attr__( 'Main', 'fusion-builder' ),
 			'callback'         => [
-				'function' => 'fusion_menu',
-			],
-		],
-		[
-			'type'        => 'textfield',
-			'heading'     => esc_attr__( 'Letter Spacing', 'fusion-builder' ),
-			'description' => esc_html__( 'Controls the letter spacing of the main menu items. Enter value including any valid CSS unit, ex: 2px. Leave empty to use the site default.', 'fusion-builder' ),
-			'param_name'  => 'letter_spacing',
-			'value'       => '',
-			'group'       => esc_attr__( 'Main', 'fusion-builder' ),
-		],
-		[
-			'type'        => 'radio_button_set',
-			'heading'     => esc_html__( 'Main Menu Item Text Transform', 'fusion-builder' ),
-			'description' => esc_html__( 'Choose how to capitalize the text.', 'fusion-builder' ),
-			'param_name'  => 'text_transform',
-			'default'     => 'none',
-			'value'       => [
-				'none'       => esc_attr__( 'None', 'fusion-builder' ),
-				'uppercase'  => esc_attr__( 'Uppercase', 'fusion-builder' ),
-				'lowercase'  => esc_attr__( 'Lowercase', 'fusion-builder' ),
-				'capitalize' => esc_attr__( 'Capitalize', 'fusion-builder' ),
-			],
-			'icons'       => [
-				'none'       => '<span class="fusiona-minus onlyIcon"></span>',
-				'uppercase'  => '<span class="fusiona-uppercase onlyIcon"></span>',
-				'lowercase'  => '<span class="fusiona-lowercase onlyIcon"></span>',
-				'capitalize' => '<span class="fusiona-caps onlyIcon"></span>',
-			],
-			'back_icons'  => true,
-			'group'       => esc_html__( 'Main', 'fusion-builder' ),
-			'callback'    => [
 				'function' => 'fusion_menu',
 			],
 		],
@@ -3453,54 +3439,25 @@ function fusion_element_menu() {
 			],
 		],
 		[
-			'type'        => 'textfield',
-			'heading'     => esc_html__( 'Submenu Font Size', 'fusion-builder' ),
-			'description' => esc_html__( 'The font-size for submenu items. Use any valid CSS unit.', 'fusion-builder' ),
-			'param_name'  => 'submenu_font_size',
-			'value'       => '',
-			'default'     => '',
-			'group'       => esc_html__( 'Submenu', 'fusion-builder' ),
-			'preview'     => $preview_active_submenu,
-			'callback'    => [
-				'function' => 'fusion_menu',
+			'type'             => 'typography',
+			'heading'          => esc_attr__( 'Submenu Typography', 'fusion-builder' ),
+			'description'      => esc_html__( 'Controls the typography of the submenu items. Leave empty for the global font family.', 'fusion-builder' ),
+			'param_name'       => 'submenu_fonts',
+			'choices'          => [
+				'font-family'    => 'submenu_typography',
+				'font-size'      => 'submenu_font_size',
+				'text-transform' => 'submenu_text_transform',
+				'line-height'    => false,
+				'letter-spacing' => false,
 			],
-		],
-		[
-			'type'             => 'font_family',
-			'remove_from_atts' => true,
-			'heading'          => esc_html__( 'Submenu Font Family', 'fusion-builder' ),
-			'description'      => esc_html__( 'Controls the font family of the submenu items. Leave empty to use the site default.', 'fusion-builder' ),
-			'param_name'       => 'submenu_typography',
-			'group'            => esc_html__( 'Submenu', 'fusion-builder' ),
 			'default'          => [
-				'font-family'  => '',
-				'font-variant' => '400',
+				'font-family' => '',
+				'variant'     => '400',
 			],
+			'remove_from_atts' => true,
+			'global'           => true,
+			'group'            => esc_attr__( 'Submenu', 'fusion-builder' ),
 			'callback'         => [
-				'function' => 'fusion_menu',
-			],
-		],
-		[
-			'type'        => 'radio_button_set',
-			'heading'     => esc_html__( 'Submenu Text Transform', 'fusion-builder' ),
-			'description' => esc_html__( 'Choose how to capitalize the text.', 'fusion-builder' ),
-			'param_name'  => 'submenu_text_transform',
-			'default'     => 'none',
-			'value'       => [
-				'none'       => esc_attr__( 'None', 'fusion-builder' ),
-				'uppercase'  => esc_attr__( 'Uppercase', 'fusion-builder' ),
-				'lowercase'  => esc_attr__( 'Lowercase', 'fusion-builder' ),
-				'capitalize' => esc_attr__( 'Capitalize', 'fusion-builder' ),
-			],
-			'icons'       => [
-				'none'       => '<span class="fusiona-minus onlyIcon"></span>',
-				'uppercase'  => '<span class="fusiona-uppercase onlyIcon"></span>',
-				'lowercase'  => '<span class="fusiona-lowercase onlyIcon"></span>',
-				'capitalize' => '<span class="fusiona-caps onlyIcon"></span>',
-			],
-			'back_icons'  => true,
-			'group'       => esc_html__( 'Submenu', 'fusion-builder' ),
-			'callback'    => [
 				'function' => 'fusion_menu',
 			],
 		],
@@ -4060,28 +4017,24 @@ function fusion_element_menu() {
 			],
 		],
 		[
-			'type'        => 'textfield',
-			'heading'     => esc_html__( 'Mobile Menu Font Size', 'fusion-builder' ),
-			'description' => esc_html__( 'The font-size for mobile menu items. Use any valid CSS unit.', 'fusion-builder' ),
-			'param_name'  => 'mobile_font_size',
-			'value'       => '',
-			'default'     => '',
-			'group'       => esc_html__( 'Mobile', 'fusion-builder' ),
-			'callback'    => [
-				'function' => 'fusion_menu',
+			'type'             => 'typography',
+			'heading'          => esc_attr__( 'Mobile Menu Typography', 'fusion-builder' ),
+			'description'      => esc_html__( 'Controls the typography of the mobile menu. Leave empty for the global font family.', 'fusion-builder' ),
+			'param_name'       => 'mobile_fonts',
+			'choices'          => [
+				'font-family'    => 'mobile_typography',
+				'font-size'      => 'mobile_font_size',
+				'text-transform' => false,
+				'line-height'    => false,
+				'letter-spacing' => false,
 			],
-		],
-		[
-			'type'             => 'font_family',
-			'remove_from_atts' => true,
-			'heading'          => esc_html__( 'Mobile Menu Font Family', 'fusion-builder' ),
-			'description'      => esc_html__( 'Controls the font family for mobile menu.', 'fusion-builder' ),
-			'param_name'       => 'mobile_typography',
 			'default'          => [
-				'font-family'  => '',
-				'font-variant' => '400',
+				'font-family' => '',
+				'variant'     => '400',
 			],
-			'group'            => esc_html__( 'Mobile', 'fusion-builder' ),
+			'remove_from_atts' => true,
+			'global'           => true,
+			'group'            => esc_attr__( 'Mobile', 'fusion-builder' ),
 			'callback'         => [
 				'function' => 'fusion_menu',
 			],
@@ -4194,34 +4147,46 @@ function fusion_element_menu() {
 				'params'       => $params,
 				'help_url'     => 'https://theme-fusion.com/documentation/avada/elements/menu-element/',
 				'subparam_map' => [
-					'margin_top'                         => 'margin',
-					'margin_bottom'                      => 'margin',
-					'items_padding_top'                  => 'items_padding',
-					'items_padding_right'                => 'items_padding',
-					'items_padding_bottom'               => 'items_padding',
-					'items_padding_left'                 => 'items_padding',
-					'border_radius_top_left'             => 'border_radius',
-					'border_radius_top_right'            => 'border_radius',
-					'border_radius_bottom_right'         => 'border_radius',
-					'border_radius_bottom_left'          => 'border_radius',
-					'thumbnail_size_width'               => 'thumbnail_size',
-					'thumbnail_size_height'              => 'thumbnail_size',
-					'border_top'                         => 'border',
-					'border_right'                       => 'border',
-					'border_bottom'                      => 'border',
-					'border_left'                        => 'border',
-					'submenu_items_padding_top'          => 'submenu_items_padding',
-					'submenu_items_padding_right'        => 'submenu_items_padding',
-					'submenu_items_padding_bottom'       => 'submenu_items_padding',
-					'submenu_items_padding_left'         => 'submenu_items_padding',
-					'submenu_border_radius_top_left'     => 'submenu_border_radius',
-					'submenu_border_radius_top_right'    => 'submenu_border_radius',
-					'submenu_border_radius_bottom_right' => 'submenu_border_radius',
-					'submenu_border_radius_bottom_left'  => 'submenu_border_radius',
-					'trigger_padding_top'                => 'trigger_padding',
-					'trigger_padding_right'              => 'trigger_padding',
-					'trigger_padding_bottom'             => 'trigger_padding',
-					'trigger_padding_left'               => 'trigger_padding',
+					'margin_top'                           => 'margin',
+					'margin_bottom'                        => 'margin',
+					'items_padding_top'                    => 'items_padding',
+					'items_padding_right'                  => 'items_padding',
+					'items_padding_bottom'                 => 'items_padding',
+					'items_padding_left'                   => 'items_padding',
+					'border_radius_top_left'               => 'border_radius',
+					'border_radius_top_right'              => 'border_radius',
+					'border_radius_bottom_right'           => 'border_radius',
+					'border_radius_bottom_left'            => 'border_radius',
+					'thumbnail_size_width'                 => 'thumbnail_size',
+					'thumbnail_size_height'                => 'thumbnail_size',
+					'border_top'                           => 'border',
+					'border_right'                         => 'border',
+					'border_bottom'                        => 'border',
+					'border_left'                          => 'border',
+					'submenu_items_padding_top'            => 'submenu_items_padding',
+					'submenu_items_padding_right'          => 'submenu_items_padding',
+					'submenu_items_padding_bottom'         => 'submenu_items_padding',
+					'submenu_items_padding_left'           => 'submenu_items_padding',
+					'submenu_border_radius_top_left'       => 'submenu_border_radius',
+					'submenu_border_radius_top_right'      => 'submenu_border_radius',
+					'submenu_border_radius_bottom_right'   => 'submenu_border_radius',
+					'submenu_border_radius_bottom_left'    => 'submenu_border_radius',
+					'trigger_padding_top'                  => 'trigger_padding',
+					'trigger_padding_right'                => 'trigger_padding',
+					'trigger_padding_bottom'               => 'trigger_padding',
+					'trigger_padding_left'                 => 'trigger_padding',
+					'font_size'                            => 'main_menu_fonts',
+					'fusion_font_family_typography'        => 'main_menu_fonts',
+					'fusion_font_variant_typography'       => 'main_menu_fonts',
+					'letter_spacing'                       => 'main_menu_fonts',
+					'text_transform'                       => 'main_menu_fonts',
+					'submenu_font_size'                    => 'submenu_fonts',
+					'fusion_font_family_submenu_typography' => 'submenu_fonts',
+					'fusion_font_variant_submenu_typography' => 'submenu_fonts',
+					'submenu_text_transform'               => 'submenu_fonts',
+					'mobile_font_size'                     => 'mobile_fonts',
+					'fusion_font_family_mobile_typography' => 'mobile_fonts',
+					'fusion_font_variant_mobile_typography' => 'mobile_fonts',
 				],
 				'callback'     => [
 					'function' => 'fusion_ajax',

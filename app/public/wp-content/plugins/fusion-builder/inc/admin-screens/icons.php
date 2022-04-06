@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Screen markup (Ligrary page).
+ * Admin Screen markup (Library page).
  *
  * @package fusion-builder
  */
@@ -15,7 +15,7 @@
 
 			<div class="avada-db-card-notice">
 				<i class="fusiona-info-circle"></i>
-				<p class="avada-db-card-notice-heading">			
+				<p class="avada-db-card-notice-heading">
 					<?php
 					printf(
 						/* translators: %s: "Icons Documentation Link". */
@@ -24,7 +24,7 @@
 					);
 					?>
 				</p>
-			</div>			
+			</div>
 		</div>
 		<form class="avada-db-create-form">
 			<input type="hidden" name="action" value="fusion_custom_icons_new">

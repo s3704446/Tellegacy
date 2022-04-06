@@ -141,6 +141,13 @@ button.close {
   order: 1;
   margin-left: 1em;
 }
+.gform_wrapper .gform_validation_errors {
+  position: relative;
+  padding: 25px;
+  border-radius: 0;
+  margin-bottom: 20px;
+  text-shadow: none;
+}
 .tribe-events-notices:not(.fusion-alert) {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   background-color: #fff;

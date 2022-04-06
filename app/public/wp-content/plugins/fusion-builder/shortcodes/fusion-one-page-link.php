@@ -123,7 +123,7 @@ function fusion_element_one_page_text_link() {
 				'name'      => esc_attr__( 'One Page Text Link', 'fusion-builder' ),
 				'shortcode' => 'fusion_one_page_text_link',
 				'icon'      => 'fusiona-external-link',
-				'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/one-page-text-link-element/',
+				'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/one-page-text-link-element/',
 				'params'    => [
 					[
 						'type'        => 'textfield',

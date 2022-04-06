@@ -99,11 +99,11 @@ function fusion_builder_map( $module ) {
 						$param['default_subset'] = $subset;
 						$param['option_map']     = $type;
 					}
-					$options_label = apply_filters( 'fusion_options_label', esc_html__( 'Element Options', 'fusion-builder' ) );
+					$options_label = apply_filters( 'fusion_options_label', esc_html__( 'Global Options', 'fusion-builder' ) );
 					if ( 'hide_on_mobile' === $param['param_name'] ) {
 						$link = '<a href="' . $fusion_settings->get_setting_link( 'visibility_small' ) . '" target="_blank" rel="noopener noreferrer">' . $options_label . '</a>';
 						/* translators: Link with the "Element Options" text. */
-						$param['description'] = $param['description'] . sprintf( __( '  Each of the 3 sizes has a custom width setting on the Avada Builder Elements tab in the %s.', 'fusion-builder' ), $link );
+						$param['description'] = $param['description'] . sprintf( __( '  Each of the 3 sizes has a custom width setting on the Responsive tab in the %s.', 'fusion-builder' ), $link );
 					}
 
 					if ( 'element_content' === $param['param_name'] && ( 'fusion_syntax_highlighter' === $shortcode || 'fusion_code' === $shortcode ) ) {

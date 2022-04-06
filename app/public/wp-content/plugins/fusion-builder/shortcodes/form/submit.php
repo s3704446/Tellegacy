@@ -147,17 +147,7 @@ if ( fusion_is_element_enabled( 'fusion_form_submit' ) ) {
 			public function render_input_field( $content ) {
 				global $shortcode_tags;
 
-				$element_data = $this->create_element_data( $this->args );
-
 				$html = '';
-
-				if ( 'email' === $this->params['form_meta']['form_type'] || 'database_email' === $this->params['form_meta']['form_type'] ) {
-					$html .= '<input type="hidden" value="' . $this->params['form_meta']['email'] . '" name="fusion_form_email" />';
-					$html .= '<input type="hidden" value="' . $this->params['form_meta']['email_from'] . '" name="fusion_form_email_from" />';
-					$html .= '<input type="hidden" value="' . $this->params['form_meta']['email_from_id'] . '" name="fusion_form_email_from_id" />';
-					$html .= '<input type="hidden" value="' . $this->params['form_meta']['email_subject'] . '" name="fusion_form_email_subject" />';
-					$html .= '<input type="hidden" value="' . $this->params['form_meta']['email_subject_encode'] . '" name="fusion_form_email_subject_encode" />';
-				}
 
 				$this->args['link_attributes'] .= " data-form-number='" . $this->params['form_number'] . "'";
 				$this->args['button_el_type']   = 'submit';
@@ -208,6 +198,14 @@ function fusion_form_submit() {
 				'icon'                => 'fusiona-check-empty',
 				'preview'             => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-button-preview.php',
 				'preview_id'          => 'fusion-builder-block-module-button-preview-template',
+				'subparam_map'        => [
+					'fusion_font_family_button_font'  => 'main_typography',
+					'fusion_font_variant_button_font' => 'main_typography',
+					'font_size'                       => 'main_typography',
+					'line_height'                     => 'main_typography',
+					'letter_spacing'                  => 'main_typography',
+					'text_transform'                  => 'main_typography',
+				],
 				'params'              => [
 					[
 						'type'         => 'textfield',
@@ -216,18 +214,6 @@ function fusion_form_submit() {
 						'value'        => esc_attr__( 'Submit', 'fusion-builder' ),
 						'description'  => esc_attr__( 'Add the text that will display on button.', 'fusion-builder' ),
 						'dynamic_data' => true,
-					],
-					[
-						'type'        => 'radio_button_set',
-						'heading'     => esc_attr__( 'Text Transform', 'fusion-builder' ),
-						'description' => esc_attr__( 'Choose how the text is displayed.', 'fusion-builder' ),
-						'param_name'  => 'text_transform',
-						'default'     => '',
-						'value'       => [
-							''          => esc_attr__( 'Default', 'fusion-builder' ),
-							'none'      => esc_attr__( 'Normal', 'fusion-builder' ),
-							'uppercase' => esc_attr__( 'Uppercase', 'fusion-builder' ),
-						],
 					],
 					[
 						'type'        => 'textfield',
@@ -637,45 +623,28 @@ function fusion_form_submit() {
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the button.', 'fusion-builder' ),
-						'param_name'  => 'font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'size',
-								'value'    => '',
-								'operator' => '==',
-							],
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Line Height', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the line height of the button.', 'fusion-builder' ),
-						'param_name'  => 'line_height',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'size',
-								'value'    => '',
-								'operator' => '==',
-							],
-						],
-					],
-					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the button text.  ', 'fusion-builder' ),
-						'param_name'       => 'button_font',
+						'global'           => true,
+						'heading'          => esc_attr__( 'Typography', 'fusion-builder' ),
+						/* translators: URL for the link. */
+						'description'      => esc_html__( 'Controls the button typography, if left empty will inherit from globals.', 'fusion-builder' ),
+						'param_name'       => 'main_typography',
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+						'choices'          => [
+							'font-family'    => 'button_font',
+							'font-size'      => 'font_size',
+							'line-height'    => 'line_height',
+							'letter-spacing' => 'letter_spacing',
+							'text-transform' => 'text_transform',
+						],
 						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
+							'font-family'    => '',
+							'variant'        => '',
+							'font-size'      => '',
+							'line-height'    => '',
+							'letter-spacing' => '',
+							'text-transform' => '',
 						],
 					],
 					[

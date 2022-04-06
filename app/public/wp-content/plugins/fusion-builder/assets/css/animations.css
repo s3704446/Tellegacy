@@ -402,6 +402,15 @@
     transform: translateY(-2000px);
   }
 }
+@keyframes slideOutDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(2000px);
+  }
+}
 @keyframes slideOutLeft {
   0% {
     transform: translateX(0);
@@ -418,6 +427,78 @@
   100% {
     opacity: 0;
     transform: translateX(2000px);
+  }
+}
+@keyframes slideShortInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes slideShortInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes slideShortInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes slideShortInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes slideShortOutUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+@keyframes slideShortOutDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+@keyframes slideShortOutLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+@keyframes slideShortOutRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
   }
 }
 @keyframes bounceIn {
@@ -778,6 +859,32 @@
     transform: perspective(400px);
   }
 }
+@keyframes flipOutX {
+  from {
+    transform: perspective(400px);
+  }
+  30% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    opacity: 1;
+  }
+  to {
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    opacity: 0;
+  }
+}
+@keyframes flipOutY {
+  from {
+    transform: perspective(400px);
+  }
+  30% {
+    transform: perspective(400px) rotate3d(0, 1, 0, -15deg);
+    opacity: 1;
+  }
+  to {
+    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);
+    opacity: 0;
+  }
+}
 .fusion-animated {
   visibility: hidden;
 }
@@ -809,6 +916,16 @@
   -webkit-backface-visibility: visible !important;
           backface-visibility: visible !important;
   animation-name: flipInY;
+}
+.do-animate .flipOutX {
+  animation-name: flipOutX;
+  -webkit-backface-visibility: visible !important;
+          backface-visibility: visible !important;
+}
+.do-animate .flipOutY {
+  -webkit-backface-visibility: visible !important;
+          backface-visibility: visible !important;
+  animation-name: flipOutY;
 }
 .do-animate .shake {
   animation-name: shake;
@@ -876,20 +993,49 @@
 .do-animate .slideInUp {
   animation-name: slideInUp;
 }
-.do-animate .slideInLeft {
+.do-animate .slideInLeft,
+.do-animate .slideIn {
   animation-name: slideInLeft;
 }
 .do-animate .slideInRight {
   animation-name: slideInRight;
 }
+.do-animate .slideShortInDown {
+  animation-name: slideShortInDown;
+}
+.do-animate .slideShortInUp {
+  animation-name: slideShortInUp;
+}
+.do-animate .slideShortInLeft {
+  animation-name: slideShortInLeft;
+}
+.do-animate .slideShortInRight {
+  animation-name: slideShortInRight;
+}
 .do-animate .slideOutUp {
   animation-name: slideOutUp;
 }
-.do-animate .slideOutLeft {
+.do-animate .slideOutDown {
+  animation-name: slideOutDown;
+}
+.do-animate .slideOutLeft,
+.do-animate .slideOut {
   animation-name: slideOutLeft;
 }
 .do-animate .slideOutRight {
   animation-name: slideOutRight;
+}
+.do-animate .slideShortOutUp {
+  animation-name: slideShortOutUp;
+}
+.do-animate .slideShortOutDown {
+  animation-name: slideShortOutDown;
+}
+.do-animate .slideShortOutLeft {
+  animation-name: slideShortOutLeft;
+}
+.do-animate .slideShortOutRight {
+  animation-name: slideShortOutRight;
 }
 .do-animate .bounceIn {
   animation-name: bounceIn;

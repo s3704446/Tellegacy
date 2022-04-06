@@ -56,12 +56,14 @@
 }
 .fusion-flip-boxes .fusion-flip-box.hover .flip-box-back,
 .fusion-flip-boxes .fusion-flip-box:hover .flip-box-back,
-.fusion-flip-boxes .fusion-flip-box:focus .flip-box-back {
+.fusion-flip-boxes .fusion-flip-box:focus .flip-box-back,
+.fusion-flip-boxes .fusion-flip-box:focus-within .flip-box-back {
   z-index: 1;
 }
 .fusion-flip-boxes .fusion-flip-box.hover .flip-box-front,
 .fusion-flip-boxes .fusion-flip-box:hover .flip-box-front,
-.fusion-flip-boxes .fusion-flip-box:focus .flip-box-front {
+.fusion-flip-boxes .fusion-flip-box:focus .flip-box-front,
+.fusion-flip-boxes .fusion-flip-box:focus-within .flip-box-front {
   z-index: -1;
 }
 .fusion-flip-boxes .fusion-flip-box .flip-box-grafix {
@@ -112,12 +114,14 @@
 }
 .fusion-flip-boxes .fusion-flip-box.flip-right.hover .flip-box-back,
 .fusion-flip-boxes .fusion-flip-box.flip-right:hover .flip-box-back,
-.fusion-flip-boxes .fusion-flip-box.flip-right:focus .flip-box-back {
+.fusion-flip-boxes .fusion-flip-box.flip-right:focus .flip-box-back,
+.fusion-flip-boxes .fusion-flip-box.flip-right:focus-within .flip-box-back {
   transform: rotateY(0deg);
 }
 .fusion-flip-boxes .fusion-flip-box.flip-right.hover .flip-box-front,
 .fusion-flip-boxes .fusion-flip-box.flip-right:hover .flip-box-front,
-.fusion-flip-boxes .fusion-flip-box.flip-right:focus .flip-box-front {
+.fusion-flip-boxes .fusion-flip-box.flip-right:focus .flip-box-front,
+.fusion-flip-boxes .fusion-flip-box.flip-right:focus-within .flip-box-front {
   transform: rotateY(180deg);
 }
 .fusion-flip-boxes .fusion-flip-box.flip-left .flip-box-front {
@@ -128,12 +132,14 @@
 }
 .fusion-flip-boxes .fusion-flip-box.flip-left.hover .flip-box-back,
 .fusion-flip-boxes .fusion-flip-box.flip-left:hover .flip-box-back,
-.fusion-flip-boxes .fusion-flip-box.flip-left:focus .flip-box-back {
+.fusion-flip-boxes .fusion-flip-box.flip-left:focus .flip-box-back,
+.fusion-flip-boxes .fusion-flip-box.flip-left:focus-within .flip-box-back {
   transform: rotateY(0deg);
 }
 .fusion-flip-boxes .fusion-flip-box.flip-left.hover .flip-box-front,
 .fusion-flip-boxes .fusion-flip-box.flip-left:hover .flip-box-front,
-.fusion-flip-boxes .fusion-flip-box.flip-left:focus .flip-box-front {
+.fusion-flip-boxes .fusion-flip-box.flip-left:focus .flip-box-front,
+.fusion-flip-boxes .fusion-flip-box.flip-left:focus-within .flip-box-front {
   transform: rotateY(-180deg);
 }
 .fusion-flip-boxes .fusion-flip-box.flip-up .flip-box-front {
@@ -144,12 +150,14 @@
 }
 .fusion-flip-boxes .fusion-flip-box.flip-up.hover .flip-box-back,
 .fusion-flip-boxes .fusion-flip-box.flip-up:hover .flip-box-back,
-.fusion-flip-boxes .fusion-flip-box.flip-up:focus .flip-box-back {
+.fusion-flip-boxes .fusion-flip-box.flip-up:focus .flip-box-back,
+.fusion-flip-boxes .fusion-flip-box.flip-up:focus-within .flip-box-back {
   transform: rotateX(0deg);
 }
 .fusion-flip-boxes .fusion-flip-box.flip-up.hover .flip-box-front,
 .fusion-flip-boxes .fusion-flip-box.flip-up:hover .flip-box-front,
-.fusion-flip-boxes .fusion-flip-box.flip-up:focus .flip-box-front {
+.fusion-flip-boxes .fusion-flip-box.flip-up:focus .flip-box-front,
+.fusion-flip-boxes .fusion-flip-box.flip-up:focus-within .flip-box-front {
   transform: rotateX(180deg);
 }
 .fusion-flip-boxes .fusion-flip-box.flip-down .flip-box-front {
@@ -160,12 +168,14 @@
 }
 .fusion-flip-boxes .fusion-flip-box.flip-down.hover .flip-box-back,
 .fusion-flip-boxes .fusion-flip-box.flip-down:hover .flip-box-back,
-.fusion-flip-boxes .fusion-flip-box.flip-down:focus .flip-box-back {
+.fusion-flip-boxes .fusion-flip-box.flip-down:focus .flip-box-back,
+.fusion-flip-boxes .fusion-flip-box.flip-down:focus-within .flip-box-back {
   transform: rotateX(0deg);
 }
 .fusion-flip-boxes .fusion-flip-box.flip-down.hover .flip-box-front,
 .fusion-flip-boxes .fusion-flip-box.flip-down:hover .flip-box-front,
-.fusion-flip-boxes .fusion-flip-box.flip-down:focus .flip-box-front {
+.fusion-flip-boxes .fusion-flip-box.flip-down:focus .flip-box-front,
+.fusion-flip-boxes .fusion-flip-box.flip-down:focus-within .flip-box-front {
   transform: rotateX(-180deg);
 }
 .fusion-flip-boxes.flip-effect-classic .flip-box-back,
@@ -174,7 +184,8 @@
 }
 .fusion-flip-boxes.flip-effect-classic .fusion-flip-box.hover .flip-box-grafix i:before,
 .fusion-flip-boxes.flip-effect-classic .fusion-flip-box:hover .flip-box-grafix i:before,
-.fusion-flip-boxes.flip-effect-classic .fusion-flip-box:focus .flip-box-grafix i:before {
+.fusion-flip-boxes.flip-effect-classic .fusion-flip-box:focus .flip-box-grafix i:before,
+.fusion-flip-boxes.flip-effect-classic .fusion-flip-box:focus-within .flip-box-grafix i:before {
   display: none;
 }
 .fusion-flip-boxes.flip-effect-3d .flip-box-inner-wrapper {
@@ -191,13 +202,15 @@
 }
 .ua-edge .fusion-flip-boxes .fusion-flip-box.hover .flip-box-back,
 .ua-edge .fusion-flip-boxes .fusion-flip-box:hover .flip-box-back,
-.ua-edge .fusion-flip-boxes .fusion-flip-box:focus .flip-box-back {
+.ua-edge .fusion-flip-boxes .fusion-flip-box:focus .flip-box-back,
+.ua-edge .fusion-flip-boxes .fusion-flip-box:focus-within .flip-box-back {
   transform: rotateY(0deg);
   z-index: 1;
 }
 .ua-edge .fusion-flip-boxes .fusion-flip-box.hover .flip-box-front,
 .ua-edge .fusion-flip-boxes .fusion-flip-box:hover .flip-box-front,
-.ua-edge .fusion-flip-boxes .fusion-flip-box:focus .flip-box-front {
+.ua-edge .fusion-flip-boxes .fusion-flip-box:focus .flip-box-front,
+.ua-edge .fusion-flip-boxes .fusion-flip-box:focus-within .flip-box-front {
   transform: rotateY(180deg);
   z-index: -1;
 }

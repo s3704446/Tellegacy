@@ -181,11 +181,9 @@ class Fusion_Cache {
 			global $file_prefix;
 			wp_cache_clean_cache( $file_prefix );
 		}
-		// If SG CachePress is installed, rese its caches.
-		if ( class_exists( 'SG_CachePress_Supercacher' ) ) {
-			if ( method_exists( 'SG_CachePress_Supercacher', 'purge_cache' ) ) {
-				SG_CachePress_Supercacher::purge_cache();
-			}
+		// If SG Optimizer is installed, rese its caches.
+		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
+			sg_cachepress_purge_cache();
 		}
 		// Clear caches on WPEngine-hosted sites.
 		if ( class_exists( 'WpeCommon' ) ) {

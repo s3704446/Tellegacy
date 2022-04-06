@@ -49,8 +49,7 @@ class Fusion_Builder_Demos_Theme_Options {
 	public function __construct() {
 
 		$this->get_uncompressed_data();
-
-		add_filter( 'avada_builder_theme_options', [ $this, 'demo_array' ] );
+		add_filter( 'awb_global_options', [ $this, 'demo_array' ] );
 	}
 
 	/**

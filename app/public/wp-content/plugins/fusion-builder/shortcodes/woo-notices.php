@@ -380,7 +380,7 @@ if ( fusion_is_element_enabled( 'fusion_tb_woo_notices' ) ) {
 			public function print_notices( $return = false ) {
 				$notices = '';
 
-				if ( is_object( WC()->session ) ) {
+				if ( is_object( WC()->session ) && function_exists( 'wc_notice_count' ) ) {
 					$all_notices  = WC()->session->get( 'wc_notices', [] );
 					$notice_types = apply_filters( 'woocommerce_notice_types', [ 'error', 'success', 'notice' ] );
 

@@ -274,7 +274,7 @@ if ( fusion_is_element_enabled( 'fusion_audio' ) && ! class_exists( 'FusionSC_Au
 							'label'       => esc_attr__( 'Background Color', 'fusion-builder' ),
 							'description' => esc_attr__( 'Controls the background color for the audio player.', 'fusion-builder' ),
 							'id'          => 'audio_background_color',
-							'default'     => '#1d242d',
+							'default'     => 'var(--awb-color8)',
 							'type'        => 'color-alpha',
 							'css_vars'    => [
 								[
@@ -288,7 +288,7 @@ if ( fusion_is_element_enabled( 'fusion_audio' ) && ! class_exists( 'FusionSC_Au
 							'label'       => esc_attr__( 'Audio Progress Color', 'fusion-builder' ),
 							'description' => esc_attr__( 'Select a color for the audio progress-bar.', 'fusion-builder' ),
 							'id'          => 'audio_progressbar_color',
-							'default'     => '#ffffff',
+							'default'     => 'var(--awb-color1)',
 							'type'        => 'color-alpha',
 							'css_vars'    => [
 								[
@@ -332,9 +332,8 @@ if ( fusion_is_element_enabled( 'fusion_audio' ) && ! class_exists( 'FusionSC_Au
 							'label'       => esc_attr__( 'Border Color', 'fusion-builder' ),
 							'description' => esc_attr__( 'Controls the border color for the audio player.', 'fusion-builder' ),
 							'id'          => 'audio_border_color',
-							'value'       => '',
 							'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-							'default'     => '',
+							'default'     => 'var(--awb-color1)',
 							'css_vars'    => [
 								[
 									'name'     => '--fusion-audio-border-color-default',
@@ -415,7 +414,7 @@ function fusion_element_audio() {
 				'allow_generator'          => false,
 				'inline_editor'            => false,
 				'inline_editor_shortcodes' => false,
-				'help_url'                 => 'https://theme-fusion.com/documentation/fusion-builder/elements/audio-element/',
+				'help_url'                 => 'https://theme-fusion.com/documentation/avada/elements/audio-element/',
 				'params'                   => [
 					[
 						'type'        => 'uploadfile',

@@ -62,7 +62,7 @@ if ( defined( 'WPCF7_PLUGIN' ) ) {
 						'heading'     => esc_attr__( 'Select Form', 'fusion-builder' ),
 						'description' => sprintf(
 							/* translators: link to theme-options */
-							esc_html__( 'NOTE: The form uses %s for styling.', 'fusion-builder' ),
+							__( '<strong>NOTE:</strong> The form uses %s for styling.', 'fusion-builder' ),
 							$to_link
 						),
 						'param_name'  => 'id',

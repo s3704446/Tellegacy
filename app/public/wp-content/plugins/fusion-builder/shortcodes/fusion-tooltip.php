@@ -158,7 +158,7 @@ function fusion_element_tooltip() {
 				'shortcode'      => 'fusion_tooltip',
 				'icon'           => 'fusiona-exclamation-sign',
 				'generator_only' => true,
-				'help_url'       => 'https://theme-fusion.com/documentation/fusion-builder/elements/tooltip-element/',
+				'help_url'       => 'https://theme-fusion.com/documentation/avada/elements/tooltip-element/',
 				'params'         => [
 					[
 						'type'        => 'textfield',

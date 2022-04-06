@@ -616,7 +616,7 @@ _.mixin( {
 
 		// Trim the value.
 		value = 'undefined' === typeof value ? '' : value;
-		value = value.trim();
+		value = value.toString().trim();
 		if ( -1 !== jQuery.inArray( value, [ 'auto', 'inherit', 'initial' ] ) ) {
 			return value;
 		}
@@ -724,7 +724,7 @@ _.mixin( {
 		masonryColumnSpacing = ( parseFloat( data.blog_grid_column_spacing ) ) + 'px';
 
 		// Calculate the correct size of the image wrapper container, based on orientation and column spacing.
-		if ( 'transparent' !== data.timeline_color && 0 !== jQuery.Color( data.timeline_color ).alpha() ) {
+		if ( 'transparent' !== data.timeline_color && 0 !== jQuery.AWB_Color( data.timeline_color ).alpha() ) {
 
 			masonryColumnOffset = ' - ' + ( parseFloat( data.blog_grid_column_spacing ) / 2 ) + 'px';
 			if ( 'string' === typeof data.element_orientation_class && -1 !== data.element_orientation_class.indexOf( 'fusion-element-portrait' ) ) {
@@ -1143,7 +1143,7 @@ _.mixin( {
 	 * @return {string}
 	 */
 	fusionAutoCalculateAccentColor: function( color ) {
-		var colorObj  = jQuery.Color( color ),
+		var colorObj  = jQuery.AWB_Color( color ),
 			lightness = parseInt( colorObj.lightness() * 100, 10 );
 
 		if ( 0 < lightness ) { // Not black.
@@ -2289,8 +2289,8 @@ _.mixin( {
 	 */
 	getGradientString: function( values, type ) {
 		var gradientString          = '',
-			alphaGradientStartColor = jQuery.Color( values.gradient_start_color ).alpha(),
-			alphaGradientEndColor   = jQuery.Color( values.gradient_end_color ).alpha(),
+			alphaGradientStartColor = jQuery.AWB_Color( values.gradient_start_color ).alpha(),
+			alphaGradientEndColor   = jQuery.AWB_Color( values.gradient_end_color ).alpha(),
 			isGradientColor         = ( ! _.isEmpty( values.gradient_start_color ) && 0 !== alphaGradientStartColor ) || ( ! _.isEmpty( values.gradient_end_color ) && 0 !== alphaGradientEndColor ) ? true : false;
 
 		if ( isGradientColor ) {
@@ -2334,8 +2334,8 @@ _.mixin( {
 		var gradientString          = '',
 			gradientStart           = 'string' === typeof values.gradient_start_color && '' !== values.gradient_start_color ? values.gradient_start_color : 'rgba(255,255,255,0)',
 			gradientEnd             = 'string' === typeof values.gradient_end_color && '' !== values.gradient_end_color ? values.gradient_end_color : 'rgba(255,255,255,0)',
-			alphaGradientStartColor = jQuery.Color( gradientStart ).alpha(),
-			alphaGradientEndColor   = jQuery.Color( gradientEnd ).alpha(),
+			alphaGradientStartColor = jQuery.AWB_Color( gradientStart ).alpha(),
+			alphaGradientEndColor   = jQuery.AWB_Color( gradientEnd ).alpha(),
 			isGradientColor         = 0 !== alphaGradientStartColor || 0 !== alphaGradientEndColor;
 
 		if ( isGradientColor ) {
@@ -2413,13 +2413,19 @@ _.mixin( {
 			weight    = '';
 
 		if ( 'string' === typeof values[ 'fusion_font_family_' + param_id ] && '' !== values[ 'fusion_font_family_' + param_id ] ) {
-			if ( values[ 'fusion_font_family_' + param_id ].includes( '\'' ) || 'inherit' === values[ 'fusion_font_family_' + param_id ] ) {
+			if ( values[ 'fusion_font_family_' + param_id ].includes( 'var(' ) ) {
+				style[ 'font-family' ] = values[ 'fusion_font_family_' + param_id ];
+				if ( 'object' === typeof window.awbTypographySelect ) {
+					style[ 'font-weight' ] = window.awbTypographySelect.getVarString( values[ 'fusion_font_family_' + param_id ], 'font-weight' );
+					style[ 'font-style' ]  = window.awbTypographySelect.getVarString( values[ 'fusion_font_family_' + param_id ], 'font-style' );
+				}
+			} else if ( values[ 'fusion_font_family_' + param_id ].includes( '\'' ) || 'inherit' === values[ 'fusion_font_family_' + param_id ] ) {
 				style[ 'font-family' ] = values[ 'fusion_font_family_' + param_id ];
 			} else {
 				style[ 'font-family' ] = '\'' + values[ 'fusion_font_family_' + param_id ] + '\'';
 			}
 
-			if ( 'string' === typeof values[ 'fusion_font_variant_' + param_id ] && '' !== values[ 'fusion_font_variant_' + param_id ] ) {
+			if ( 'string' === typeof values[ 'fusion_font_variant_' + param_id ] && '' !== values[ 'fusion_font_variant_' + param_id ] && 'undefined' === typeof style[ 'font-weight' ] ) {
 				weight = values[ 'fusion_font_variant_' + param_id ].replace( 'italic', '' );
 				if ( weight !== values[ 'fusion_font_variant_' + param_id ] ) {
 					style[ 'font-style' ] = 'italic';

@@ -453,75 +453,6 @@ if ( ! function_exists( 'fusion_render_post_metadata' ) ) {
 	}
 }
 
-if ( ! function_exists( 'fusion_calc_color_brightness' ) ) {
-	/**
-	 * Calculate the brightness of a color.
-	 *
-	 * @param  string $color Color (Hex) Code.
-	 * @return integer brightness level.
-	 */
-	function fusion_calc_color_brightness( $color ) {
-
-		$brightness_level = 150;
-		if ( ! is_string( $color ) ) {
-			return $brightness_level;
-		}
-
-		if ( in_array( strtolower( $color ), [ 'black', 'navy', 'purple', 'maroon', 'indigo', 'darkslategray', 'darkslateblue', 'darkolivegreen', 'darkgreen', 'darkblue' ], true ) ) {
-
-			$brightness_level = 0;
-
-		} elseif ( 0 === strpos( $color, '#' ) || 0 === strpos( $color, 'rgb' ) || ctype_xdigit( $color ) ) {
-
-			$color            = fusion_hex2rgb( $color );
-			$brightness_level = sqrt( pow( $color[0], 2 ) * 0.299 + pow( $color[1], 2 ) * 0.587 + pow( $color[2], 2 ) * 0.114 );
-
-		}
-
-		return (int) round( $brightness_level );
-	}
-}
-
-if ( ! function_exists( 'fusion_hex2rgb' ) ) {
-	/**
-	 * Convert Hex Code to RGB.
-	 *
-	 * @param  string $hex Color Hex Code.
-	 * @return array       RGB values.
-	 */
-	function fusion_hex2rgb( $hex ) {
-		if ( false !== strpos( $hex, 'rgb' ) ) {
-
-			$rgb_part = strstr( $hex, '(' );
-			$rgb_part = trim( $rgb_part, '(' );
-			$rgb_part = rtrim( $rgb_part, ')' );
-			$rgb_part = explode( ',', $rgb_part );
-
-			$rgb = [ $rgb_part[0], $rgb_part[1], $rgb_part[2], $rgb_part[3] ];
-
-		} elseif ( 'transparent' === $hex ) {
-			$rgb = [ '255', '255', '255', '0' ];
-		} else {
-
-			$hex = str_replace( '#', '', $hex );
-
-			if ( 3 === strlen( $hex ) ) {
-				$r = hexdec( substr( $hex, 0, 1 ) . substr( $hex, 0, 1 ) );
-				$g = hexdec( substr( $hex, 1, 1 ) . substr( $hex, 1, 1 ) );
-				$b = hexdec( substr( $hex, 2, 1 ) . substr( $hex, 2, 1 ) );
-			} else {
-				$r = hexdec( substr( $hex, 0, 2 ) );
-				$g = hexdec( substr( $hex, 2, 2 ) );
-				$b = hexdec( substr( $hex, 4, 2 ) );
-			}
-			$rgb = [ $r, $g, $b ];
-		}
-
-		return $rgb; // Returns an array with the rgb values.
-	}
-}
-
-
 if ( ! function_exists( 'avada_first_featured_image_markup' ) ) {
 	/**
 	 * Render the full markup of the first featured image, incl. image wrapper and rollover.
@@ -1229,23 +1160,6 @@ if ( ! function_exists( 'fusion_get_referer' ) ) {
 	}
 }
 
-if ( ! function_exists( 'fusion_is_color_transparent' ) ) {
-	/**
-	 * Figure out if a color is transparent or not.
-	 *
-	 * @since 2.0
-	 * @param string $color The color we want to check.
-	 * @return bool
-	 */
-	function fusion_is_color_transparent( $color ) {
-		$color = trim( $color );
-		if ( 'transparent' === $color ) {
-			return true;
-		}
-		return ( 0 === Fusion_Color::new_color( $color )->alpha );
-	}
-}
-
 if ( ! function_exists( 'fusion_the_admin_font_async' ) ) {
 	/**
 	 * Adds the font used for the admin UI asyncronously.
@@ -1865,7 +1779,6 @@ if ( ! function_exists( 'awb_get_responsive_type_data' ) ) {
 		$body_font_size    = fusion_library()->get_option( 'body_typography', 'font-size' );
 		$body_font_size_px = Fusion_Sanitize::convert_font_size_to_px( $body_font_size, $body_font_size );
 		$typography_factor = fusion_library()->get_option( 'typography_factor' );
-
 
 		if ( $font_size ) {
 			$font_size = fusion_library()->sanitize->get_value_with_unit( $font_size );

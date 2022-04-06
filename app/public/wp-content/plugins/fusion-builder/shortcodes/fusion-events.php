@@ -805,7 +805,7 @@ function fusion_element_events() {
 					'name'      => esc_attr__( 'Events', 'fusion-builder' ),
 					'shortcode' => 'fusion_events',
 					'icon'      => 'fusiona-tag',
-					'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/the-events-calendar-element/',
+					'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/the-events-calendar-element/',
 					'params'    => [
 						[
 							'type'        => 'multiple_select',

@@ -108,10 +108,11 @@ if ( fusion_is_element_enabled( 'fusion_soundcloud' ) ) {
 				$show_user    = ( 'yes' === $show_user ) ? 'true' : 'false';
 
 				if ( $color ) {
-					$color = str_replace( '#', '', $color );
+					$color = str_replace( '#', '', Fusion_Color::new_color( $color )->toCss() );
 				}
 
 				$html = '<div ' . FusionBuilder::attributes( 'soundcloud-shortcode' ) . '><iframe scrolling="no" frameborder="no" width="' . $width . '" height="' . $height . '" allow="autoplay" src="https://w.soundcloud.com/player/?url=' . $url . '&amp;auto_play=' . $autoplay . '&amp;hide_related=' . $show_related . '&amp;show_comments=' . $comments . '&amp;show_user=' . $show_user . '&amp;show_reposts=' . $show_reposts . '&amp;visual=' . $visual . '&amp;color=' . $color . '" title="soundcloud"></iframe></div>';
+				$html = fusion_library()->images->apply_global_selected_lazy_loading_to_iframe( $html );
 
 				$this->on_render();
 
@@ -164,7 +165,7 @@ function fusion_element_soundcloud() {
 				'icon'       => 'fusiona-soundcloud',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-soundcloud-preview.php',
 				'preview_id' => 'fusion-builder-block-module-soundcloud-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/soundcloud-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/soundcloud-element/',
 				'params'     => [
 					[
 						'type'        => 'textfield',

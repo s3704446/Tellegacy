@@ -190,7 +190,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( '' !== values.active_color ) {
 					styles += base_selector + ' .fusion-form-image-select .fusion-form-input:checked + label{border-color:' + values.active_color + ';}';
-					styles += base_selector + ' .fusion-form-image-select .fusion-form-input:hover:not(:checked) + label{border-color:' + jQuery.Color( values.active_color ).alpha( 0.5 ).toRgbaString() + ';}';
+					styles += base_selector + ' .fusion-form-image-select .fusion-form-input:hover:not(:checked) + label{border-color:' + jQuery.AWB_Color( values.active_color ).alpha( 0.5 ).toRgbaString() + ';}';
 				}
 
 				// Padding.

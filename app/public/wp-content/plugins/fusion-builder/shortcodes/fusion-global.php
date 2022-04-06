@@ -279,7 +279,7 @@ if ( ! class_exists( 'FusionSC_Global' ) ) {
 			// get all registered short-code matches.
 			$matches = $this->get_shortcode_matches( $content );
 			if ( ! empty( $matches ) ) {
-				list( $shortcodes, $d, $parents, $atts, $d, $contents ) = $matches;
+				list( $shortcodes, $d, $parents, $atts, $d, $contents ) = $matches; // phpcs:ignore PHPCompatibility.Lists.AssignmentOrder.Affected
 				$child_arr_shortcodes                                   = [];
 
 				foreach ( $parents as $k => $parent ) {

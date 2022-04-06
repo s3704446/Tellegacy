@@ -123,7 +123,7 @@ function fusion_element_menu_anchor() {
 				'icon'       => 'fusiona-anchor',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-menu-anchor-preview.php',
 				'preview_id' => 'fusion-builder-block-module-menu-anchor-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/menu-anchor-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/menu-anchor-element/',
 				'params'     => [
 					[
 						'type'        => 'textfield',

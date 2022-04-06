@@ -1,4 +1,4 @@
-/* global awbPerformance, FusionPageBuilder, ajaxurl, fusionBuilderText */
+/* global awbPerformance, AwbTypography, ajaxurl */
 window.awbWizard = {
 
 	/**
@@ -16,7 +16,6 @@ window.awbWizard = {
 		this.apiKey     = awbPerformance.apiKey;
 		this.saveChange = awbPerformance.saveChange;
 		this.accessible = this.checkSiteAccessible();
-		this.assets     = new FusionPageBuilder.Assets();
 
 		// Font variant notice.
 		this.$vnote     = this.$el.find( '.variant-analysis' );
@@ -49,8 +48,8 @@ window.awbWizard = {
 		var self        = this,
 			$fontFamily = this.$el.find( '.fusion-builder-font-family' );
 
-		if ( _.isUndefined( self.assets ) || _.isUndefined( self.assets.webfonts ) ) {
-			jQuery.when( self.assets.getWebFonts() ).done( function() {
+		if ( _.isUndefined( window.awbTypographySelect ) || _.isUndefined( window.awbTypographySelect.webfonts ) ) {
+			jQuery.when( window.awbTypographySelect.getWebFonts() ).done( function() {
 				self.initAfterWebfontsLoaded( $fontFamily );
 			} );
 		} else {
@@ -773,77 +772,15 @@ window.awbWizard = {
 	 * @param {object} $fontFamily - The option jQuery elements.
 	 * @return {Void}
 	 */
-	initAfterWebfontsLoaded: function( $fontFamily ) {
-		var self          = this,
-			fonts         = this.assets.webfonts,
-			standardFonts = [],
-			googleFonts   = [],
-			customFonts   = [],
-			data          = [];
+	initAfterWebfontsLoaded: function( $fontFamily ) { // eslint-disable-line no-unused-vars
+		var self = this;
 
-		data.push( {
-			id: '',
-			text: fusionBuilderText.typography_default
-		} );
-
-		// Format standard fonts as an array.
-		if ( ! _.isUndefined( fonts.standard ) ) {
-			_.each( fonts.standard, function( font ) {
-				standardFonts.push( {
-					id: font.family.replace( /&quot;/g, '&#39' ),
-					text: font.label
-				} );
-			} );
+		if ( 'object' !== typeof this.typoSets ) {
+			this.typoSets = {};
 		}
 
-		// Format google fonts as an array.
-		if ( ! _.isUndefined( fonts.google ) ) {
-			_.each( fonts.google, function( font ) {
-				googleFonts.push( {
-					id: font.family,
-					text: font.label
-				} );
-			} );
-		}
-
-		// Format custom fonts as an array.
-		if ( ! _.isUndefined( fonts.custom ) ) {
-			_.each( fonts.custom, function( font ) {
-				if ( font.family && '' !== font.family ) {
-					customFonts.push( {
-						id: font.family.replace( /&quot;/g, '&#39' ),
-						text: font.label
-					} );
-				}
-			} );
-		}
-
-		// Combine forces and build the final data.
-		if ( customFonts[ 0 ] ) {
-			data.push( { text: 'Custom Fonts', children: customFonts } );
-		}
-		data.push( { text: 'Standard Fonts', children: standardFonts } );
-		data.push( { text: 'Google Fonts',   children: googleFonts } );
-
-		$fontFamily.each( function() {
-			var $familyInput  = jQuery( this ).find( '.input-font_family' );
-
-			$familyInput.select2( {
-				data: data
-			} );
-
-			jQuery( this ).find( '.font-family' ).addClass( 'loaded' );
-
-			$familyInput.val( $familyInput.data( 'value' ) ).trigger( 'change' );
-
-			self.renderVariant( jQuery( this ) );
-
-			$familyInput.on( 'change', function() {
-				var $wrapper = jQuery( this ).closest( '.fusion-builder-font-family' );
-
-				self.renderVariant( $wrapper );
-				self.updateVariantCount();
-			} );
+		this.$el.find( '.fusion-builder-font-family' ).each( function() {
+			self.typoSets[ jQuery( this ).attr( 'data-id' ) ] = new AwbTypography( jQuery( this ), self );
 		} );
 
 		this.$el.on( 'change', '.input-variant', function() {
@@ -891,116 +828,6 @@ window.awbWizard = {
 		variantLength = Object.keys( variants ).length;
 		this.$vnote.attr( 'data-count', variantLength );
 		this.$vcount.html( variantLength );
-	},
-
-	/**
-	 * Render variant select with relevant choices and hide if should not be shwon.
-	 *
-	 * @since 2.2
-	 * @param {object} $fontOption - The option jQuery element.
-	 * @return {Void}
-	 */
-	renderVariant: function( $fontOption ) {
-		var data          = [],
-			fontFamily    = $fontOption.find( '.input-font_family' ).val(),
-			variants      = this.getVariants( fontFamily ),
-			$input        = $fontOption.find( '.input-variant' ),
-			value         = 'undefined' !== typeof $input.attr( 'data-value' ) ? $input.attr( 'data-value' ).toString() : false,
-			valueExists   = false,
-			defaultVal    = $input.attr( 'data-default' ),
-			defaultExists = false;
-
-		if ( $input.hasClass( 'select2-hidden-accessible' ) ) {
-			value = null !== $input.val() ? $input.val() : value;
-			$input.select2( 'destroy' ).empty();
-		}
-
-		_.each( variants, function( scopedVariant ) {
-
-			if ( scopedVariant.id && 'italic' === scopedVariant.id ) {
-				scopedVariant.id = '400italic';
-			}
-			if ( 'function' === typeof scopedVariant.id.toString && scopedVariant.id.toString() === value ) {
-				valueExists = true;
-			}
-
-			if ( 'function' === typeof scopedVariant.id.toString && 'function' === typeof defaultVal.toString && scopedVariant.id.toString() === defaultVal.toString() ) {
-				defaultExists = true;
-			}
-
-			data.push( {
-				id: scopedVariant.id,
-				text: scopedVariant.label
-			} );
-		} );
-
-		$input.select2( {
-			data: data
-		} );
-
-		// if no value exists, set to default, otherwise use first.
-		if ( ! valueExists && defaultExists ) {
-			value = defaultVal;
-		} else if ( ! valueExists && 'object' === typeof variants[ 0 ] ) {
-			value = variants[ 0 ].id;
-		}
-
-		$input.val( value ).trigger( 'change' );
-	},
-
-	/**
-	 * Get variants for a font-family.
-	 *
-	 * @since 2.2
-	 * @param {string} fontFamily - The font-family name.
-	 * @return {Object} - Returns the variants for the selected font-family.
-	 */
-	getVariants: function( fontFamily ) {
-		var variants = false;
-
-		if ( this.isCustomFont( fontFamily ) ) {
-			return [
-				{
-					id: '400',
-					label: 'Normal 400'
-				}
-			];
-		}
-
-		_.each( this.assets.webfonts.standard, function( font ) {
-			if ( fontFamily && font.family === fontFamily ) {
-				variants = font.variants;
-				return font.variants;
-			}
-		} );
-
-		_.each( this.assets.webfonts.google, function( font ) {
-			if ( font.family === fontFamily ) {
-				variants = font.variants;
-				return font.variants;
-			}
-		} );
-		return variants;
-	},
-
-	/**
-	 * Check if a font-family is a custom font or not.
-	 *
-	 * @since 2.2
-	 * @param {string} family - The font-family to check.
-	 * @return {boolean} - Whether the font-family is a custom font or not.
-	 */
-	isCustomFont: function( family ) {
-		var isCustom = false;
-
-		// Figure out if this is a google-font.
-		_.each( this.assets.webfonts.custom, function( font ) {
-			if ( font.family === family ) {
-				isCustom = true;
-			}
-		} );
-
-		return isCustom;
 	}
 };
 

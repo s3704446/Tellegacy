@@ -72,7 +72,7 @@ function fusion_element_code_block() {
 			'shortcode'   => 'fusion_code',
 			'icon'        => 'fusiona-code',
 			'escape_html' => true,
-			'help_url'    => 'https://theme-fusion.com/documentation/fusion-builder/elements/code-block-element/',
+			'help_url'    => 'https://theme-fusion.com/documentation/avada/elements/code-block-element/',
 			'params'      => [
 				[
 					'type'        => 'code',

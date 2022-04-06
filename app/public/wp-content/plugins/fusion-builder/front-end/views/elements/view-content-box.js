@@ -443,7 +443,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					parentValues      = atts.parentValues,
 					marginDirection   = '',
 					margin            = '',
-					transparentCircle = 'transparent' === values.circlecolor || 0 === jQuery.Color( values.circlecolor ).alpha();
+					transparentCircle = 'transparent' === values.circlecolor || 0 === jQuery.AWB_Color( values.circlecolor ).alpha();
 
 				if ( values.icon ) {
 
@@ -700,7 +700,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					positionTop = fullIconSize / 2;
 
-					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						positionTop += 35;
 					}
 
@@ -739,7 +739,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					positionTop        = fullIconSize;
 					positionHorizontal = fullIconSize / 2;
-					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						positionTop        += 35;
 						positionHorizontal += 35;
 					}
@@ -804,7 +804,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.backgroundcolor ) {
 					attr.style = 'background-color:' + values.backgroundcolor + ';';
 
-					if ( 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						attr[ 'class' ] += '-background';
 					}
 				}
@@ -870,7 +870,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					transparentChild       = '',
 					hoverAccentColor       = '';
 
-				if ( 'transparent' === values.circlecolor || 0 === jQuery.Color( values.backgroundcolor ).alpha() || 'no' === parentValues.icon_circle ) {
+				if ( 'transparent' === values.circlecolor || 0 === jQuery.AWB_Color( values.backgroundcolor ).alpha() || 'no' === parentValues.icon_circle ) {
 					transparentChild = true;
 				}
 
@@ -936,7 +936,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'button-bar' === parentValues.link_type && 'timeline-vertical' === parentValues.layout && readmore ) {
 
 					additionMargin = 20 + 15;
-					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						additionMargin += 35;
 					}
 

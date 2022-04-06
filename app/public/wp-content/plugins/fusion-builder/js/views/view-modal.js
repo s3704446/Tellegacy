@@ -164,8 +164,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				FusionPageBuilderApp.activeModal = '';
 
 				// Close colorpickers before saving
-				this.$el.find( '.wp-color-picker' ).each( function() {
-					$( this ).wpColorPicker( 'close' );
+				this.$el.find( '.awb-color-picker' ).each( function() {
+					$( this ).awbColorPicker( 'close' );
 				} );
 
 				// Destroy CodeMirror editor instance
@@ -302,8 +302,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				// Close colorpickers before saving
-				this.$el.find( '.wp-color-picker' ).each( function() {
-					$( this ).wpColorPicker( 'close' );
+				this.$el.find( '.awb-color-picker' ).each( function() {
+					$( this ).awbColorPicker( 'close' );
 				} );
 
 				// Destroy CodeMirror editor instance
@@ -343,7 +343,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						settingValue              = self.getSettingValue( $thisEl, false );
 						attributes.params[ name ] = settingValue;
 					}
-
 				} );
 
 				// Get dynamic values and store.
@@ -544,6 +543,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				// Skip options within repeater.
 				if ( $thisEl.parents( '.repeater-fields, .dynamic-param-fields' ).length && ! fromRepeater ) {
 					return;
+				}
+
+				if ( 'string' == typeof $thisEl.attr( 'data-subset' ) ) {
+					return $thisEl.attr( 'name' );
 				}
 
 				// Multi element

@@ -154,7 +154,7 @@ function fusion_element_table() {
 			'icon'             => 'fusiona-table',
 			'allow_generator'  => true,
 			'admin_enqueue_js' => FUSION_BUILDER_PLUGIN_URL . 'shortcodes/js/fusion-table.js',
-			'help_url'         => 'https://theme-fusion.com/documentation/fusion-builder/elements/table-element/',
+			'help_url'         => 'https://theme-fusion.com/documentation/avada/elements/table-element/',
 			'on_settings'      => 'calculateTableData',
 			'params'           => [
 				[

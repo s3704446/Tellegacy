@@ -39,29 +39,84 @@ if ( ! class_exists( 'FusionReduxFramework_color_palette' ) ) {
 		 * @since FusionRedux_Options 2.0.1
 		 */
 		public function render() {
-			$value = ( empty( $this->value ) || ! is_string( $this->value ) ) ? $this->field['default'] : $this->value;
-			$value = explode( '|', $value );
+			$value = $this->value;
+			if ( empty( $this->value ) || ! is_array( $this->value ) ) {
+				$value = $this->field['default'];
+			} else {
+				$value = array_merge( $this->field['default'], $value );
+			}
 			?>
-			<ul id="<?php echo esc_attr( $this->field['id'] ); ?>-list" class="fusion-color-palette-list">
-				<?php foreach ( $value as $color ) : ?>
-					<li class="fusion-color-palette-item" data-value="<?php echo esc_attr( $color ); ?>">
-						<span style="background-color: <?php echo esc_attr( $color ); ?>;"></span>
-					</li>
-				<?php endforeach; ?>
-			</ul>
 
-			<div class="fusion-palette-colorpicker-container">
-				<div class="fusion-colorpicker-container">
-					<input type="text" value="" class="color-palette-color-picker-hex fusion-builder-color-picker-hex fusion-color-palette-color-picker" data-alpha="true" />
-				</div>
+			<div class="awb-color-palette-color-template" style="display:none !important">
+				<?php $this->render_color_template(); ?>
 			</div>
 
-			<input
-				id="<?php echo esc_attr( $this->field['id'] ); ?>-hidden-value-csv"
-				type="hidden"
-				class="color-palette-colors"
-				name="<?php echo esc_attr( $this->field['name'] . $this->field['name_suffix'] ); ?>"
-				value="<?php echo esc_attr( implode( '|', $value ) ); ?>"/>
+			<ul id="<?php echo esc_attr( $this->field['id'] ); ?>-list" class="awb-color-palette-list">
+				<?php
+					foreach ( $value as $color_slug => $color_data ) :
+						$this->render_color_item( $color_slug, $color_data );
+					endforeach;
+				?>
+			</ul>
+
+			<div class="awb-color-palette-add-btn-wrapper">
+				<button class="button button-primary awb-color-palette-add-btn">
+					<?php esc_html_e( 'Add New Color', 'Avada' ); ?>
+				</button>
+			</div>
+			<?php
+		}
+
+		/**
+		 * Generate the template for a color to be added. The strings marked
+		 * with "___" before and after, are marked to be replaced in JS.
+		 *
+		 * Note: If you add a new string to be replaced, be sure that it's also
+		 * replaced in JS.
+		 *
+		 * @since 3.6
+		 */
+		private function render_color_template() {
+			$color_slug = "___color_slug___";
+			$color_data = array(
+				'color' => '#ffffff',
+				'label' => esc_html__( 'New Color', 'Avada' ),
+			);
+
+			echo '<script type="text/template">';
+			$this->render_color_item( $color_slug, $color_data );
+			echo '</script>';
+		}
+
+		/**
+		 * Render a new LI tag item for the color.
+		 *
+		 * Note: If you add a new required parameter/argument, be sure that is
+		 * also added in render_color_template(), and modified in JS(if needed).
+		 *
+		 * @since 3.6
+		 */
+		private function render_color_item( $color_slug, $color_data ) {
+			$option_base = $this->field['name'] . $this->field['name_suffix'] . '[' . $color_slug . ']';
+			$is_removable_color = ( isset( $this->field['default'][ $color_slug ] ) ? false : true );
+			?>
+			<li class="fusion-color-palette-item" data-slug="<?php echo esc_attr( $color_slug ); ?>">
+				<div class="awb-palette-title">
+					<span class="preview" style="background-color:<?php echo esc_attr( $color_data['color'] ); ?>;"></span>
+					<span class="label"><?php echo esc_html( $color_data['label'] ); ?></span>
+					<div class="actions">
+						<span class="fusiona-pen"></span>
+						<?php if ( $is_removable_color ) : ?>
+							<span class="fusiona-trash-o"></span>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="awb-palette-content">
+					<input class="color-picker awb-picker awb-palette-picker" type="text" value="<?php echo esc_attr( $color_data['color'] ); ?>" data-alpha="true" data-global="false" name="<?php echo esc_attr( $option_base . '[color]' ); ?>">
+					<label for="name-<?php echo esc_attr( $color_slug ); ?>" class="color-name-label"><?php esc_html_e( 'Color Name', 'Avada' ); ?></label>
+					<input class="color-name" name="<?php echo esc_attr( $option_base . '[label]' ); ?>" id="name-<?php echo esc_attr( $color_slug ); ?>" type="text" value="<?php echo esc_attr( $color_data['label'] ); ?>"/>
+				</div>
+			</li>
 			<?php
 		}
 

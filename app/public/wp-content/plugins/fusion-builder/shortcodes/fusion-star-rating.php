@@ -88,13 +88,21 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 				$html .= '</div>';
 
 				if ( $rating > 0 ) {
+					if ( '0decimals' === $this->args['rating_number_rounding'] ) {
+						$schema_rating = (string) round( $rating, 0 );
+					} elseif ( '1decimal' === $this->args['rating_number_rounding'] ) {
+						$schema_rating = (string) round( $rating, 1 );
+					} else {
+						$schema_rating = (string) round( $rating, 2 );
+					}
+
 					// Add the schema for this element.
 					new Fusion_JSON_LD(
 						'fusion-star-rating',
 						[
 							'@context'    => 'https://schema.org',
 							'@type'       => 'Rating',
-							'ratingValue' => (string) round( $rating, 2 ),
+							'ratingValue' => $schema_rating,
 							'bestRating'  => $maximum_rating,
 						]
 					);
@@ -113,7 +121,12 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 			protected function get_icons_html() {
 				$html = '';
 
-				$rating                   = $this->get_rating();
+				$rating = $this->get_rating();
+
+				if ( '0decimals' === $this->args['rating_number_rounding'] && 'yes' === $this->args['display_rating_text'] ) {
+					$rating = intval( round( $rating, 0 ) );
+				}
+
 				$maximum_rating           = $this->args['maximum_rating'];
 				$is_perfect_round_average = ( intval( $rating ) === $rating );
 
@@ -137,15 +150,22 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 			 * @return string
 			 */
 			protected function get_rating_text_html() {
-				$html           = '';
 				$rating         = $this->get_rating();
 				$maximum_rating = $this->args['maximum_rating'];
+				$html           = $before = $after = '';
 
 				if ( $rating > $maximum_rating ) {
 					$rating = $maximum_rating;
 				}
 
-				$html .= '<span>' . number_format_i18n( $rating, 2 ) . '</span> / <span>' . $maximum_rating . '</span>';
+				// Dynamic data before/after.
+				if ( is_string( $this->args['rating'] ) && ! is_numeric( str_replace( ',', '.', $this->args['rating'] ) ) ) {
+					$before_after = explode( $this->get_rating( false ), $this->args['rating'] );
+					$before       = ' ' !== $before_after[0] ? $before_after[0] : '';
+					$after        = isset( $before_after[1] ) ? $before_after[1] : '';
+				}
+
+				$html .= $before . '<span>' . number_format_i18n( $rating, $this->get_number_to_round( $rating ) ) . '</span> / <span>' . $maximum_rating . '</span>' . $after;
 
 				return $html;
 			}
@@ -186,8 +206,17 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 				if ( $rating > $maximum_rating ) {
 					$rating = $maximum_rating;
 				}
+
+				if ( '0decimals' === $this->args['rating_number_rounding'] ) {
+					$rating_label = intval( round( $rating, 0 ) );
+				} elseif ( '1decimal' === $this->args['rating_number_rounding'] ) {
+					$rating_label = number_format_i18n( $rating, 1 );
+				} else {
+					$rating_label = number_format_i18n( $rating, 2 );
+				}
+
 				/* translators: %1$s: The average rating, %1$s: The maximum rating. */
-				$aria_label = sprintf( esc_attr__( 'Rating: %1$s out of %2$s', 'fusion-builder' ), number_format_i18n( $rating, 2 ), $maximum_rating );
+				$aria_label = sprintf( esc_attr__( 'Rating: %1$s out of %2$s', 'fusion-builder' ), $rating_label, $maximum_rating );
 
 				$attr['aria-label'] = $aria_label;
 
@@ -206,7 +235,12 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 					'class' => fusion_font_awesome_name_handler( $this->args['icon'] ),
 				];
 
-				$rating                   = $this->get_rating();
+				$rating = $this->get_rating();
+
+				if ( '0decimals' === $this->args['rating_number_rounding'] && 'yes' === $this->args['display_rating_text'] ) {
+					$rating = intval( round( $rating, 0 ) );
+				}
+
 				$is_perfect_round_average = ( intval( $rating ) === $rating );
 				$icon_is_partially_filled = ( ( intval( $rating ) + 1 ) === $current_icon_num );
 
@@ -342,14 +376,23 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 			 * Get the average rating number.
 			 *
 			 * @since 3.5
-			 * @return int|float
+			 * @param bool $number_conversion Flag to have rating converted to int|float.
+			 * @return int|float|string
 			 */
-			public function get_rating() {
+			public function get_rating( $number_conversion = true ) {
 				$avg = $this->args['rating'];
 
 				// Let the users use ',' as decimal separator.
 				if ( is_string( $avg ) ) {
-					$avg = str_replace( ',', '.', $avg );
+					$avg = str_replace( [ ',', ' ' ], [ '.', '' ], $avg );
+				}
+
+				if ( ! is_numeric( $avg ) ) {
+					$avg = preg_replace( '/[^.|0-9]/', '', $avg );
+				}
+
+				if ( ! $number_conversion ) {
+					return $avg;
 				}
 
 				if ( is_numeric( $avg ) ) {
@@ -359,6 +402,35 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 				}
 
 				return $avg;
+			}
+
+			/**
+			 * Get the number of decimals to round the rating.
+			 *
+			 * @since 3.7
+			 * @param int|string $rating The rating to calculate how much decimals to round.
+			 * @return int
+			 */
+			public function get_number_to_round( $rating ) {
+				if ( '0decimals' === $this->args['rating_number_rounding'] ) {
+					return 0;
+				} elseif ( '1decimal' === $this->args['rating_number_rounding'] ) {
+					return 1;
+				} elseif ( '2decimals' === $this->args['rating_number_rounding'] ) {
+					return 2;
+				}
+
+				// 'rating_number_rounding' is set to 'auto' if here.
+
+				$number_of_decimals = strlen( substr( strrchr( (string) floatval( $rating ), '.' ), 1 ) );
+
+				if ( 0 === $number_of_decimals ) {
+					return 0;
+				} elseif ( 1 === $number_of_decimals ) {
+					return 1;
+				} else {
+					return 2;
+				}
 			}
 
 			/**
@@ -381,32 +453,33 @@ if ( fusion_is_element_enabled( 'fusion_star_rating' ) ) {
 				$fusion_settings = awb_get_fusion_settings();
 
 				return [
-					'maximum_rating'       => '5',
-					'rating'               => '3',
-					'display_empty_rating' => 'show',
-					'hide_on_mobile'       => fusion_builder_default_visibility( 'string' ),
-					'class'                => '',
-					'id'                   => '',
+					'maximum_rating'         => '5',
+					'rating'                 => '3',
+					'display_empty_rating'   => 'show',
+					'hide_on_mobile'         => fusion_builder_default_visibility( 'string' ),
+					'class'                  => '',
+					'id'                     => '',
 
-					'icon'                 => 'fa-star fas',
-					'active_color'         => '',
-					'inactive_color'       => '',
-					'icons_distance'       => '',
-					'display_rating_text'  => 'yes',
-					'alignment'            => '',
-					'icon_font_size'       => '',
-					'text_font_size'       => '',
-					'text_font_color'      => '',
-					'icons_text_distance'  => '',
-					'margin_top'           => '',
-					'margin_right'         => '',
-					'margin_bottom'        => '',
-					'margin_left'          => '',
+					'icon'                   => 'fa-star fas',
+					'active_color'           => '',
+					'inactive_color'         => '',
+					'icons_distance'         => '',
+					'display_rating_text'    => 'yes',
+					'alignment'              => '',
+					'icon_font_size'         => '',
+					'text_font_size'         => '',
+					'text_font_color'        => '',
+					'rating_number_rounding' => 'auto',
+					'icons_text_distance'    => '',
+					'margin_top'             => '',
+					'margin_right'           => '',
+					'margin_bottom'          => '',
+					'margin_left'            => '',
 
-					'animation_direction'  => 'left',
-					'animation_offset'     => $fusion_settings->get( 'animation_offset' ),
-					'animation_speed'      => '',
-					'animation_type'       => '',
+					'animation_direction'    => 'left',
+					'animation_offset'       => $fusion_settings->get( 'animation_offset' ),
+					'animation_speed'        => '',
+					'animation_type'         => '',
 				];
 			}
 
@@ -576,6 +649,27 @@ function fusion_element_star_rating() {
 						'description' => esc_html__( 'Select the color of the rating text.', 'fusion-builder' ),
 						'param_name'  => 'text_font_color',
 						'value'       => '',
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+						'dependency'  => [
+							[
+								'element'  => 'display_rating_text',
+								'value'    => 'yes',
+								'operator' => '==',
+							],
+						],
+					],
+					[
+						'type'        => 'radio_button_set',
+						'heading'     => esc_attr__( 'Rating Number Rounding', 'fusion-builder' ),
+						'description' => esc_html__( "Select how the rating number should be rounded. The 'auto' option will round to 2 decimals if needed or display the number until the left-most significant '0' decimal(Eg: instead of 4.70 will display 4.7).", 'fusion-builder' ),
+						'param_name'  => 'rating_number_rounding',
+						'default'     => 'auto',
+						'value'       => [
+							'auto'      => esc_html__( 'Auto', 'fusion-builder' ),
+							'0decimals' => esc_html__( 'No Decimals', 'fusion-builder' ),
+							'1decimal'  => esc_html__( '1 Decimal', 'fusion-builder' ),
+							'2decimals' => esc_html__( '2 Decimals', 'fusion-builder' ),
+						],
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 						'dependency'  => [
 							[

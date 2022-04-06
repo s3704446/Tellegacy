@@ -171,7 +171,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						style: 'background-color:' + parentValues.backgroundcolor + ';'
 					};
 
-				if ( 'clean' === parentValues.design && ( 'transparent' === parentValues.backgroundcolor || 0 === jQuery.Color( parentValues.backgroundcolor ).alpha() ) ) {
+				if ( 'clean' === parentValues.design && ( 'transparent' === parentValues.backgroundcolor || 0 === jQuery.AWB_Color( parentValues.backgroundcolor ).alpha() ) ) {
 					blockquoteAttr.style += 'margin: -25px;';
 				}
 

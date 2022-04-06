@@ -43,9 +43,14 @@ function fusion_customizer_front_options_loop( $params ) {
 	?>
 	<ul class="fusion-builder-customizer-settings">
 
-		<# _.each( <?php echo $params; // phpcs:ignore WordPress.Security.EscapeOutput ?>, function( param, id ) { #>
+		<#
+		var responsiveIcons = {
+			'large': 'desktop',
+			'medium': 'tablet',
+			'small': 'mobile'
+		};
+		_.each( <?php echo $params; // phpcs:ignore WordPress.Security.EscapeOutput ?>, function( param, id ) {
 
-			<#
 			if ( param.hidden ) {
 				return;
 			}
@@ -55,10 +60,13 @@ function fusion_customizer_front_options_loop( $params ) {
 				param.type  = 'multiple_select';
 			}
 
-			option_type  = 'undefined' !== typeof param.location ? param.location.toUpperCase() : type.toUpperCase();
-			option_map   = 'undefined' !== typeof param.map && 'function' !== typeof param.map ? param.map : '';
-			option_class = 'undefined' !== typeof param.class ? param.class : '';
-			option_value = ( 'TO' === option_type || 'FBE' === option_type ) ? FusionApp.settings[ id ] : FusionApp.data.postMeta[ id ];
+			option_type               = 'undefined' !== typeof param.location ? param.location.toUpperCase() : type.toUpperCase();
+			option_map                = 'undefined' !== typeof param.map && 'function' !== typeof param.map ? param.map : '';
+			option_class              = 'undefined' !== typeof param.class ? param.class : '';
+			option_value              = ( 'TO' === option_type || 'FBE' === option_type ) ? FusionApp.settings[ id ] : FusionApp.data.postMeta[ id ];
+			hasResponsive             = 'undefined' !== typeof param.responsive ? true : false;
+			responsiveState           = 'undefined' !== typeof param.responsive ? 'responsive-state-' + param.responsive.state : '';
+			supportsGlobalTypography  = 'typography' === param.type && 'undefined' !== typeof param.global;
 
 			style = '';
 			if ( -1 !== id.indexOf( 'important_note_info' ) && 'function' === typeof param.map ) {
@@ -103,7 +111,7 @@ function fusion_customizer_front_options_loop( $params ) {
 			subset = ( 'undefined' !== typeof param.to_default && 'undefined' !== typeof param.to_default.subset ) ? param.to_default.subset : '';
 			#>
 
-			<li data-option-id="{{ option_id }}" class="fusion-builder-option {{ param.type }} {{option_map}} {{option_class}}" data-type="{{ option_type }}" data-subset="{{ subset }}"{{{style}}}>
+			<li data-option-id="{{ option_id }}" class="fusion-builder-option {{ param.type }} {{option_map}} {{option_class}} {{responsiveState}}" data-type="{{ option_type }}" data-subset="{{ subset }}"{{{style}}}>
 
 				<div class="option-details">
 					<div class="option-details-inner">
@@ -116,7 +124,7 @@ function fusion_customizer_front_options_loop( $params ) {
 								<# if ( 'undefined' !== typeof param.to_default && '' !== param.to_default && param.to_default ) { #>
 									<li><a href="JavaScript:void(0);"><span class="fusion-panel-shortcut" data-fusion-option="{{ param.to_default.id }}"><i class="fusiona-cog" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-global-settings"><?php esc_html_e( 'Global Options', 'fusion-builder' ); ?></span></li>
 								<# } #>
-								<# if( 'undefined' !== typeof( param.description ) && 'undefined' !== typeof( param.default ) && 'PO' === option_type && 'undefined' !== param.to_default && '' !== param.to_default && 'color-alpha' === param.type  ) { #>
+								<# if( 'undefined' !== typeof param.description && 'undefined' !== typeof param.default && 'PO' === option_type && 'undefined' !== param.to_default && '' !== param.to_default && 'color-alpha' === param.type  ) { #>
 									<li class="fusion-builder-default-reset"> <a href="JavaScript:void(0);" class="fusion-range-default" data-default="{{ param.default }}"><i class="fusiona-undo" aria-hidden="true"></i></a> <span class="fusion-elements-option-tooltip fusion-tooltip-reset-defaults"><?php esc_html_e( 'Reset To Default', 'fusion-builder' ); ?></span></li>
 								<# } #>
 								<# if ( 'undefined' !== typeof param.preview ) { #>
@@ -128,6 +136,18 @@ function fusion_customizer_front_options_loop( $params ) {
 									#>
 								<li><a class="option-preview-toggle" href="JavaScript:void(0);" aria-label="<?php esc_attr_e( 'Preview', 'fusion-builder' ); ?>" data-type="{{ dataType }}" data-selector="{{ dataSelector }}" data-toggle="{{ dataToggle }}" data-append="{{ dataAppend }}"><i class="fusiona-eye" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-preview"><?php esc_html_e( 'Preview', 'fusion-builder' ); ?></span></li>
 								<# }; #>
+								<# if ( hasResponsive ) { #>
+									<li class="fusion-responsive-panel"><a class="option-has-responsive" href="JavaScript:void(0);" aria-label="{{ fusionBuilderText.fusion_panel_responsive_toggle }}"><i class="fusiona-{{responsiveIcons[param.responsive.state]}}" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-preview">{{ fusionBuilderText.fusion_panel_responsive_toggle }}</span>
+										<ul class="fusion-responsive-options">
+											<li><a href="JavaScript:void(0);" data-indicator="desktop"><i class="fusiona-desktop" aria-hidden="true"></i></a></li>
+											<li><a href="JavaScript:void(0);" data-indicator="tablet"><i class="fusiona-tablet" aria-hidden="true"></i></a></li>
+											<li><a href="JavaScript:void(0);" data-indicator="mobile"><i class="fusiona-mobile" aria-hidden="true"></i></a></li>
+										</ul>
+									</li>
+								<# } #>
+								<# if ( supportsGlobalTypography ) { #>
+								<li><a class="option-global-typography awb-quick-set" href="JavaScript:void(0);" aria-label="<?php esc_attr_e( 'Global Typography', 'fusion-builder' ); ?>"><i class="fusiona-globe" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-preview"><?php esc_html_e( 'Global Typography', 'fusion-builder' ); ?></span></li>
+							<# } #>
 							</ul>
 
 						<# }; #>
@@ -179,9 +199,11 @@ function fusion_customizer_front_options_loop( $params ) {
 						'repeater',
 						'sortable',
 						'color-palette',
+						'typography-sets',
 						'info',
 						'hubspot_map',
 						'mailchimp_map',
+						'layout_conditions',
 					];
 
 					// Redux on left, template on right.

@@ -67,7 +67,6 @@ if ( ! class_exists( 'Fusion_Portfolio' ) ) {
 		 * @since 3.2
 		 */
 		public function archive_script() {
-			$fusion_settings = awb_get_fusion_settings();
 
 			// Checks if the archive is portfolio.
 			if ( is_post_type_archive( 'avada_portfolio' ) || is_tax( 'portfolio_category' ) || is_tax( 'portfolio_skills' ) || is_tax( 'portfolio_tags' ) ) {

@@ -115,6 +115,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			this.studio              = new FusionPageBuilder.Studio();
 			this.website             = new FusionPageBuilder.Website();
 			this.formStyles          = false;
+			this.offCanvasStyles     = false;
 
 			// Post contents
 			this.postContent = false;
@@ -213,7 +214,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				forms: {},
 				post_cards: {},
 				videos: {},
-				icons: {}
+				icons: {},
+				off_canvases: {}
 			};
 			this.listenTo( FusionEvents, 'fusion-content-preview-width', this.contentPreviewWidth );
 		},
@@ -574,6 +576,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			setTimeout( function() {
 				self.scrollingContainers();
 				self.maybeFormStyles();
+				self.maybeOfCanvasStyles();
 			}, 100 );
 		},
 
@@ -724,6 +727,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						self.scrollingContainers();
 						self.reRenderElements = true;
 						self.maybeFormStyles();
+						self.maybeOfCanvasStyles();
 
 						if ( 0 < FusionPageBuilderViewManager.countElementsByType( 'fusion_builder_next_page' ) ) {
 							FusionEvents.trigger( 'fusion-next-page' );
@@ -1660,7 +1664,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						if ( 'overlay_color' === key && '' !== shortcodeAttributes.named[ key ] && 'fusion_builder_container' === shortcodeName ) {
 							delete prefixedAttributes.params[ prefixedKey ];
 							alpha = ( 'undefined' !== typeof shortcodeAttributes.named.overlay_opacity ) ? shortcodeAttributes.named.overlay_opacity : 1;
-							prefixedAttributes.params.background_color = jQuery.Color( shortcodeAttributes.named[ key ] ).alpha( alpha ).toRgbaString();
+							prefixedAttributes.params.background_color = jQuery.AWB_Color( shortcodeAttributes.named[ key ] ).alpha( alpha ).toRgbaString();
 						}
 						if ( 'overlay_opacity' === key ) {
 							delete prefixedAttributes.params[ prefixedKey ];
@@ -2265,7 +2269,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 */
 		builderToShortcodes: function() {
 			var shortcode = '',
-				thisEl    = this;
+				thisEl    = this,
+				plugins   = 'object' === typeof FusionApp.data.plugins_active ? FusionApp.data.plugins_active : false,
+				referencedOffCanvases = {},
+				offCanvases;
 
 			// Reset the media map.
 			this.mediaMap = {
@@ -2274,7 +2281,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				forms: {},
 				post_cards: {},
 				videos: {},
-				icons: {}
+				icons: {},
+				off_canvases: {}
 			};
 
 			if ( FusionApp.data.is_fusion_element ) {
@@ -2318,6 +2326,19 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				} );
 
 				FusionApp.setPost( 'post_content', shortcode );
+			}
+
+			// Add referenced Off Canvases.
+			if ( false !== plugins && true === plugins.awb_studio ) {
+				offCanvases = 'undefined' !== typeof FusionApp.data.postMeta._fusion.off_canvases ? FusionApp.data.postMeta._fusion.off_canvases : [];
+
+				if ( 'object' === typeof offCanvases && Object.keys( offCanvases ).length ) {
+					_.each( offCanvases, function( key, value ) {
+						referencedOffCanvases[ key ] = true;
+					} );
+				}
+
+				this.mediaMap.off_canvases = referencedOffCanvases;
 			}
 
 			// If media map exists, add to post meta for saving.
@@ -3040,6 +3061,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 */
 		toggleTooltips: function() {
 
+			// Do nothing for Off Canvas.
+			if ( 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) {
+				return;
+			}
+
 			// Tooltips.
 			if ( 'undefined' !== typeof FusionApp && 'off' === FusionApp.preferencesData.tooltips ) {
 				jQuery( 'body' ).addClass( 'fusion-hide-all-tooltips' );
@@ -3080,7 +3106,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			// Transparent Header.
 			if ( 'undefined' !== typeof FusionApp && 'off' === FusionApp.preferencesData.transparent_header ) {
 				$html.removeClass( 'avada-header-color-not-opaque' );
-			} else if ( 1 > jQuery.Color( HeaderBGColor ).alpha() ) {
+			} else if ( 1 > jQuery.AWB_Color( HeaderBGColor ).alpha() ) {
 				$html.addClass( 'avada-header-color-not-opaque' );
 			}
 
@@ -3317,6 +3343,27 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			this.formStyles.buildStyles();
+		},
+
+		/**
+		 * If editing off canvas.
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		maybeOfCanvasStyles: function() {
+
+			// Not editing a form then skip.
+			if ( 'awb_off_canvas' !== FusionApp.getPost( 'post_type' ) ) {
+				return;
+			}
+
+			if ( false === this.offCanvasStyles ) {
+				this.offCanvasStyles = new FusionPageBuilder.offCanvasStyles();
+				return;
+			}
+
+			this.offCanvasStyles.buildStyles();
 		},
 
 		contentPreviewWidth: function() {

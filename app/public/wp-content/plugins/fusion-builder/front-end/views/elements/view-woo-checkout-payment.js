@@ -151,7 +151,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				  this.addCssProperty( this.baseSelector + ' a:hover', 'color',  this.values.link_hover_color );
 				}
 
-				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li label';
+				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li > label';
 				if ( !this.isDefault( 'label_padding_top' ) ) {
 				  this.addCssProperty( selector, 'padding-top',  this.values.label_padding_top );
 				}
@@ -181,7 +181,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					this.addCssProperty( this.baseSelector + ' ul li input:checked+label', 'color',  this.values.label_hover_color );
 				}
 
-				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li:hover label';
+				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li:hover > label';
 				if ( !this.isDefault( 'label_bg_hover_color' ) ) {
 				  this.addCssProperty( selector, 'background',  this.values.label_bg_hover_color );
 				}

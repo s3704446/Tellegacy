@@ -503,10 +503,11 @@ class Fusion_Multilingual {
 			foreach ( $rules as $match => $query ) {
 				$new_match             = str_replace( $default_portfolio_slug, $active_lang_portfolio_slug, $match );
 				$results[ $new_match ] = $query;
-	
 			}
+
+			return $results;
 		}
 
-		return $results;
-	}    
+		return $rules;
+	}
 }

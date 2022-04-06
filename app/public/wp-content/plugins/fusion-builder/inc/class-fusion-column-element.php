@@ -2839,7 +2839,7 @@ if ( ! class_exists( 'Fusion_Column_Element' ) ) {
 				[
 					'type'        => 'select',
 					'heading'     => esc_attr__( 'Background Position', 'fusion-builder' ),
-					'description' => esc_attr__( 'Choose the postion of the background image.', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose the position of the background image.', 'fusion-builder' ),
 					'param_name'  => 'background_position',
 					'default'     => 'left top',
 					'group'       => esc_attr__( 'Background', 'fusion-builder' ),

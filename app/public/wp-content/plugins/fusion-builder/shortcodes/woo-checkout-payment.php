@@ -299,7 +299,7 @@ if ( fusion_is_element_enabled( 'fusion_tb_woo_checkout_payment' ) ) {
 				}
 
 				// Labels.
-				$selector = $this->base_selector . ' .woocommerce-checkout-payment ul.wc_payment_methods li label';
+				$selector = $this->base_selector . ' .woocommerce-checkout-payment ul.wc_payment_methods li > label';
 
 				if ( ! $this->is_default( 'label_padding_top' ) ) {
 					$this->add_css_property( $selector, 'padding-top', $this->args['label_padding_top'] );
@@ -330,7 +330,7 @@ if ( fusion_is_element_enabled( 'fusion_tb_woo_checkout_payment' ) ) {
 					$this->add_css_property( $this->base_selector . ' ul li input:checked+label', 'color', $this->args['label_hover_color'] );
 				}
 
-				$selector = $this->base_selector . ' .woocommerce-checkout-payment ul.wc_payment_methods li:hover label';
+				$selector = $this->base_selector . ' .woocommerce-checkout-payment ul.wc_payment_methods li:hover > label';
 
 				if ( ! $this->is_default( 'label_bg_hover_color' ) ) {
 					$this->add_css_property( $selector, 'background', $this->args['label_bg_hover_color'] );
@@ -504,35 +504,36 @@ function fusion_component_woo_checkout_payment() {
 		fusion_builder_frontend_data(
 			'FusionTB_Woo_Checkout_Payment',
 			[
-				'name'      => esc_attr__( 'Woo Checkout Payment', 'fusion-builder' ),
-				'shortcode' => 'fusion_tb_woo_checkout_payment',
-				'icon'      => 'fusiona-checkout-payment',
-				'params'    => [
+				'name'         => esc_attr__( 'Woo Checkout Payment', 'fusion-builder' ),
+				'shortcode'    => 'fusion_tb_woo_checkout_payment',
+				'icon'         => 'fusiona-checkout-payment',
+				'subparam_map' => [
+					'fusion_font_family_text_typography'  => 'main_typography',
+					'fusion_font_variant_text_typography' => 'main_typography',
+					'text_font_size'                      => 'main_typography',
+				],
+				'params'       => [
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Text Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the payments text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'text_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'    => [
-							'function' => 'fusion_style_block',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the payments text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'main_typography',
+						'choices'          => [
+							'font-family'    => 'text_typography',
+							'font-size'      => 'text_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
 						],
-					],
-					[
-						'type'             => 'font_family',
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Text Font Family', 'fusion-builder' ),
-						/* translators: URL for the link. */
-						'description'      => esc_html__( 'Controls the font family of the payments text.  Leave empty for the global font family.', 'fusion-builder' ),
-						'param_name'       => 'text_typography',
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'         => [
 							'function' => 'fusion_style_block',
-						],
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
 						],
 					],
 					[
@@ -1022,7 +1023,7 @@ function fusion_component_woo_checkout_payment() {
 						'preview_selector' => '.fusion-woo-checkout-payment-tb',
 					],
 				],
-				'callback'  => [
+				'callback'     => [
 					'function' => 'fusion_ajax',
 					'action'   => 'get_fusion_tb_woo_checkout_payment',
 					'ajax'     => true,

@@ -1,4 +1,4 @@
-/* global FusionApp */
+/* global FusionApp, fusionAllElements */
 
 var FusionPageBuilder = FusionPageBuilder || {};
 
@@ -69,14 +69,48 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * Builds styles.
 			 *
 			 * @since  2.4
-			 * @param  {Object} values - The values object.
 			 * @return {String}
 			 */
 			buildStyleBlock: function( ) {
-				var css;
-				this.baseSelector = '.fusion-social-links-' +  this.counter + '';
+				var css, selectors;
+				this.baseSelector = '.fusion-social-links-' +  this.counter;
 				this.dynamic_css = {};
 
+				//Icon styles.
+				if ( 'brand' !== this.values.color_type ) {
+					selectors = [ this.baseSelector + ' .boxed-icons .fusion-social-network-icon' ];
+					if ( '' !==  this.values.box_border_top ) {
+						this.addCssProperty( selectors, 'border-top-width',  _.fusionGetValueWithUnit( this.values.box_border_top ), true );
+					}
+
+					if ( '' !==  this.values.box_border_right ) {
+						this.addCssProperty( selectors, 'border-right-width',  _.fusionGetValueWithUnit( this.values.box_border_right ), true );
+					}
+
+					if ( '' !==  this.values.box_border_bottom ) {
+						this.addCssProperty( selectors, 'border-bottom-width',  _.fusionGetValueWithUnit( this.values.box_border_bottom ), true );
+					}
+
+					if ( '' !==  this.values.box_border_left ) {
+						this.addCssProperty( selectors, 'border-left-width',  _.fusionGetValueWithUnit( this.values.box_border_left ), true );
+					}
+					if ( '' !==  this.values.box_border_color ) {
+						this.addCssProperty( selectors, 'border-color',  this.values.box_border_color, true );
+					}
+
+					selectors = [ this.baseSelector + ' .boxed-icons .fusion-social-network-icon:hover' ];
+					if ( '' !==  this.values.box_colors_hover ) {
+						this.addCssProperty( selectors, 'background-color',  this.values.box_colors_hover, true );
+					}
+					if ( '' !==  this.values.box_border_color_hover ) {
+						this.addCssProperty( selectors, 'border-color',  this.values.box_border_color_hover, true );
+					}
+
+					selectors = [ this.baseSelector + ' .fusion-social-network-icon:hover' ];
+					if ( '' !==  this.values.icon_colors_hover ) {
+						this.addCssProperty( selectors, 'color',  this.values.icon_colors_hover, true );
+					}
+				}
 
 				if ( ! this.isDefault( 'alignment' ) ) {
 					this.addCssProperty( [ this.baseSelector ], 'text-align',  this.values.alignment, true );
@@ -99,8 +133,56 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					css += '@media only screen and (max-width:' + FusionApp.settings.visibility_small + 'px){' + this.parseCSS() + ' }';
 				}
 
+				css += this.buildMarginStyles( this.values );
 
 				return ( css ) ? '<style type="text/css">' + css + '</style>' : '';
+			},
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values object.
+			 * @return {string}
+			 */
+			buildMarginStyles: function( values ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-social-links-' +  this.counter,
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var marginStyles = '',
+						marginKey;
+
+					_.each( [ 'top', 'right', 'bottom', 'left' ], function( direction ) {
+
+						// Margin.
+						marginKey = 'margin_' + direction + ( 'large' === size ? '' : '_' + size );
+						if ( '' !== values[ marginKey ] ) {
+							marginStyles += 'margin-' + direction + ' : ' + _.fusionGetValueWithUnit( values[ marginKey ] ) + ';';
+						}
+
+					} );
+
+					if ( '' === marginStyles ) {
+						return;
+					}
+
+					// Wrap CSS selectors
+					if ( '' !== marginStyles ) {
+						marginStyles = elementSelector + ' {' + marginStyles + '}';
+					}
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === size ) {
+						responsiveStyles += marginStyles;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + marginStyles + '}';
+					}
+				} );
+
+				return responsiveStyles;
 			},
 
 			/**
@@ -147,6 +229,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' !== values.id ) {
 					socialLinksShortcode.id = values.id;
 				}
+
+				//Animation
+				socialLinksShortcode = _.fusionAnimations( values, socialLinksShortcode );
 
 				return socialLinksShortcode;
 			},
@@ -252,7 +337,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					attr.style += 'font-size:' + values.font_size + ';';
 
 					if ( 'yes' === values.icons_boxed ) {
-						attr.style += 'width:calc(' + values.font_size + ' + (2 * (' + values.boxed_padding + ')) + 2px);';
+						attr.style += 'width:calc(' + values.font_size + ' + (2 * (' + values.boxed_padding + ')) + 2px + ' + _.fusionGetValueWithUnit( values.box_border_right ) + ' + ' + _.fusionGetValueWithUnit( values.box_border_left ) + ');';
 					}
 				}
 

@@ -308,7 +308,7 @@ class Fusion_Breadcrumbs {
 			if ( is_home() && ! is_front_page() ) {
 
 				// If TEC events page is set as front page.
-				if ( tribe_is_event_query() ) {
+				if ( function_exists( 'tribe_is_event_query' ) && tribe_is_event_query() ) {
 					return;
 				}
 

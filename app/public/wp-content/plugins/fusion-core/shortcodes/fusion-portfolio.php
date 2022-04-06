@@ -471,7 +471,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 						if ( ! has_post_thumbnail() && fusion_get_page_option( 'video', $id ) ) {
 							$thumbnail_type        = 'video';
 							$image_size_dimensions = avada_get_image_size_dimensions( $image_size );
-							$video                 = fusion_get_page_option( 'video', $id );
+							$video                 = apply_filters( 'privacy_iframe_embed', fusion_get_page_option( 'video', $id ) );
 						} elseif ( $fusion_settings->get( 'featured_image_placeholder' ) || has_post_thumbnail() ) {
 							$thumbnail_type       = 'image';
 							$featured_image_sizes = [ 'portfolio-two', 'portfolio-three', 'portfolio-five', 'portfolio-six', 'blog-medium', 'full' ];
@@ -1752,7 +1752,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'       => esc_attr__( 'Load More Posts Button Background Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the background color of the load more button for ajax post loading for portfolio elements.', 'fusion-core' ),
 								'id'          => 'portfolio_element_load_more_posts_button_bg_color',
-								'default'     => 'rgba(242,243,245,0.7)',
+								'default'     => 'var(--awb-color7)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1766,7 +1766,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'       => esc_attr__( 'Load More Posts Button Text Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the text color of the load more button for ajax post loading for portfolio elements.', 'fusion-core' ),
 								'id'          => 'portfolio_element_load_more_posts_button_text_color',
-								'default'     => '#212934',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1780,7 +1780,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'       => esc_attr__( 'Load More Posts Button Hover Background Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the hover background color of the load more button for ajax post loading for portfolio elements.', 'fusion-core' ),
 								'id'          => 'portfolio_element_load_more_posts_hover_button_bg_color',
-								'default'     => '#f2f3f5',
+								'default'     => 'var(--awb-color5)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1794,7 +1794,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'       => esc_attr__( 'Load More Posts Hover Button Text Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the hover text color of the load more button for ajax post loading for portfolio elements.', 'fusion-core' ),
 								'id'          => 'portfolio_element_load_more_posts_hover_button_text_color',
-								'default'     => '#212934',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[

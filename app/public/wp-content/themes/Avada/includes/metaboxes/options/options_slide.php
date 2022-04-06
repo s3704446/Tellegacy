@@ -85,7 +85,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$this->color(
 			'video_bg_color',
 			esc_attr__( 'Video Color Overlay', 'Avada' ),
-			__( 'Select a color to show over the video as an overlay. Hex color code, <strong>ex: #fff</strong>', 'Avada' )
+			__( 'Select a color to show over the video as an overlay.', 'Avada' ),
+			true
 		);
 		$this->radio_buttonset(
 			'mute_video',
@@ -194,7 +195,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		'heading_color',
 		esc_attr__( 'Heading Color', 'Avada' ),
 		/* translators: default value. */
-		sprintf( esc_html__( 'Select a color for the heading font. Hex color code, ex: #fff. %s', 'Avada' ), '<strong>' . $default . '</strong>' )
+		sprintf( esc_html__( 'Select a color for the heading font. %s', 'Avada' ), '<strong>' . $default . '</strong>' ),
+		true
 	);
 	$this->radio_buttonset(
 		'heading_bg',
@@ -211,7 +213,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		'heading_bg_color',
 		esc_html__( 'Heading Background Color', 'Avada' ),
 		/* translators: default value. */
-		sprintf( esc_html__( 'Select a color for the heading background. Hex color code, ex: #000. %s', 'Avada' ), '<strong>' . $default . '</strong>' )
+		sprintf( esc_html__( 'Select a color for the heading background. %s', 'Avada' ), '<strong>' . $default . '</strong>' ),
+		true
 	);
 	$this->textarea(
 		'caption',
@@ -266,7 +269,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		'caption_color',
 		esc_attr__( 'Caption Color', 'Avada' ),
 		/* translators: default value. */
-		sprintf( esc_html__( 'Select a color for the caption font. Hex color code, ex: #fff. %s', 'Avada' ), '<strong>' . $default . '</strong>' )
+		sprintf( esc_html__( 'Select a color for the caption font. %s', 'Avada' ), '<strong>' . $default . '</strong>' ),
+		true
 	);
 	$this->radio_buttonset(
 		'caption_bg',
@@ -283,7 +287,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		'caption_bg_color',
 		esc_attr__( 'Caption Background Color', 'Avada' ),
 		/* translators: default value. */
-		sprintf( esc_html__( 'Select a color for the caption background. Hex color code, ex: #000. %s', 'Avada' ), '<strong>' . $default . '</strong>' )
+		sprintf( esc_html__( 'Select a color for the caption background. %s', 'Avada' ), '<strong>' . $default . '</strong>' ),
+		true
 	);
 	?>
 
@@ -315,13 +320,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	);
 	$this->textarea(
 		'button_1',
-		esc_html__( 'Button #1', 'Avada' ) . '<br/><a href="https://theme-fusion.com/documentation/fusion-builder/elements/button-element/#params" target="_blank">' . esc_html__( 'Click here to view button option descriptions.', 'Avada' ) . '</a>',
+		esc_html__( 'Button #1', 'Avada' ) . '<br/><a href="https://theme-fusion.com/documentation/avada/elements/button-element/#params" target="_blank">' . esc_html__( 'Click here to view button option descriptions.', 'Avada' ) . '</a>',
 		esc_html__( 'Adjust the button shortcode parameters for the first button.', 'Avada' ),
 		'[fusion_button link="" text_transform="" title="" target="_self" link_attributes="" alignment="" modal="" hide_on_mobile="small-visibility,medium-visibility,large-visibility" class="" id="" color="default" button_gradient_top_color="" button_gradient_bottom_color="" button_gradient_top_color_hover="" button_gradient_bottom_color_hover="" accent_color="" accent_hover_color="" type="" bevel_color="" border_width="" border_radius="" border_color="" border_hover_color="" size="" stretch="default" icon="" icon_position="left" icon_divider="no" animation_type="" animation_direction="left" animation_speed="0.3" animation_offset=""]' . esc_html__( 'Button Text', 'Avada' ) . '[/fusion_button]'
 	);
 	$this->textarea(
 		'button_2',
-		esc_html__( 'Button #2', 'Avada' ) . '<br/><a href="https://theme-fusion.com/documentation/fusion-builder/elements/button-element/#params" target="_blank">' . esc_html__( 'Click here to view button option descriptions.', 'Avada' ) . '</a>',
+		esc_html__( 'Button #2', 'Avada' ) . '<br/><a href="https://theme-fusion.com/documentation/avada/elements/button-element/#params" target="_blank">' . esc_html__( 'Click here to view button option descriptions.', 'Avada' ) . '</a>',
 		esc_html__( 'Adjust the button shortcode parameters for the second button.', 'Avada' ),
 		'[fusion_button link="" text_transform="" title="" target="_self" link_attributes="" alignment="" modal="" hide_on_mobile="small-visibility,medium-visibility,large-visibility" class="" id="" color="default" button_gradient_top_color="" button_gradient_bottom_color="" button_gradient_top_color_hover="" button_gradient_bottom_color_hover="" accent_color="" accent_hover_color="" type="" bevel_color="" border_width="" border_radius="" border_color="" border_hover_color="" size="" stretch="default" icon="" icon_position="left" icon_divider="no" animation_type="" animation_direction="left" animation_speed="0.3" animation_offset=""]' . esc_html__( 'Button Text', 'Avada' ) . '[/fusion_button]'
 	);

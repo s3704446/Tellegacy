@@ -38,9 +38,9 @@ class Avada_Fonts {
 	public function mime_types( $mimes ) {
 
 		$mimes['woff2'] = 'font/woff2';
-		$mimes['woff']  = $this->get_mime( 'woff' );        
+		$mimes['woff']  = $this->get_mime( 'woff' );
 		$mimes['ttf']   = $this->get_mime( 'ttf' );
-		$mimes['eot']   = $this->get_mime( 'eot' );     
+		$mimes['eot']   = $this->get_mime( 'eot' );
 		$mimes['svg']   = $this->get_mime( 'svg' );
 
 		return $mimes;

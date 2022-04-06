@@ -334,7 +334,7 @@ class Avada_Block_Editor {
 			$bg_color         = $this->get_post_bg_color();
 			$brightness_level = Fusion_Color::new_color( $bg_color )->brightness;
 
-			if ( $brightness_level['total'] < 140 ) {
+			if ( isset( $brightness_level['total'] ) && $brightness_level['total'] < 140 ) {
 				add_theme_support( 'dark-editor-style' );
 			}
 		}
@@ -462,7 +462,7 @@ class Avada_Block_Editor {
 	 * @return string
 	 */
 	public function add_css_vars_to_css( $css ) {
-		return ':root{--button_padding:11px 23px;--button_font_size:13px;--button_line_height:16px;}' . $css;
+		return ':root{--button_padding:11px 23px;}' . $css;
 	}
 
 	/**

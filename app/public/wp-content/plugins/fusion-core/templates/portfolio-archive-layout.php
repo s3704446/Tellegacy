@@ -265,7 +265,7 @@ if ( 'no_text' !== $portfolio_text_layout ) {
 
 							$video_max_width = ( 'one' === $portfolio_columns && 'floated' === $portfolio_one_column_text_pos ) ? '540px' : $post_featured_image_size_dimensions['width'];
 							$video_meta      = fusion_get_page_option( 'video', $post->ID );
-							$video           = $video_meta;
+							$video           = apply_filters( 'privacy_iframe_embed', $video_meta );
 							if ( 'on' === $fusion_settings->get( 'video_facade' ) ) {
 
 								if ( false !== strpos( $video_meta, 'vimeo' ) ) {

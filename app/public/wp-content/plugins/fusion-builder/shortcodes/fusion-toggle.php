@@ -73,7 +73,8 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 				add_filter( 'fusion_attr_toggle-shortcode-panelgroup', [ $this, 'panelgroup_attr' ] );
 				add_filter( 'fusion_attr_toggle-shortcode-panel', [ $this, 'panel_attr' ] );
 				add_filter( 'fusion_attr_toggle-shortcode-title', [ $this, 'title_attr' ] );
-				add_filter( 'fusion_attr_toggle-shortcode-fa-icon', [ $this, 'fa_icon_attr' ] );
+				add_filter( 'fusion_attr_toggle-shortcode-fa-active-icon', [ $this, 'fa_active_icon_attr' ] );
+				add_filter( 'fusion_attr_toggle-shortcode-fa-inactive-icon', [ $this, 'fa_inactive_icon_attr' ] );
 				add_filter( 'fusion_attr_toggle-shortcode-data-toggle', [ $this, 'data_toggle_attr' ] );
 				add_filter( 'fusion_attr_toggle-shortcode-collapse', [ $this, 'collapse_attr' ] );
 
@@ -95,30 +96,50 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 				$fusion_settings = awb_get_fusion_settings();
 
 				$parent = [
-					'background_color'          => ( '' !== $fusion_settings->get( 'accordian_background_color' ) ) ? $fusion_settings->get( 'accordian_background_color' ) : '#ffffff',
-					'border_color'              => ( '' !== $fusion_settings->get( 'accordian_border_color' ) ) ? $fusion_settings->get( 'accordian_border_color' ) : '#cccccc',
-					'border_size'               => intval( $fusion_settings->get( 'accordion_border_size' ) ) . 'px',
-					'boxed_mode'                => ( '' !== $fusion_settings->get( 'accordion_boxed_mode' ) ) ? $fusion_settings->get( 'accordion_boxed_mode' ) : 'no',
-					'class'                     => '',
-					'divider_line'              => $fusion_settings->get( 'accordion_divider_line' ),
-					'hide_on_mobile'            => fusion_builder_default_visibility( 'string' ),
-					'hover_color'               => ( '' !== $fusion_settings->get( 'accordian_hover_color' ) ) ? $fusion_settings->get( 'accordian_hover_color' ) : fusion_library()->sanitize->color( $fusion_settings->get( 'primary_color' ) ),
-					'icon_alignment'            => ( '' !== $fusion_settings->get( 'accordion_icon_align' ) ) ? $fusion_settings->get( 'accordion_icon_align' ) : 'left',
-					'icon_boxed_mode'           => ( '' !== $fusion_settings->get( 'accordion_icon_boxed' ) ) ? $fusion_settings->get( 'accordion_icon_boxed' ) : 'no',
-					'icon_box_color'            => $fusion_settings->get( 'accordian_inactive_color' ),
-					'icon_color'                => ( '' !== $fusion_settings->get( 'accordian_icon_color' ) ) ? $fusion_settings->get( 'accordian_icon_color' ) : '#ffffff',
-					'icon_size'                 => ( '' !== $fusion_settings->get( 'accordion_icon_size' ) ) ? $fusion_settings->get( 'accordion_icon_size' ) : '13px',
-					'id'                        => '',
-					'title_font_size'           => $fusion_settings->get( 'accordion_title_font_size' ),
-					'toggle_hover_accent_color' => $fusion_settings->get( 'accordian_active_color' ),
-					'type'                      => ( '' !== $fusion_settings->get( 'accordion_type' ) ) ? $fusion_settings->get( 'accordion_type' ) : 'accordions',
+					'background_color'                 => ( '' !== $fusion_settings->get( 'accordian_background_color' ) ) ? $fusion_settings->get( 'accordian_background_color' ) : '#ffffff',
+					'border_color'                     => ( '' !== $fusion_settings->get( 'accordian_border_color' ) ) ? $fusion_settings->get( 'accordian_border_color' ) : '#cccccc',
+					'border_size'                      => intval( $fusion_settings->get( 'accordion_border_size' ) ) . 'px',
+					'boxed_mode'                       => ( '' !== $fusion_settings->get( 'accordion_boxed_mode' ) ) ? $fusion_settings->get( 'accordion_boxed_mode' ) : 'no',
+					'divider_line'                     => $fusion_settings->get( 'accordion_divider_line' ),
+					'divider_color'                    => $fusion_settings->get( 'accordion_divider_color' ),
+					'divider_hover_color'              => $fusion_settings->get( 'accordion_divider_hover_color' ),
+					'active_icon'                      => '',
+					'inactive_icon'                    => '',
+					'hide_on_mobile'                   => fusion_builder_default_visibility( 'string' ),
+					'hover_color'                      => ( '' !== $fusion_settings->get( 'accordian_hover_color' ) ) ? $fusion_settings->get( 'accordian_hover_color' ) : fusion_library()->sanitize->color( $fusion_settings->get( 'primary_color' ) ),
+					'icon_alignment'                   => ( '' !== $fusion_settings->get( 'accordion_icon_align' ) ) ? $fusion_settings->get( 'accordion_icon_align' ) : 'left',
+					'icon_boxed_mode'                  => ( '' !== $fusion_settings->get( 'accordion_icon_boxed' ) ) ? $fusion_settings->get( 'accordion_icon_boxed' ) : 'no',
+					'icon_box_color'                   => $fusion_settings->get( 'accordian_inactive_color' ),
+					'icon_color'                       => ( '' !== $fusion_settings->get( 'accordian_icon_color' ) ) ? $fusion_settings->get( 'accordian_icon_color' ) : '#ffffff',
+					'icon_size'                        => ( '' !== $fusion_settings->get( 'accordion_icon_size' ) ) ? $fusion_settings->get( 'accordion_icon_size' ) : '13px',
+					'fusion_font_family_title_font'    => $fusion_settings->get( 'accordion_title_typography', 'font-family' ),
+					'fusion_font_variant_title_font'   => $fusion_settings->get( 'accordion_title_typography', 'font-weight' ),
+					'title_color'                      => $fusion_settings->get( 'accordion_title_typography', 'color' ),
+					'title_font_size'                  => $fusion_settings->get( 'accordion_title_typography', 'font-size' ),
+					'fusion_font_family_content_font'  => $fusion_settings->get( 'accordion_content_typography', 'font-family' ),
+					'fusion_font_variant_content_font' => $fusion_settings->get( 'accordion_content_typography', 'font-weight' ),
+					'content_color'                    => $fusion_settings->get( 'accordion_content_typography', 'color' ),
+					'content_font_size'                => $fusion_settings->get( 'accordion_content_typography', 'font-size' ),
+					'toggle_hover_accent_color'        => $fusion_settings->get( 'accordian_active_color' ),
+					'toggle_active_accent_color'       => $fusion_settings->get( 'accordian_active_accent_color' ),
+					'type'                             => ( '' !== $fusion_settings->get( 'accordion_type' ) ) ? $fusion_settings->get( 'accordion_type' ) : 'accordions',
+					'class'                            => '',
+					'id'                               => '',
 				];
 
 				$child = [
-					'open'  => 'no',
-					'title' => '',
-					'class' => '',
-					'id'    => '',
+					'open'                             => 'no',
+					'title'                            => '',
+					'fusion_font_family_title_font'    => '',
+					'fusion_font_variant_title_font'   => '',
+					'title_color'                      => '',
+					'title_font_size'                  => '',
+					'fusion_font_family_content_font'  => '',
+					'fusion_font_variant_content_font' => '',
+					'content_color'                    => '',
+					'content_font_size'                => '',
+					'class'                            => '',
+					'id'                               => '',
 				];
 
 				if ( 'parent' === $context ) {
@@ -140,16 +161,38 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 			public static function settings_to_params( $context = '' ) {
 
 				$parent = [
-					'accordion_divider_line'     => 'divider_line',
-					'accordion_boxed_mode'       => 'boxed_mode',
-					'accordion_border_size'      => 'border_size',
-					'accordian_border_color'     => 'border_color',
-					'accordian_background_color' => 'background_color',
-					'accordian_hover_color'      => 'hover_color',
-					'accordion_type'             => 'type',
+					'accordion_type'                      => 'type',
+					'accordion_boxed_mode'                => 'boxed_mode',
+					'accordion_border_size'               => 'border_size',
+					'accordian_border_color'              => 'border_color',
+					'accordian_hover_color'               => 'hover_color',
+					'accordian_background_color'          => 'background_color',
+					'accordion_divider_line'              => 'divider_line',
+					'accordion_divider_color'             => 'divider_color',
+					'accordion_divider_hover_color'       => 'divider_hover_color',
+					'accordion_title_typography[font-family]' => 'title_font',
+					'accordion_title_typography[font-size]' => 'title_font_size',
+					'accordion_title_typography[color]'   => 'title_color',
+					'accordion_content_typography[font-family]' => 'content_font',
+					'accordion_content_typography[font-size]' => 'content_font_size',
+					'accordion_content_typography[color]' => 'content_color',
+					'accordion_icon_size'                 => 'icon_size',
+					'accordian_icon_color'                => 'icon_color',
+					'accordion_icon_boxed'                => 'icon_boxed_mode',
+					'accordion_icon_align'                => 'icon_alignment',
+					'accordian_inactive_color'            => 'icon_box_color',
+					'accordian_active_color'              => 'toggle_hover_accent_color',
+					'accordian_active_accent_color'       => 'toggle_active_accent_color',
 				];
 
-				$child = [];
+				$child = [
+					'accordion_title_typography[font-family]' => 'title_font',
+					'accordion_title_typography[font-size]' => 'title_font_size',
+					'accordion_title_typography[color]'   => 'title_color',
+					'accordion_content_typography[font-family]' => 'content_font',
+					'accordion_content_typography[font-size]' => 'content_font_size',
+					'accordion_content_typography[color]' => 'content_color',
+				];
 
 				if ( 'parent' === $context ) {
 					return $parent;
@@ -204,6 +247,18 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 					}
 
 					$styles .= ' }';
+				} elseif ( '0' !== $this->parent_args['divider_line'] || 0 !== $this->parent_args['divider_line'] || 'no' !== $this->parent_args['divider_line'] ) {
+					if ( ! empty( $this->parent_args['divider_hover_color'] ) ) {
+						$styles .= '#accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .fusion-panel:hover{ border-color: ' . $this->parent_args['divider_hover_color'] . ' }';
+					}
+
+					$styles .= ' #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .fusion-panel {';
+
+					if ( ! empty( $this->parent_args['divider_color'] ) ) {
+						$styles .= ' border-color:' . $this->parent_args['divider_color'] . ';';
+					}
+
+					$styles .= ' }';
 				}
 
 				if ( ! empty( $this->parent_args['icon_color'] ) ) {
@@ -218,9 +273,41 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 					$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . '.fusion-toggle-icon-right .fusion-toggle-heading{ margin-right: ' . FusionBuilder::validate_shortcode_attr_value( intval( $this->parent_args['icon_size'] ) + 18, 'px' ) . ';}';
 				}
 
+				// Title typography.
+				$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title a{';
+
 				if ( ! empty( $this->parent_args['title_font_size'] ) ) {
-					$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title a{font-size:' . FusionBuilder::validate_shortcode_attr_value( $this->parent_args['title_font_size'], 'px' ) . ';}';
+					$styles .= 'font-size:' . FusionBuilder::validate_shortcode_attr_value( $this->parent_args['title_font_size'], 'px' ) . ';';
 				}
+
+				if ( ! empty( $this->parent_args['title_color'] ) ) {
+					$styles .= 'color:' . fusion_library()->sanitize->color( $this->parent_args['title_color'] ) . ';';
+				}
+
+				$title_styles = Fusion_Builder_Element_Helper::get_font_styling( $this->parent_args, 'title_font', 'array' );
+				foreach ( $title_styles as $rule => $value ) {
+					$styles .= $rule . ':' . $value . ';';
+				}
+
+				$styles .= '}';
+
+				// Content typography.
+				$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .toggle-content{';
+
+				if ( ! empty( $this->parent_args['content_font_size'] ) ) {
+					$styles .= 'font-size:' . FusionBuilder::validate_shortcode_attr_value( $this->parent_args['content_font_size'], 'px' ) . ';';
+				}
+
+				if ( ! empty( $this->parent_args['content_color'] ) ) {
+					$styles .= 'color:' . fusion_library()->sanitize->color( $this->parent_args['content_color'] ) . ';';
+				}
+
+				$content_styles = Fusion_Builder_Element_Helper::get_font_styling( $this->parent_args, 'content_font', 'array' );
+				foreach ( $content_styles as $rule => $value ) {
+					$styles .= $rule . ':' . $value . ';';
+				}
+
+				$styles .= '}';
 
 				if ( ( '1' === $this->parent_args['icon_boxed_mode'] || 'yes' === $this->parent_args['icon_boxed_mode'] ) && ! empty( $this->parent_args['icon_box_color'] ) ) {
 					$icon_box_color = fusion_library()->sanitize->color( $this->parent_args['icon_box_color'] );
@@ -229,14 +316,27 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 
 				if ( ! empty( $this->parent_args['toggle_hover_accent_color'] ) ) {
 					$toggle_hover_accent_color = fusion_library()->sanitize->color( $this->parent_args['toggle_hover_accent_color'] );
-					$styles                   .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title a:hover, #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .fusion-toggle-boxed-mode:hover .panel-title a { color: ' . $toggle_hover_accent_color . ';}';
+					$styles                   .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title a:not(.active):hover, #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .fusion-toggle-boxed-mode:hover .panel-title a { color: ' . $toggle_hover_accent_color . ';}';
 
 					if ( '1' === $this->parent_args['icon_boxed_mode'] || 'yes' === $this->parent_args['icon_boxed_mode'] ) {
-						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title .active .fa-fusion-box,';
-						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title a:hover .fa-fusion-box { background-color: ' . $toggle_hover_accent_color . '!important;border-color: ' . $toggle_hover_accent_color . '!important;}';
+						if ( empty( $this->parent_args['toggle_active_accent_color'] ) ) {
+							$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title .active .fa-fusion-box,';
+						}
+						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title a:not(.active):hover .fa-fusion-box { background-color: ' . $toggle_hover_accent_color . '!important;border-color: ' . $toggle_hover_accent_color . '!important;}';
 					} else {
 						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .fusion-toggle-boxed-mode:hover .panel-title a .fa-fusion-box{ color: ' . $toggle_hover_accent_color . ';}';
-						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:hover .fa-fusion-box{ color: ' . $toggle_hover_accent_color . ' !important;}';
+						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:not(.active):hover .fa-fusion-box{ color: ' . $toggle_hover_accent_color . ' !important;}';
+					}
+				}
+
+				if ( ! empty( $this->parent_args['toggle_active_accent_color'] ) ) {
+					$toggle_active_accent_color = fusion_library()->sanitize->color( $this->parent_args['toggle_active_accent_color'] );
+					$styles                    .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title a.active{ color: ' . $toggle_active_accent_color . ' !important;}';
+
+					if ( '1' === $this->parent_args['icon_boxed_mode'] || 'yes' === $this->parent_args['icon_boxed_mode'] ) {
+						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-title .active .fa-fusion-box { background-color: ' . $toggle_active_accent_color . '!important;border-color: ' . $toggle_active_accent_color . '!important;}';
+					} else {
+						$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a.active .fa-fusion-box{ color: ' . $toggle_active_accent_color . ' !important;}';
 					}
 				}
 
@@ -332,6 +432,8 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 
 				$this->child_args                 = $defaults;
 				$this->child_args['toggle_class'] = '';
+				$style_tag                        = '';
+				$styles                           = '';
 
 				if ( 'yes' === $open ) {
 					$this->child_args['toggle_class'] = 'in';
@@ -340,7 +442,7 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 				$this->collapse_id = substr( md5( sprintf( 'collapse-%s-%s-%s', get_the_ID(), $this->accordian_counter, $this->collapse_counter ) ), 15 );
 
 				$html = sprintf(
-					'<div %s><div %s><h4 %s><a %s><span %s><i %s></i></span><span %s>%s</span></a></h4></div><div %s><div %s>%s</div></div></div>',
+					'<div %s><div %s><h4 %s><a %s><span %s><i %s></i><i %s></i></span><span %s>%s</span></a></h4></div><div %s><div %s>%s</div></div></div>',
 					FusionBuilder::attributes( 'toggle-shortcode-panel' ),
 					FusionBuilder::attributes( 'panel-heading' ),
 					FusionBuilder::attributes( 'panel-title toggle' ),
@@ -352,7 +454,8 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 							'aria-hidden' => 'true',
 						]
 					),
-					FusionBuilder::attributes( 'toggle-shortcode-fa-icon' ),
+					FusionBuilder::attributes( 'toggle-shortcode-fa-active-icon' ),
+					FusionBuilder::attributes( 'toggle-shortcode-fa-inactive-icon' ),
 					FusionBuilder::attributes( 'fusion-toggle-heading' ),
 					$title,
 					FusionBuilder::attributes( 'toggle-shortcode-collapse' ),
@@ -360,7 +463,49 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 					do_shortcode( $content )
 				);
 
+				// Title typography.
+				$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-' . $this->collapse_id . ' .panel-title a{';
+
+				if ( ! empty( $this->child_args['title_font_size'] ) ) {
+					$styles .= 'font-size:' . FusionBuilder::validate_shortcode_attr_value( $this->child_args['title_font_size'], 'px' ) . ';';
+				}
+
+				if ( ! empty( $this->child_args['title_color'] ) ) {
+					$styles .= 'color:' . fusion_library()->sanitize->color( $this->child_args['title_color'] ) . ';';
+				}
+
+				$title_styles = Fusion_Builder_Element_Helper::get_font_styling( $this->child_args, 'title_font', 'array' );
+				foreach ( $title_styles as $rule => $value ) {
+					$styles .= $rule . ':' . $value . ';';
+				}
+
+				$styles .= '}';
+
+				// Content Typography.
+				$styles .= '.fusion-accordian  #accordion-' . get_the_ID() . '-' . $this->accordian_counter . ' .panel-' . $this->collapse_id . ' .toggle-content{';
+
+				if ( ! empty( $this->child_args['content_font_size'] ) ) {
+					$styles .= 'font-size:' . FusionBuilder::validate_shortcode_attr_value( $this->child_args['content_font_size'], 'px' ) . ';';
+				}
+
+				if ( ! empty( $this->child_args['content_color'] ) ) {
+					$styles .= 'color:' . fusion_library()->sanitize->color( $this->child_args['content_color'] ) . ';';
+				}
+
+				$content_styles = Fusion_Builder_Element_Helper::get_font_styling( $this->child_args, 'content_font', 'array' );
+				foreach ( $content_styles as $rule => $value ) {
+					$styles .= $rule . ':' . $value . ';';
+				}
+
+				$styles .= '}';
+
+				if ( $styles ) {
+					$style_tag = '<style type="text/css">' . $styles . '</style>';
+				}
+
 				$this->collapse_counter++;
+
+				$html = $style_tag . $html;
 
 				return apply_filters( 'fusion_element_toggles_child_content', $html, $args );
 
@@ -387,6 +532,8 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 					$attr['id'] = $this->child_args['id'];
 				}
 
+				$attr['class'] .= ' panel-' . $this->collapse_id;
+
 				if ( '1' === $this->parent_args['boxed_mode'] || 1 === $this->parent_args['boxed_mode'] || 'yes' === $this->parent_args['boxed_mode'] ) {
 					$attr['class'] .= ' fusion-toggle-no-divider fusion-toggle-boxed-mode';
 				} elseif ( '0' === $this->parent_args['divider_line'] || 0 === $this->parent_args['divider_line'] || 'no' === $this->parent_args['divider_line'] ) {
@@ -404,11 +551,33 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 			 * @since 1.0
 			 * @return array
 			 */
-			public function fa_icon_attr() {
-				return [
-					'class'       => 'fa-fusion-box',
+			public function fa_active_icon_attr() {
+				$attr = [
+					'class'       => 'fa-fusion-box active-icon ',
 					'aria-hidden' => 'true',
 				];
+
+				$attr['class'] .= ( '' !== $this->parent_args['active_icon'] ) ? $this->parent_args['active_icon'] : 'awb-icon-minus';
+
+				return $attr;
+			}
+
+			/**
+			 * Builds the font-awesome icon attributes.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function fa_inactive_icon_attr() {
+				$attr = [
+					'class'       => 'fa-fusion-box inactive-icon ',
+					'aria-hidden' => 'true',
+				];
+
+				$attr['class'] .= ( '' !== $this->parent_args['inactive_icon'] ) ? $this->parent_args['inactive_icon'] : 'awb-icon-plus';
+
+				return $attr;
 			}
 
 			/**
@@ -457,25 +626,6 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 			}
 
 			/**
-			 * Builds the dynamic styling.
-			 *
-			 * @access public
-			 * @since 1.1
-			 * @return array
-			 */
-			public function add_styling() {
-				global $dynamic_css_helpers;
-
-				$fusion_settings = awb_get_fusion_settings();
-
-				$elements = $dynamic_css_helpers->map_selector( apply_filters( 'fusion_builder_element_classes', [ '.fusion-accordian' ], '.fusion-accordian' ), ' .fusion-panel' );
-				$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['border-color'] = fusion_library()->sanitize->color( $fusion_settings->get( 'sep_color' ) );
-
-				return $css;
-
-			}
-
-			/**
 			 * Adds settings to element options panel.
 			 *
 			 * @access public
@@ -504,7 +654,7 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 						'type'   => 'accordion',
 						'icon'   => 'fusiona-expand-alt',
 						'fields' => [
-							'accordion_type'             => [
+							'accordion_type'               => [
 								'label'       => esc_html__( 'Toggles or Accordions', 'fusion-builder' ),
 								'description' => esc_html__( 'Toggles allow several items to be open at a time. Accordions only allow one item to be open at a time.', 'fusion-builder' ),
 								'id'          => 'accordion_type',
@@ -515,14 +665,14 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 									'accordions' => esc_html__( 'Accordions', 'fusion-builder' ),
 								],
 							],
-							'accordion_boxed_mode'       => [
+							'accordion_boxed_mode'         => [
 								'label'       => esc_html__( 'Toggle Boxed Mode', 'fusion-builder' ),
 								'description' => esc_html__( 'Turn on to display items in boxed mode. Toggle divider line must be disabled for this option to work.', 'fusion-builder' ),
 								'id'          => 'accordion_boxed_mode',
 								'default'     => '0',
 								'type'        => 'switch',
 							],
-							'accordion_border_size'      => [
+							'accordion_border_size'        => [
 								'label'           => esc_html__( 'Toggle Boxed Mode Border Width', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the border size of the toggle item.', 'fusion-builder' ),
 								'id'              => 'accordion_border_size',
@@ -535,31 +685,31 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 									'step' => '1',
 								],
 							],
-							'accordian_border_color'     => [
+							'accordian_border_color'       => [
 								'label'           => esc_html__( 'Toggle Boxed Mode Border Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the border color of the toggle item.', 'fusion-builder' ),
 								'id'              => 'accordian_border_color',
-								'default'         => '#e2e2e2',
+								'default'         => 'var(--awb-color3)',
 								'type'            => 'color-alpha',
 								'soft_dependency' => true,
 							],
-							'accordian_background_color' => [
+							'accordian_background_color'   => [
 								'label'           => esc_html__( 'Toggle Boxed Mode Background Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the background color of the toggle item.', 'fusion-builder' ),
 								'id'              => 'accordian_background_color',
-								'default'         => '#ffffff',
+								'default'         => 'var(--awb-color1)',
 								'type'            => 'color-alpha',
 								'soft_dependency' => true,
 							],
-							'accordian_hover_color'      => [
+							'accordian_hover_color'        => [
 								'label'           => esc_html__( 'Toggle Boxed Mode Background Hover Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the background hover color of the toggle item.', 'fusion-builder' ),
 								'id'              => 'accordian_hover_color',
-								'default'         => '#f9f9fb',
+								'default'         => 'var(--awb-color2)',
 								'type'            => 'color-alpha',
 								'soft_dependency' => true,
 							],
-							'accordion_divider_line'     => [
+							'accordion_divider_line'       => [
 								'label'           => esc_html__( 'Toggle Divider Line', 'fusion-builder' ),
 								'description'     => esc_html__( 'Turn on to display a divider line between each item.', 'fusion-builder' ),
 								'id'              => 'accordion_divider_line',
@@ -567,14 +717,51 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 								'type'            => 'switch',
 								'soft_dependency' => true,
 							],
-							'accordion_title_font_size'  => [
-								'label'       => esc_html__( 'Toggle Title Font Size', 'fusion-builder' ),
-								'description' => esc_html__( 'Controls the size of the title text.', 'fusion-builder' ),
-								'id'          => 'accordion_title_font_size',
-								'default'     => $fusion_settings->get( 'h4_typography', 'font-size' ),
-								'type'        => 'dimension',
+							'accordion_divider_color'      => [
+								'label'       => esc_html__( 'Divider Line Color', 'fusion-builder' ),
+								'description' => esc_html__( 'Controls the color of toggle divider line.', 'fusion-builder' ),
+								'id'          => 'accordion_divider_color',
+								'default'     => 'var(--awb-color3)',
+								'type'        => 'color-alpha',
+								'css_vars'    => [
+									[
+										'name'     => '--accordion_divider_color',
+										'callback' => [ 'sanitize_color' ],
+									],
+								],
 							],
-							'accordion_icon_size'        => [
+							'accordion_divider_hover_color' => [
+								'label'       => esc_html__( 'Divider Line Hover Color', 'fusion-builder' ),
+								'description' => esc_html__( 'Controls the hover color of toggle divider line.', 'fusion-builder' ),
+								'id'          => 'accordion_divider_hover_color',
+								'default'     => 'var(--awb-color3)',
+								'type'        => 'color-alpha',
+								'css_vars'    => [
+									[
+										'name'     => '--accordion_divider_hover_color',
+										'callback' => [ 'sanitize_color' ],
+									],
+								],
+							],
+							'accordion_title_typography'   => [
+								'id'          => 'accordion_title_typography',
+								'label'       => esc_html__( 'Toggle Title Typography', 'fusion-builder' ),
+								'description' => esc_html__( 'Choose the typography for all toggle titles.', 'fusion-builder' ),
+								'type'        => 'typography',
+								'choices'     => [
+									'font-family' => true,
+									'font-weight' => true,
+									'font-size'   => true,
+									'color'       => true,
+								],
+								'default'     => [
+									'font-family' => 'var(--awb-typography1-font-family)',
+									'font-weight' => $fusion_settings->get( 'h4_typography', 'font-weight' ),
+									'font-size'   => 'var(--awb-typography1-font-size)',
+									'color'       => 'var(--awb-color8)',
+								],
+							],
+							'accordion_icon_size'          => [
 								'label'       => esc_html__( 'Toggle Icon Size', 'fusion-builder' ),
 								'description' => esc_html__( 'Set the size of the icon.', 'fusion-builder' ),
 								'id'          => 'accordion_icon_size',
@@ -586,25 +773,25 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 									'step' => '1',
 								],
 							],
-							'accordian_icon_color'       => [
+							'accordian_icon_color'         => [
 								'label'       => esc_html__( 'Toggle Icon Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of icon in toggle box.', 'fusion-builder' ),
 								'id'          => 'accordian_icon_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 							],
-							'accordion_icon_boxed'       => [
+							'accordion_icon_boxed'         => [
 								'label'       => esc_html__( 'Toggle Icon Boxed Mode', 'fusion-builder' ),
 								'description' => esc_html__( 'Turn on to display toggle icon in boxed mode.', 'fusion-builder' ),
 								'id'          => 'accordion_icon_boxed',
 								'default'     => '1',
 								'type'        => 'switch',
 							],
-							'accordian_inactive_color'   => [
+							'accordian_inactive_color'     => [
 								'label'           => esc_html__( 'Toggle Icon Inactive Box Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the color of the inactive toggle box.', 'fusion-builder' ),
 								'id'              => 'accordian_inactive_color',
-								'default'         => '#212934',
+								'default'         => 'var(--awb-color8)',
 								'type'            => 'color-alpha',
 								'soft_dependency' => true,
 								'css_vars'        => [
@@ -613,11 +800,29 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 									],
 								],
 							],
-							'accordian_active_color'     => [
+							'accordion_content_typography' => [
+								'id'          => 'accordion_content_typography',
+								'label'       => esc_html__( 'Toggle Content Typography', 'fusion-builder' ),
+								'description' => esc_html__( 'Choose the typography for all toggle content.', 'fusion-builder' ),
+								'type'        => 'typography',
+								'choices'     => [
+									'font-family' => true,
+									'font-weight' => true,
+									'font-size'   => true,
+									'color'       => true,
+								],
+								'default'     => [
+									'font-family' => 'var(--awb-typography4-font-family)',
+									'font-weight' => $fusion_settings->get( 'body_typography', 'font-weight' ),
+									'font-size'   => 'var(--awb-typography4-font-size)',
+									'color'       => 'var(--awb-color8)',
+								],
+							],
+							'accordian_active_color'       => [
 								'label'       => esc_html__( 'Toggle Hover Accent Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the accent color on hover for icon box and title.', 'fusion-builder' ),
 								'id'          => 'accordian_active_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color5)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -626,7 +831,13 @@ if ( fusion_is_element_enabled( 'fusion_accordion' ) ) {
 									],
 								],
 							],
-							'accordion_icon_align'       => [
+							'accordian_active_accent_color' => [
+								'label'       => esc_html__( 'Toggle Active Accent Color', 'fusion-builder' ),
+								'description' => esc_html__( 'Controls the accent color on active for icon box and title.', 'fusion-builder' ),
+								'id'          => 'accordian_active_accent_color',
+								'type'        => 'color-alpha',
+							],
+							'accordion_icon_align'         => [
 								'label'       => esc_html__( 'Toggle Icon Alignment', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the alignment of toggle icon.', 'fusion-builder' ),
 								'id'          => 'accordion_icon_align',
@@ -690,7 +901,15 @@ function fusion_element_accordion() {
 				'icon'          => 'fusiona-expand-alt',
 				'preview'       => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-toggles-preview.php',
 				'preview_id'    => 'fusion-builder-block-module-toggles-preview-template',
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/toggles-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/toggles-element/',
+				'subparam_map'  => [
+					'fusion_font_family_title_font'    => 'title_fonts',
+					'fusion_font_variant_title_font'   => 'title_fonts',
+					'title_font_size'                  => 'title_fonts',
+					'fusion_font_family_content_font'  => 'content_fonts',
+					'fusion_font_variant_content_font' => 'content_fonts',
+					'content_font_size'                => 'content_fonts',
+				],
 				'params'        => [
 					[
 						'type'        => 'tinymce',
@@ -722,6 +941,7 @@ function fusion_element_accordion() {
 							'no'  => esc_attr__( 'No', 'fusion-builder' ),
 						],
 						'default'     => '',
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'range',
@@ -740,6 +960,7 @@ function fusion_element_accordion() {
 								'operator' => '!=',
 							],
 						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'colorpickeralpha',
@@ -760,6 +981,7 @@ function fusion_element_accordion() {
 								'operator' => '!=',
 							],
 						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'colorpickeralpha',
@@ -775,6 +997,7 @@ function fusion_element_accordion() {
 								'operator' => '!=',
 							],
 						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'colorpickeralpha',
@@ -795,6 +1018,7 @@ function fusion_element_accordion() {
 							'type'     => 'class',
 							'toggle'   => 'hover',
 						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'radio_button_set',
@@ -814,13 +1038,92 @@ function fusion_element_accordion() {
 								'operator' => '!=',
 							],
 						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Title Size', 'fusion-builder' ),
-						'description' => esc_attr__( 'Controls the size of the title. Enter value including any valid CSS unit, ex: 13px.', 'fusion-builder' ),
-						'param_name'  => 'title_font_size',
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Divider Line Color', 'fusion-builder' ),
+						'description' => esc_attr__( 'Set the color for divider line.', 'fusion-builder' ),
+						'param_name'  => 'divider_color',
 						'value'       => '',
+						'default'     => $fusion_settings->get( 'accordion_divider_color' ),
+						'dependency'  => [
+							[
+								'element'  => 'boxed_mode',
+								'value'    => 'yes',
+								'operator' => '!=',
+							],
+							[
+								'element'  => 'divider_line',
+								'value'    => 'no',
+								'operator' => '!=',
+							],
+						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Divider Line Hover Color', 'fusion-builder' ),
+						'description' => esc_attr__( 'Set the hover color for divider line.', 'fusion-builder' ),
+						'param_name'  => 'divider_hover_color',
+						'value'       => '',
+						'default'     => $fusion_settings->get( 'accordion_divider_hover_color' ),
+						'dependency'  => [
+							[
+								'element'  => 'boxed_mode',
+								'value'    => 'yes',
+								'operator' => '!=',
+							],
+							[
+								'element'  => 'divider_line',
+								'value'    => 'no',
+								'operator' => '!=',
+							],
+						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Title Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the title text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'title_fonts',
+						'choices'          => [
+							'font-family'    => 'title_font',
+							'font-size'      => 'title_font_size',
+							'text-transform' => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
+						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Title Font Color', 'fusion-builder' ),
+						'description' => esc_attr__( 'Set the color of title in toggle box.', 'fusion-builder' ),
+						'param_name'  => 'title_color',
+						'value'       => '',
+						'default'     => $fusion_settings->get( 'accordion_title_typography', 'color' ),
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'iconpicker',
+						'heading'     => esc_attr__( 'Inactive Icon', 'fusion-builder' ),
+						'param_name'  => 'inactive_icon',
+						'value'       => '',
+						'description' => esc_attr__( 'Click an icon to select, click again to deselect.', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'iconpicker',
+						'heading'     => esc_attr__( 'Active Icon', 'fusion-builder' ),
+						'param_name'  => 'active_icon',
+						'value'       => '',
+						'description' => esc_attr__( 'Click an icon to select, click again to deselect.', 'fusion-builder' ),
 					],
 					[
 						'heading'     => esc_html__( 'Toggle Icon Size', 'fusion-builder' ),
@@ -831,6 +1134,7 @@ function fusion_element_accordion() {
 						'max'         => '40',
 						'step'        => '1',
 						'type'        => 'range',
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'colorpickeralpha',
@@ -839,6 +1143,7 @@ function fusion_element_accordion() {
 						'param_name'  => 'icon_color',
 						'value'       => '',
 						'default'     => $fusion_settings->get( 'accordian_icon_color' ),
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'radio_button_set',
@@ -851,6 +1156,7 @@ function fusion_element_accordion() {
 							'no'  => esc_attr__( 'No', 'fusion-builder' ),
 						],
 						'default'     => '',
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'colorpickeralpha',
@@ -866,6 +1172,7 @@ function fusion_element_accordion() {
 								'operator' => '!=',
 							],
 						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'radio_button_set',
@@ -878,6 +1185,36 @@ function fusion_element_accordion() {
 							'right' => esc_attr__( 'Right', 'fusion-builder' ),
 						],
 						'default'     => '',
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Content Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the content text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'content_fonts',
+						'choices'          => [
+							'font-family'    => 'content_font',
+							'font-size'      => 'content_font_size',
+							'text-transform' => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
+						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Content Font Color', 'fusion-builder' ),
+						'description' => esc_attr__( 'Set the color of content in toggle box.', 'fusion-builder' ),
+						'param_name'  => 'content_color',
+						'value'       => '',
+						'default'     => $fusion_settings->get( 'accordion_content_typography', 'color' ),
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'colorpickeralpha',
@@ -891,6 +1228,16 @@ function fusion_element_accordion() {
 							'type'     => 'class',
 							'toggle'   => 'hover',
 						],
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Toggle Active Accent Color', 'fusion-builder' ),
+						'description' => esc_attr__( 'Controls the accent color on active for icon box and title.', 'fusion-builder' ),
+						'param_name'  => 'toggle_active_accent_color',
+						'value'       => '',
+						'default'     => $fusion_settings->get( 'accordian_active_accent_color' ),
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'checkbox_button_set',
@@ -930,6 +1277,8 @@ add_action( 'fusion_builder_before_init', 'fusion_element_accordion' );
  * @since 1.0
  */
 function fusion_element_toggle() {
+	$fusion_settings = awb_get_fusion_settings();
+
 	fusion_builder_map(
 		fusion_builder_frontend_data(
 			'FusionSC_Toggle',
@@ -940,6 +1289,14 @@ function fusion_element_toggle() {
 				'allow_generator'          => true,
 				'inline_editor'            => true,
 				'inline_editor_shortcodes' => true,
+				'subparam_map'             => [
+					'fusion_font_family_title_font'    => 'title_fonts',
+					'fusion_font_variant_title_font'   => 'title_fonts',
+					'title_font_size'                  => 'title_fonts',
+					'fusion_font_family_content_font'  => 'content_fonts',
+					'fusion_font_variant_content_font' => 'content_fonts',
+					'content_font_size'                => 'content_fonts',
+				],
 				'params'                   => [
 					[
 						'type'         => 'textfield',
@@ -949,6 +1306,35 @@ function fusion_element_toggle() {
 						'value'        => esc_attr__( 'Your Content Goes Here', 'fusion-builder' ),
 						'placeholder'  => true,
 						'dynamic_data' => true,
+					],
+					[
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Title Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the title text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'title_fonts',
+						'choices'          => [
+							'font-family'    => 'title_font',
+							'font-size'      => 'title_font_size',
+							'text-transform' => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
+						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Title Font Color', 'fusion-builder' ),
+						'description' => esc_attr__( 'Set the color of title in toggle box.', 'fusion-builder' ),
+						'param_name'  => 'title_color',
+						'value'       => '',
+						'default'     => $fusion_settings->get( 'accordion_title_typography', 'color' ),
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'radio_button_set',
@@ -969,6 +1355,35 @@ function fusion_element_toggle() {
 						'value'        => esc_attr__( 'Your Content Goes Here', 'fusion-builder' ),
 						'placeholder'  => true,
 						'dynamic_data' => true,
+					],
+					[
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Content Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the content text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'content_fonts',
+						'choices'          => [
+							'font-family'    => 'content_font',
+							'font-size'      => 'content_font_size',
+							'text-transform' => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
+						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Content Font Color', 'fusion-builder' ),
+						'description' => esc_attr__( 'Set the color of content in toggle box.', 'fusion-builder' ),
+						'param_name'  => 'content_color',
+						'value'       => '',
+						'default'     => $fusion_settings->get( 'accordion_content_typography', 'color' ),
+						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'textfield',

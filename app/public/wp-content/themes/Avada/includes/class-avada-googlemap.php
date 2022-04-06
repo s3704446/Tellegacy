@@ -74,28 +74,6 @@ class Avada_GoogleMap {
 	}
 
 	/**
-	 * Calculates the brightness of a given color.
-	 *
-	 * @static
-	 * @access  public
-	 * @param  string $color The color.
-	 * @return  int|float
-	 */
-	public static function calc_color_brightness( $color ) {
-
-		if ( in_array( strtolower( $color ), [ 'black', 'navy', 'purple', 'maroon', 'indigo', 'darkslategray', 'darkslateblue', 'darkolivegreen', 'darkgreen', 'darkblue' ], true ) ) {
-			$brightness_level = 0;
-		} elseif ( 0 === strpos( $color, '#' ) ) {
-			$color            = fusion_hex2rgb( $color );
-			$brightness_level = sqrt( pow( $color[0], 2 ) * 0.299 + pow( $color[1], 2 ) * 0.587 + pow( $color[2], 2 ) * 0.114 );
-		} else {
-			$brightness_level = 150;
-		}
-
-		return $brightness_level;
-	}
-
-	/**
 	 * Function to apply attributes to HTML tags.
 	 * Devs can override attributes in a child theme by using the correct slug
 	 *
@@ -162,11 +140,12 @@ class Avada_GoogleMap {
 				$icon                     = 'theme';
 				$animation                = 'yes';
 				$infobox                  = 'custom';
-				$infobox_background_color = fusion_hex2rgb( Avada()->settings->get( 'primary_color' ) );
-				$infobox_background_color = 'rgba(' . $infobox_background_color[0] . ', ' . $infobox_background_color[1] . ', ' . $infobox_background_color[2] . ', 0.8)';
-				$overlay_color            = Avada()->settings->get( 'primary_color' );
-				$brightness_level         = $this->calc_color_brightness( Avada()->settings->get( 'primary_color' ) );
+				$color_obj                = Fusion_Color::new_color( Avada()->settings->get( 'primary_color' ) );
+				$infobox_background_color = 'rgba(' . $color_obj->red . ', ' . $color_obj->green . ', ' . $color_obj->blue . ', 0.8)';
+				$overlay_color            = $color_obj->color;
+				$brightness_level         = $color_obj->brightness['level'];
 				$infobox_text_color       = ( $brightness_level > 140 ) ? '#fff' : '#747474';
+
 			} elseif ( 'custom' === $map_style ) {
 				$overlay_color = Avada()->settings->get( 'map_overlay_color' );
 				$color_obj     = Fusion_Color::new_color( $overlay_color );
@@ -284,7 +263,7 @@ class Avada_GoogleMap {
 						map_type: '<?php echo esc_attr( $type ); ?>',
 						marker_icon: '<?php echo esc_attr( $icon ); ?>',
 						overlay_color: '<?php echo esc_attr( $overlay_color ); ?>',
-						overlay_color_hsl: <?php echo wp_json_encode( fusion_rgb2hsl( $overlay_color ) ); ?>,
+						overlay_color_hsl: <?php echo wp_json_encode( Fusion_Color::new_color( $overlay_color )->to_hsl() ); ?>,
 						pan_control: <?php echo ( 'yes' === $zoom_pancontrol ) ? 'true' : 'false'; ?>,
 						show_address: <?php echo ( 'yes' === $popup ) ? 'true' : 'false'; ?>,
 						scale_control: <?php echo ( 'yes' === $scale ) ? 'true' : 'false'; ?>,

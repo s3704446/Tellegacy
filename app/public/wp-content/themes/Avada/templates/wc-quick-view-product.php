@@ -17,7 +17,8 @@ $product_page_bg_color_lightness = Fusion_Color::new_color( $product_page_bg_col
 ?>
 <script type="text/javascript">
 	var productBackgroundColor          = '<?php echo esc_html( $product_page_bg_color ); ?>',
-		productBackgroundColorLightness = '<?php echo esc_html( $product_page_bg_color_lightness ); ?>';
+		productBackgroundColorLightness = '<?php echo esc_html( $product_page_bg_color_lightness ); ?>',
+		productQuickViewSingleURL       = '<?php echo esc_url( get_permalink() ); ?>';
 </script>
 
 <div id="product-<?php echo esc_attr( $product->get_id() ); ?>" <?php wc_product_class( '', $product ); ?>>

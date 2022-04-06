@@ -68,7 +68,8 @@ if ( class_exists( 'Avada' ) ) {
 	$size = ( 'auto' === $featured_image_height || 'auto' === $featured_image_width ) ? 'full' : $size;
 	$size = ( 'grid' === $atts['layout'] || 'masonry' === $atts['layout'] || 'timeline' === $atts['layout'] ) ? 'full' : $size;
 }
-$post_video = fusion_get_page_option( 'video', $post->ID );
+
+$post_video = apply_filters( 'privacy_iframe_embed', fusion_get_page_option( 'video', $post->ID ) );
 ?>
 
 <?php if ( has_post_thumbnail() || $post_video ) : ?>

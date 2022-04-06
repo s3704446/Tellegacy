@@ -160,9 +160,14 @@
 				$heading_bg = '';
 				if ( 'yes' === $metadata['heading_bg'] ) {
 					$heading_bg = 'background-color: rgba(0,0,0,0.4);';
-					if ( $metadata['heading_bg_color'] ) {
-						$rgb        = fusion_hex2rgb( $metadata['heading_bg_color'] );
-						$heading_bg = 'background-color: rgba(' . $rgb[0] . ',' . $rgb[1] . ',' . $rgb[2] . ',' . 0.4 . ');';
+					if ( $metadata['heading_bg_color'] && class_exists( 'Fusion_Color' ) ) {
+						$heading_bg_color_object = Fusion_Color::new_color( $metadata['heading_bg_color'] );
+
+						if ( 1 === intval( $heading_bg_color_object->alpha ) ) {
+							$heading_bg_color_object = $heading_bg_color_object->get_new( 'alpha', 0.4 );
+						}
+
+						$heading_bg = 'background-color:' . $heading_bg_color_object->toCSS( 'rgba' );
 					}
 				}
 
@@ -171,15 +176,25 @@
 				$caption_bg = '';
 				if ( 'yes' === $metadata['caption_bg'] ) {
 					$caption_bg = 'background-color:rgba(0,0,0,0.4);';
-					if ( $metadata['caption_bg_color'] ) {
-						$rgb        = fusion_hex2rgb( $metadata['caption_bg_color'] );
-						$caption_bg = 'background-color:rgba(' . $rgb[0] . ',' . $rgb[1] . ',' . $rgb[2] . ',' . 0.4 . ');';
+					if ( $metadata['caption_bg_color'] && class_exists( 'Fusion_Color' ) ) {
+						$caption_bg_color_object = Fusion_Color::new_color( $metadata['caption_bg_color'] );
+
+						if ( 1 === intval( $caption_bg_color_object->alpha ) ) {
+							$caption_bg_color_object = $caption_bg_color_object->get_new( 'alpha', 0.4 );
+						}
+
+						$caption_bg = 'background-color:' . $caption_bg_color_object->toCSS( 'rgba' );
 					}
 				}
 
-				if ( $metadata['video_bg_color'] ) {
-					$video_bg_color_hex         = fusion_hex2rgb( $metadata['video_bg_color'] );
-					$metadata['video_bg_color'] = 'background-color:rgba(' . $video_bg_color_hex[0] . ',' . $video_bg_color_hex[1] . ',' . $video_bg_color_hex[2] . ',0.4);';
+				if ( $metadata['video_bg_color'] && class_exists( 'Fusion_Color' ) ) {
+					$video_bg_color_object = Fusion_Color::new_color( $metadata['video_bg_color'] );
+
+					if ( 1 === intval( $video_bg_color_object->alpha ) ) {
+						$video_bg_color_object = $video_bg_color_object->get_new( 'alpha', 0.4 );
+					}
+
+					$metadata['video_bg_color'] = 'background-color:' . $video_bg_color_object->toCSS( 'rgba' );
 				}
 
 				$video = false;

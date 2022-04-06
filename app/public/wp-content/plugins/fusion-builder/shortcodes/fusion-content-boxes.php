@@ -505,7 +505,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 
 				$circle_hover_accent_color = $hover_accent_color;
 
-				if ( fusion_is_color_transparent( $circlecolor ) || 'no' === $this->parent_args['icon_circle'] ) {
+				if ( Fusion_Color::new_color( $circlecolor )->is_color_transparent() || 'no' === $this->parent_args['icon_circle'] ) {
 					$circle_hover_accent_color = 'transparent';
 				}
 
@@ -816,7 +816,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 
 				$this->column_counter++;
 
-				if ( fusion_is_color_transparent( $circlecolor ) || 'no' === $this->parent_args['icon_circle'] ) {
+				if ( Fusion_Color::new_color( $circlecolor )->is_color_transparent() || 'no' === $this->parent_args['icon_circle'] ) {
 					$this->transparent_child = true;
 				}
 
@@ -951,7 +951,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 				if ( $this->child_args['backgroundcolor'] ) {
 					$attr['style'] = 'background-color:' . $this->child_args['backgroundcolor'] . ';';
 
-					if ( ! fusion_is_color_transparent( $this->child_args['backgroundcolor'] ) ) {
+					if ( ! Fusion_Color::new_color( $this->child_args['backgroundcolor'] )->is_color_transparent() ) {
 						$attr['class'] .= '-background';
 					}
 				}
@@ -1070,7 +1070,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 				if ( 'button-bar' === $this->parent_args['link_type'] && 'timeline-vertical' === $this->parent_args['layout'] && isset( $args['readmore'] ) ) {
 
 					$addition_margin = 20 + 15;
-					if ( $this->child_args['backgroundcolor'] && ! fusion_is_color_transparent( $this->child_args['backgroundcolor'] ) ) {
+					if ( $this->child_args['backgroundcolor'] && ! Fusion_Color::new_color( $this->child_args['backgroundcolor'] )->is_color_transparent() ) {
 						$addition_margin += 35;
 					}
 
@@ -1264,7 +1264,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 
 						if ( $this->child_args['circlebordercolor'] && intval( $this->child_args['circlebordersize'] ) ) {
 							$attr['style'] .= 'background-color:' . $this->child_args['circlebordercolor'] . ';';
-						} elseif ( $this->child_args['outercirclebordersize'] && intval( $this->child_args['outercirclebordersize'] ) && ! fusion_is_color_transparent( $this->child_args['circlecolor'] ) ) {
+						} elseif ( $this->child_args['outercirclebordersize'] && intval( $this->child_args['outercirclebordersize'] ) && ! Fusion_Color::new_color( $this->child_args['circlecolor'] )->is_color_transparent() ) {
 							$attr['style'] .= 'background-color:' . $this->child_args['outercirclebordercolor'] . ';';
 						}
 
@@ -1477,7 +1477,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 
 					$position_top = $full_icon_size / 2;
 
-					if ( $this->child_args['backgroundcolor'] && ! fusion_is_color_transparent( $this->child_args['backgroundcolor'] ) ) {
+					if ( $this->child_args['backgroundcolor'] && ! Fusion_Color::new_color( $this->child_args['backgroundcolor'] )->is_color_transparent() ) {
 						$position_top += 35;
 					}
 
@@ -1524,7 +1524,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 					}
 					$position_horizontal = $full_icon_size / 2 + 15;
 
-					if ( $this->child_args['backgroundcolor'] && ! fusion_is_color_transparent( $this->child_args['backgroundcolor'] ) ) {
+					if ( $this->child_args['backgroundcolor'] && ! Fusion_Color::new_color( $this->child_args['backgroundcolor'] )->is_color_transparent() ) {
 						$position_top        += 35;
 						$position_horizontal += 35;
 					}
@@ -1795,7 +1795,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 								'label'       => esc_html__( 'Content Box Title Font Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the title font.', 'fusion-builder' ),
 								'id'          => 'content_box_title_color',
-								'default'     => '#212934',
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -1803,7 +1803,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 								'label'       => esc_html__( 'Content Box Body Font Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the body font.', 'fusion-builder' ),
 								'id'          => 'content_box_body_color',
-								'default'     => '#4a4e57',
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -1824,7 +1824,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 								'label'       => esc_html__( 'Content Box Icon Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the content box icon.', 'fusion-builder' ),
 								'id'          => 'content_box_icon_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -1853,7 +1853,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 								'label'           => esc_html__( 'Content Box Icon Background Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the color of the icon background.', 'fusion-builder' ),
 								'id'              => 'content_box_icon_bg_color',
-								'default'         => '#212934',
+								'default'         => 'var(--awb-color7)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -1862,7 +1862,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 								'label'           => esc_html__( 'Content Box Icon Background Inner Border Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the inner border color of the icon background.', 'fusion-builder' ),
 								'id'              => 'content_box_icon_bg_inner_border_color',
-								'default'         => '#212934',
+								'default'         => 'var(--awb-color8)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -1922,7 +1922,7 @@ if ( fusion_is_element_enabled( 'fusion_content_boxes' ) ) {
 								'label'       => esc_html__( 'Content Box Hover Accent Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the accent color on hover.', 'fusion-builder' ),
 								'id'          => 'content_box_hover_animation_accent_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color4)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -2023,7 +2023,7 @@ function fusion_element_content_boxes() {
 				'child_ui'      => true,
 				'preview'       => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-content-boxes-preview.php',
 				'preview_id'    => 'fusion-builder-block-module-content-boxes-preview-template',
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/content-boxes-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/content-boxes-element/',
 				'params'        => [
 					[
 						'type'        => 'tinymce',

@@ -304,6 +304,7 @@ function fusion_app_textdomain_strings() {
 		'to_get_started_ptb'                          => esc_html__( 'To get started building your Page Title Bar, add a container.', 'fusion-builder' ),
 		'to_get_started_footer'                       => esc_html__( 'To get started building your Footer, add a container.', 'fusion-builder' ),
 		'to_get_started_form'                         => esc_html__( 'To get started building your Form, add a container.', 'fusion-builder' ),
+		'to_get_started_off_canvas'                   => esc_html__( 'To get started building your Off Canvas, add a container.', 'fusion-builder' ),
 		'to_get_started_sub'                          => esc_html__( 'The building process always starts with a container, then columns, then elements.', 'fusion-builder' ),
 		'watch_the_video'                             => esc_html__( 'Watch The Video!', 'fusion-builder' ),
 		'edit_settings'                               => esc_html__( 'Edit Settings', 'fusion-builder' ),
@@ -395,7 +396,7 @@ function fusion_app_textdomain_strings() {
 		'importing_single_page'                       => esc_html__( 'WARNING: Importing a single prebuilt page will remove all other page content, Avada Page Options and page template. Avada Global Options and images are not imported. Click OK to continue or cancel to stop.', 'fusion-builder' ),
 		'content_error_title'                         => esc_html__( 'Content Error', 'fusion-builder' ),
 		/* translators: Link URL. */
-		'content_error_description'                   => sprintf( __( 'Your page content could not be displayed as an Avada Builder layout. Most likely that means, there is some invalid markup or shortcode in it. Please check the contents in the text editor. <a href="%s" target="_blank">See here for more information</a>.', 'fusion-builder' ), 'https://theme-fusion.com/documentation/fusion-builder/technical/page-content-not-parsable-fusion-builder/' ),
+		'content_error_description'                   => sprintf( __( 'Your page content could not be displayed as an Avada Builder layout. Most likely that means, there is some invalid markup or shortcode in it. Please check the contents in the text editor. <a href="%s" target="_blank">See here for more information</a>.', 'fusion-builder' ), 'https://theme-fusion.com/documentation/avada/how-to/how-to-fix-page-content-not-parsable-avada-builder/' ),
 		'unknown_error_title'                         => esc_html__( 'Unknown Error Occurred', 'fusion-builder' ),
 		/* translators: Link URL. */
 		'unknown_error_link'                          => sprintf( __( '<a href="%s" target="_blank">Click here to learn more.</a>', 'fusion-builder' ), '#' ),
@@ -592,6 +593,7 @@ function fusion_app_textdomain_strings() {
 		'demo_importing_content'                      => esc_html__( 'Importing Prebuilt Page Content', 'fusion-builder' ),
 		'demo_importing_content_failed'               => esc_html__( 'Importing Prebuilt Page Content Failed', 'fusion-builder' ),
 		'demo_importing_media'                        => esc_html__( 'Importing Prebuilt Page Media:', 'fusion-builder' ),
+		'focus_point_placeholder'                     => esc_html__( 'No Image Selected.', 'fusion-builder' ),
 	];
 
 	return $text_strings;

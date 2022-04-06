@@ -167,7 +167,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 						'padding_right'    => $fusion_settings->get( 'button_padding', 'right' ),
 						'padding_bottom'   => $fusion_settings->get( 'button_padding', 'bottom' ),
 						'padding_left'     => $fusion_settings->get( 'button_padding', 'left' ),
-						'button_font_size' => $fusion_settings->get( 'button_font_size' ),
+						'button_font_size' => $fusion_settings->get( 'button_typography', 'font-size' ),
 					]
 				);
 			}
@@ -182,15 +182,15 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 			 */
 			public static function settings_to_extras() {
 				return [
-					'button_border_width[top]'    => 'border_top',
-					'button_border_width[right]'  => 'border_right',
-					'button_border_width[bottom]' => 'border_bottom',
-					'button_border_width[left]'   => 'border_left',
-					'button_padding[top]'         => 'padding_top',
-					'button_padding[right]'       => 'padding_right',
-					'button_padding[bottom]'      => 'padding_bottom',
-					'button_padding[left]'        => 'padding_left',
-					'button_font_size'            => 'button_font_size',
+					'button_border_width[top]'     => 'border_top',
+					'button_border_width[right]'   => 'border_right',
+					'button_border_width[bottom]'  => 'border_bottom',
+					'button_border_width[left]'    => 'border_left',
+					'button_padding[top]'          => 'padding_top',
+					'button_padding[right]'        => 'padding_right',
+					'button_padding[bottom]'       => 'padding_bottom',
+					'button_padding[left]'         => 'padding_left',
+					'button_typography[font-size]' => 'button_font_size',
 				];
 			}
 
@@ -580,7 +580,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 					// If we have an icon and divider and changed either font or padding we need to calculate new spacing.
 					if ( '' !== $this->args['icon'] && 'yes' === $this->args['icon_divider'] && ( ! $this->is_default( 'padding_' . $this->args['icon_position'] ) || ! $this->is_default( 'font_size' ) ) ) {
 						$side_padding = ! $this->is_default( 'padding_' . $this->args['icon_position'] ) ? $this->args[ 'padding_' . $this->args['icon_position'] ] : $fusion_settings->get( 'button_padding', $this->args['icon_position'] );
-						$font_size    = ! $this->is_default( 'font_size' ) ? $this->args['font_size'] : $fusion_settings->get( 'button_font_size' );
+						$font_size    = ! $this->is_default( 'font_size' ) ? $this->args['font_size'] : $fusion_settings->get( 'button_typography', 'font-size' );
 
 						$this->add_css_property( $this->base_selector . ' .fusion-button-text-' . $this->args['icon_position'], 'padding-' . $this->args['icon_position'], 'calc( ' . $side_padding . ' / 2 + ' . $font_size . ' + 1px )' );
 
@@ -703,6 +703,13 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 				}
 
 				$attr['style'] = Fusion_Builder_Margin_Helper::get_margins_style( $this->args );
+
+				if ( ( ! empty( $this->args['margin_right'] ) || ! empty( $this->args['margin_left'] ) ) && ( ! $this->args['default_stretch'] && 'yes' === $this->args['stretch'] ) || ( $this->args['default_stretch'] && 'yes' === $this->args['default_stretch_value'] ) ) {
+					$margin_right = ! empty( $this->args['margin_right'] ) ? ' - ' . $this->args['margin_right'] : '';
+					$margin_left  = ! empty( $this->args['margin_left'] ) ? ' - ' . $this->args['margin_left'] : '';
+
+					$attr['style'] .= 'width:calc(100%' . $margin_right . $margin_left . ');';
+				}
 
 				if ( isset( $this->args['class'] ) && '' !== $this->args['class'] ) {
 					$attr['class'] .= ' ' . $this->args['class'];
@@ -941,18 +948,25 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'type'        => 'typography',
 								'choices'     => [
 									'font-family'    => true,
+									'font-size'      => true,
 									'font-weight'    => true,
+									'line-height'    => true,
 									'letter-spacing' => true,
+									'text-transform' => true,
 								],
 								'default'     => [
-									'font-family'    => 'Open Sans',
+									'font-family'    => 'var(--awb-typography3-font-family)',
+									'font-size'      => 'var(--awb-typography3-font-size)',
 									'font-weight'    => '600',
-									'letter-spacing' => '0',
+									'line-height'    => 'var(--awb-typography3-line-height)',
+									'letter-spacing' => 'var(--awb-typography3-letter-spacing)',
+									'text-transform' => 'var(--awb-typography3-text-transform)',
 								],
 								'css_vars'    => [
 									[
-										'name'   => '--button_typography-font-family',
-										'choice' => 'font-family',
+										'name'     => '--button_typography-font-family',
+										'choice'   => 'font-family',
+										'callback' => [ 'combined_font_family', 'button_typography' ],
 									],
 									[
 										'name'     => '--button_typography-font-weight',
@@ -968,47 +982,17 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 										'name'   => '--button_typography-font-style',
 										'choice' => 'font-style',
 									],
-								],
-							],
-							'button_font_size'             => [
-								'label'       => esc_html__( 'Button Font Size', 'Avada' ),
-								'description' => esc_html__( 'Controls the size of the button text.', 'Avada' ),
-								'id'          => 'button_font_size',
-								'default'     => '14px',
-								'type'        => 'dimension',
-								'css_vars'    => [
 									[
-										'name' => '--button_font_size',
+										'name'   => '--button_font_size',
+										'choice' => 'font-size',
 									],
-								],
-							],
-							'button_line_height'           => [
-								'label'       => esc_html__( 'Button Line Height', 'Avada' ),
-								'description' => esc_html__( 'Controls the line height of the button text.', 'Avada' ),
-								'id'          => 'button_line_height',
-								'default'     => '1',
-								'type'        => 'text',
-								'css_vars'    => [
 									[
-										'name' => '--button_line_height',
+										'name'   => '--button_line_height',
+										'choice' => 'line-height',
 									],
-								],
-							],
-							'button_text_transform'        => [
-								'label'       => esc_attr__( 'Text Transform', 'fusion-builder' ),
-								'description' => esc_attr__( 'Choose how the text is displayed.', 'fusion-builder' ),
-								'id'          => 'button_text_transform',
-								'default'     => 'none',
-								'type'        => 'select',
-								'choices'     => [
-									'none'       => esc_attr__( 'None', 'fusion-builder' ),
-									'uppercase'  => esc_attr__( 'Uppercase', 'fusion-builder' ),
-									'lowercase'  => esc_attr__( 'Lowercase', 'fusion-builder' ),
-									'capitalize' => esc_attr__( 'Capitalize', 'fusion-builder' ),
-								],
-								'css_vars'    => [
 									[
-										'name' => '--button_text_transform',
+										'name'   => '--button_text_transform',
+										'choice' => 'text-transform',
 									],
 								],
 							],
@@ -1016,7 +1000,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Gradient Start Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the start color of the button background.', 'fusion-builder' ),
 								'id'          => 'button_gradient_top_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color4)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1044,7 +1028,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Gradient End Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the end color of the button background.', 'fusion-builder' ),
 								'id'          => 'button_gradient_bottom_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color4)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1057,7 +1041,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Gradient Start Hover Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the start hover color of the button background.', 'fusion-builder' ),
 								'id'          => 'button_gradient_top_color_hover',
-								'default'     => '#5aa86c',
+								'default'     => 'hsla(var(--awb-color4-h),calc(var(--awb-color4-s) - 5%),calc(var(--awb-color4-l) - 10%),var(--awb-color4-a))',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1075,7 +1059,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Gradient End Hover Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the end hover color of the button background.', 'fusion-builder' ),
 								'id'          => 'button_gradient_bottom_color_hover',
-								'default'     => '#5aa86c',
+								'default'     => 'hsla(var(--awb-color4-h),calc(var(--awb-color4-s) - 5%),calc(var(--awb-color4-l) - 10%),var(--awb-color4-a))',
 								'type'        => 'color-alpha',
 								'preview'     => [
 									'selector' => '.fusion-button,.fusion-button .wpcf7-submit',
@@ -1193,7 +1177,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Text Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the button text, divider and icon.', 'fusion-builder' ),
 								'id'          => 'button_accent_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1206,7 +1190,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Text Hover Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the hover color of the button text, divider and icon.', 'fusion-builder' ),
 								'id'          => 'button_accent_hover_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1224,7 +1208,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Bevel Color For 3D Mode', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the bevel color of the buttons when using 3D button type.', 'fusion-builder' ),
 								'id'          => 'button_bevel_color',
-								'default'     => '#5db072',
+								'default'     => 'hsla(var(--awb-color4-h),calc(var(--awb-color4-s) - 5%),calc(var(--awb-color4-l) - 10%),var(--awb-color4-a))',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1249,7 +1233,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Hover Bevel Color For 3D Mode', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the hover bevel color of the buttons when using 3D button type.', 'fusion-builder' ),
 								'id'          => 'button_bevel_color_hover',
-								'default'     => '#5db072',
+								'default'     => 'hsla(var(--awb-color4-h),calc(var(--awb-color4-s) - 5%),calc(var(--awb-color4-l) - 10%),var(--awb-color4-a))',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1343,7 +1327,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the border color for buttons.', 'fusion-builder' ),
 								'id'          => 'button_border_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1356,7 +1340,7 @@ if ( fusion_is_element_enabled( 'fusion_button' ) ) {
 								'label'       => esc_html__( 'Button Border Hover Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the hover border color of the button.', 'fusion-builder' ),
 								'id'          => 'button_border_hover_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1457,8 +1441,16 @@ function fusion_element_button() {
 				'icon'          => 'fusiona-check-empty',
 				'preview'       => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-button-preview.php',
 				'preview_id'    => 'fusion-builder-block-module-button-preview-template',
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/button-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/button-element/',
 				'inline_editor' => true,
+				'subparam_map'  => [
+					'fusion_font_family_button_font'  => 'main_typography',
+					'fusion_font_variant_button_font' => 'main_typography',
+					'font_size'                       => 'main_typography',
+					'line_height'                     => 'main_typography',
+					'letter_spacing'                  => 'main_typography',
+					'text_transform'                  => 'main_typography',
+				],
 				'params'        => [
 					[
 						'type'         => 'link_selector',
@@ -1922,54 +1914,29 @@ function fusion_element_button() {
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the button.', 'fusion-builder' ),
-						'param_name'  => 'font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'size',
-								'value'    => '',
-								'operator' => '==',
-							],
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Line Height', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the line height of the button.', 'fusion-builder' ),
-						'param_name'  => 'line_height',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'size',
-								'value'    => '',
-								'operator' => '==',
-							],
-						],
-					],
-					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the button text.  ', 'fusion-builder' ),
-						'param_name'       => 'button_font',
+						'global'           => true,
+						'heading'          => esc_attr__( 'Typography', 'fusion-builder' ),
+						/* translators: URL for the link. */
+						'description'      => esc_html__( 'Controls the button typography, if left empty will inherit from globals.', 'fusion-builder' ),
+						'param_name'       => 'main_typography',
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
+						'choices'          => [
+							'font-family'    => 'button_font',
+							'font-size'      => 'font_size',
+							'line-height'    => 'line_height',
+							'letter-spacing' => 'letter_spacing',
+							'text-transform' => 'text_transform',
 						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Letter Spacing', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the letter spacing of the title. Enter value including any valid CSS unit, ex: 2px. ', 'fusion-builder' ),
-						'param_name'  => 'letter_spacing',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+						'default'          => [
+							'font-family'    => '',
+							'variant'        => '',
+							'font-size'      => '',
+							'line-height'    => '',
+							'letter-spacing' => '',
+							'text-transform' => '',
+						],
 					],
 					[
 						'type'        => 'radio_button_set',

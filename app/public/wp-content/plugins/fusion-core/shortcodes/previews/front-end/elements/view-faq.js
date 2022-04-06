@@ -193,7 +193,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						html += '<a data-toggle="collapse" class="collapsed" data-parent="#accordian-cid' + cid + '" data-target="#collapse-' + cid + '-' + faq.id + '" href="#collapse-' + cid + '-' + faq.id + '">';
 					}
 
-					html += '<div class="fusion-toggle-icon-wrapper"><i class="fa-fusion-box" aria-hidden="true"></i></div>';
+					html += '<div class="fusion-toggle-icon-wrapper"><i class="fa-fusion-box active-icon awb-icon-minus" aria-hidden="true"></i><i class="fa-fusion-box inactive-icon awb-icon-plus" aria-hidden="true"></i></div>';
 					html += '<div class="fusion-toggle-heading">' + faq.title + '</div>';
 					html += '</a>';
 					html += '</h4>';

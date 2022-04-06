@@ -342,7 +342,7 @@ function avada_options_section_logo( $sections ) {
 						'label'       => esc_html__( 'Logo Background Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the background color for the logo.', 'Avada' ),
 						'id'          => 'logo_background_color',
-						'default'     => '#65bc7b',
+						'default'     => 'var(--awb-color4)',
 						'type'        => 'color-alpha',
 						'class'       => 'fusion-gutter-and-and-and-or-and-and',
 						'required'    => [
@@ -442,7 +442,7 @@ function avada_options_section_logo( $sections ) {
 						'label'           => esc_html__( 'Retina Default Logo', 'Avada' ),
 						'description'     => esc_html__( 'Select an image file for the retina version of the logo. It should be exactly 2x the size of the main logo.', 'Avada' ),
 						'id'              => 'logo_retina',
-						'default'         => '',
+						'default'         => Avada::$template_dir_url . '/assets/images/logo@2x.png',
 						'mod'             => 'min',
 						'type'            => 'media',
 						'mode'            => false,

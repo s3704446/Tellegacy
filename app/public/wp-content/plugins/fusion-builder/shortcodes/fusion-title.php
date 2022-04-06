@@ -924,7 +924,7 @@ if ( fusion_is_element_enabled( 'fusion_title' ) ) {
 								'label'       => esc_html__( 'Title Separator Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the title separators.', 'fusion-builder' ),
 								'id'          => 'title_border_color',
-								'default'     => '#e2e2e2',
+								'default'     => 'var(--awb-color3)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -1043,7 +1043,15 @@ function fusion_element_title() {
 				'preview_id'      => 'fusion-builder-block-module-title-preview-template',
 				'allow_generator' => true,
 				'inline_editor'   => true,
-				'help_url'        => 'https://theme-fusion.com/documentation/fusion-builder/elements/title-element/',
+				'help_url'        => 'https://theme-fusion.com/documentation/avada/elements/title-element/',
+				'subparam_map'    => [
+					'fusion_font_family_title_font'  => 'main_typography',
+					'fusion_font_variant_title_font' => 'main_typography',
+					'font_size'                      => 'main_typography',
+					'line_height'                    => 'main_typography',
+					'letter_spacing'                 => 'main_typography',
+					'text_transform'                 => 'main_typography',
+				],
 				'params'          => [
 					[
 						'type'        => 'radio_button_set',
@@ -1386,15 +1394,6 @@ function fusion_element_title() {
 					],
 					[
 						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Font Size', 'fusion-builder' ),
-						/* translators: URL for the link. */
-						'description' => sprintf( esc_html__( 'Controls the font size of the title. Enter value including any valid CSS unit, ex: 20px. Leave empty if the global font size for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
-						'param_name'  => 'font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-					],
-					[
-						'type'        => 'textfield',
 						'heading'     => esc_attr__( 'Animated Text Font Size', 'fusion-builder' ),
 						/* translators: URL for the link. */
 						'description' => sprintf( esc_html__( 'Controls the font size of the animated text. Enter value including any valid CSS unit, ex: 20px. Leave empty if the global font size for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
@@ -1410,35 +1409,54 @@ function fusion_element_title() {
 						],
 					],
 					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Font Family', 'fusion-builder' ),
+						'global'           => true,
+						'heading'          => esc_attr__( 'Typography', 'fusion-builder' ),
 						/* translators: URL for the link. */
-						'description'      => sprintf( esc_html__( 'Controls the font family of the title text.  Leave empty if the global font family for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
-						'param_name'       => 'title_font',
+						'description'      => sprintf( esc_html__( 'Controls the title text typography.  Leave empty if the global typography for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
+						'param_name'       => 'main_typography',
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+						'choices'          => [
+							'font-family'    => 'title_font',
+							'font-size'      => 'font_size',
+							'line-height'    => 'line_height',
+							'letter-spacing' => 'letter_spacing',
+							'text-transform' => 'text_transform',
+						],
 						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
+							'font-family'    => '',
+							'variant'        => '',
+							'font-size'      => '',
+							'line-height'    => '',
+							'letter-spacing' => '',
+							'text-transform' => '',
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Line Height', 'fusion-builder' ),
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Font Color', 'fusion-builder' ),
 						/* translators: URL for the link. */
-						'description' => sprintf( esc_html__( 'Controls the line height of the title. Enter value including any valid CSS unit, ex: 28px. Leave empty if the global line height for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
-						'param_name'  => 'line_height',
+						'description' => sprintf( esc_html__( 'Controls the color of the title, ex: #000. Leave empty if the global color for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
+						'param_name'  => 'text_color',
 						'value'       => '',
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Letter Spacing', 'fusion-builder' ),
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Animated Text Font Color', 'fusion-builder' ),
 						/* translators: URL for the link. */
-						'description' => sprintf( esc_html__( 'Controls the letter spacing of the title. Enter value including any valid CSS unit, ex: 2px. Leave empty if the global letter spacing for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
-						'param_name'  => 'letter_spacing',
+						'description' => sprintf( esc_html__( 'Controls the color of the animated title, ex: #000. Leave empty if the global color for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
+						'param_name'  => 'animated_text_color',
 						'value'       => '',
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+						'dependency'  => [
+							[
+								'element'  => 'title_type',
+								'value'    => 'text',
+								'operator' => '!=',
+							],
+						],
 					],
 					[
 						'type'        => 'radio_button_set',

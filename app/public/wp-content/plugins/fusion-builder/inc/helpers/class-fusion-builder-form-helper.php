@@ -245,4 +245,55 @@ class Fusion_Builder_Form_Helper {
 		return $fusion_form;
 	}
 
+	/**
+	 * Exception for Name <me@mail.com> from sanitize.
+	 *
+	 * @static
+	 * @access public
+	 * @since 3.6
+	 * @param String $str String to sanitize.
+	 * @return String
+	 */
+	public static function fusion_form_sanitize( $str ) {
+		if ( is_object( $str ) || is_array( $str ) ) {
+			return '';
+		}
+
+		$str = (string) $str;
+
+		$filtered = wp_check_invalid_utf8( $str );
+
+		if ( false !== strpos( $filtered, '<' ) ) {
+			// check if it contains email.
+			preg_match( '/<(.*?)>/', $filtered, $matches );
+			$tag_content = isset( $matches[1] ) ? $matches[1] : '';
+			if ( ! is_email( $tag_content ) ) {
+				$filtered = sanitize_textarea_field( $filtered );
+			}
+		} else {
+			$filtered = sanitize_textarea_field( $filtered );
+		}
+
+		return $filtered;
+	}
+
+	/**
+	 * Convert filed names to labels.
+	 *
+	 * @static
+	 * @access public
+	 * @since 3.6
+	 * @param String $str filed name.
+	 * @return String
+	 */
+	public static function fusion_name_to_label( $str ) {
+		if ( is_object( $str ) || is_array( $str ) ) {
+			return '';
+		}
+
+		$str = (string) $str;
+
+		$str = preg_replace( '/_|-/', ' ', $str );
+		return ucwords( $str );
+	}
 }

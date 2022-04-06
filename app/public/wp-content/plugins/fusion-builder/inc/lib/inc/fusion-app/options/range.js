@@ -34,7 +34,7 @@ FusionPageBuilder.options.fusionRangeField = {
 				$min          = jQuery( this ).data( 'min' ),
 				$max          = jQuery( this ).data( 'max' ),
 				$step         = jQuery( this ).data( 'step' ),
-				$direction    = jQuery( this ).data( 'direction' ),
+				$direction    = 'ltr',
 				$value        = $rangeInput.val(),
 				$decimals     = $step.countDecimals(),
 				$rangeCheck   = 1 === jQuery( this ).closest( '.fusion-builder-option' ).find( '.fusion-with-default' ).length,

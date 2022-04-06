@@ -33,7 +33,7 @@ class Fusion_Dynamic_CSS_Inline {
 
 		$this->dynamic_css = $dynamic_css;
 		$loading_action    = 'wp_head';
-		$priority          = 999;       
+		$priority          = 999;
 
 		if ( fusion_should_defer_styles_loading() ) {
 			$loading_action = 'wp_print_footer_scripts';

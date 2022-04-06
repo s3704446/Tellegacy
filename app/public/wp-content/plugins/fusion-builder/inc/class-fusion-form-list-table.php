@@ -57,6 +57,30 @@ class Fusion_Form_List_Table extends WP_List_Table {
 	public $no_entries_text;
 
 	/**
+	 * Form field names.
+	 *
+	 * @since 3.6
+	 * @var array
+	 */
+	public $field_names = [];
+
+	/**
+	 * Form field labels.
+	 *
+	 * @since 3.6
+	 * @var array
+	 */
+	public $field_labels = [];
+
+	/**
+	 * Flag for if labels are valid or not. Labels are valid if there are no duplicates or missing labels.
+	 *
+	 * @since 3.6
+	 * @var bool|null
+	 */
+	public $are_labels_valid = null;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.1
@@ -69,15 +93,22 @@ class Fusion_Form_List_Table extends WP_List_Table {
 		$fusion_forms      = new Fusion_Form_DB_Forms();
 		$this->form_fields = $fusion_forms->get_form_fields( $this->form_id );
 
-		foreach ( array_slice( $this->form_fields, 0, 7 ) as $key => $field_object ) {
+		// Get all field names and not empty labels.
+		foreach ( $this->form_fields as $key => $field_object ) {
+
+			$this->field_names[] = $field_object->field_name;
 
 			// Use field name if label is empty, for example hidden fields.
 			if ( isset( $field_object->field_label ) && '' !== $field_object->field_label ) {
-				array_push( $this->columns, $field_object->field_label );
-			} else {
-				array_push( $this->columns, $field_object->field_name );
+				$this->field_labels[] = $field_object->field_label;
 			}
 		}
+
+		// Use labels if all fields have unique labels, otherwise use field names.
+		$this->columns = $this->are_labels_valid() ? $this->field_labels : $this->field_names;
+
+		// We don't need all.
+		$this->columns = array_slice( $this->columns, 0, 7 );
 
 		// Add actions column at the end.
 		if ( 0 !== count( $this->form_fields ) ) {
@@ -207,7 +238,7 @@ class Fusion_Form_List_Table extends WP_List_Table {
 				$entry = (array) $entry;
 
 				if ( isset( $this->form_fields[ $entry['field_id'] ] ) ) {
-					$field_label = '' !== $this->form_fields[ $entry['field_id'] ]->field_label ? $this->form_fields[ $entry['field_id'] ]->field_label : $this->form_fields[ $entry['field_id'] ]->field_name;
+					$field_label = $this->are_labels_valid() ? $this->form_fields[ $entry['field_id'] ]->field_label : $this->form_fields[ $entry['field_id'] ]->field_name;
 					$values      = explode( ' | ', $entry['value'] );
 					$is_url      = false;
 
@@ -303,7 +334,7 @@ class Fusion_Form_List_Table extends WP_List_Table {
 			// remove serialized data (we don't use it for now).
 			$data = json_decode( $submissions[0]->data, true );
 
-			if ( ! JSON_ERROR_NONE === json_last_error() && ! ( isset( $data['hubspot_response'] ) || isset( $data['mailchimp_response'] ) ) ) {
+			if ( ( ! JSON_ERROR_NONE === json_last_error() || 'NULL' !== $data ) && ! ( isset( $data['hubspot_response'] ) || isset( $data['email_errors'] ) || isset( $data['mailchimp_response'] ) ) ) {
 				unset( $submissions[0]->data );
 			}
 		}
@@ -340,6 +371,7 @@ class Fusion_Form_List_Table extends WP_List_Table {
 	public function column_data( $label, $value ) {
 		$label = 'id' === $label ? __( 'Submission Id', 'fusion-builder' ) : $label;
 		$label = 'hubspot_response' === $label ? __( 'HubSpot Response', 'fusion-builder' ) : $label;
+		$label = 'email_errors' === $label ? __( 'Email Errors', 'fusion-builder' ) : $label;
 		$label = 'mailchimp_response' === $label ? __( 'MailChimp Response', 'fusion-builder' ) : $label;
 
 		$html  = '<div class="fusion-form-single-entry">';
@@ -363,5 +395,21 @@ class Fusion_Form_List_Table extends WP_List_Table {
 	 */
 	public function no_items() {
 		echo esc_html( $this->no_entries_text );
+	}
+
+	/**
+	 * Checks if labels for all fields are populated and there are no duplicates.
+	 *
+	 * @since 3.6
+	 * @access protected
+	 * @return bool
+	 */
+	protected function are_labels_valid() {
+
+		if ( null === $this->are_labels_valid ) {
+			$this->are_labels_valid = count( $this->field_names ) === count( $this->field_labels ) && count( array_unique( $this->field_labels ) ) === count( $this->field_labels );
+		}
+
+		return $this->are_labels_valid;
 	}
 }

@@ -9,14 +9,21 @@
 <script type="text/template" id="fusion-builder-blank-page-template">
 	<div class="fusion-builder-blank-page-content fusion-builder-data-cid" data-cid="{{ cid }}">
 		<h3 class="title">
-			<?php if ( 'fusion_tb_section' === get_post_type() && 'page_title_bar' === wp_get_post_terms( get_the_ID(), 'fusion_tb_category' )[0]->slug ) : ?>
+			<?php
+			$post_temrs = wp_get_post_terms( get_the_ID(), 'fusion_tb_category' );
+			if ( 'fusion_tb_section' === get_post_type() && ! is_wp_error( $post_temrs ) && is_array( $post_temrs ) && isset( $post_temrs[0] ) ) :
+				?>
+				<?php if ( 'page_title_bar' === $post_temrs[0]->slug ) : ?>
 				{{ fusionBuilderText.to_get_started_ptb }}
-			<?php elseif ( 'fusion_tb_section' === get_post_type() && 'footer' === wp_get_post_terms( get_the_ID(), 'fusion_tb_category' )[0]->slug ) : ?>
+			<?php elseif ( 'footer' === $post_temrs[0]->slug ) : ?>
 				{{ fusionBuilderText.to_get_started_footer }}
-			<?php elseif ( 'fusion_tb_section' === get_post_type() && 'header' === wp_get_post_terms( get_the_ID(), 'fusion_tb_category' )[0]->slug ) : ?>
+			<?php elseif ( 'header' === $post_temrs[0]->slug ) : ?>
 				{{ fusionBuilderText.to_get_started_header }}
-				<?php elseif ( 'fusion_tb_section' === get_post_type() && 'content' === wp_get_post_terms( get_the_ID(), 'fusion_tb_category' )[0]->slug ) : ?>
-				{{ fusionBuilderText.to_get_started_content }}				
+				<?php elseif ( 'content' === $post_temrs[0]->slug ) : ?>
+				{{ fusionBuilderText.to_get_started_content }}
+			<?php endif; ?>
+			<?php elseif ( 'awb_off_canvas' === get_post_type() ) : ?>
+				{{ fusionBuilderText.to_get_started_off_canvas }}
 			<?php else : ?>
 				{{ fusionBuilderText.to_get_started }}
 			<?php endif; ?>

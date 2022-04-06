@@ -100,7 +100,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_text_color' ) ) {
-					placeholderColor = jQuery.Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
+					placeholderColor = jQuery.AWB_Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
 					this.addCssProperty( inputs, 'color',  this.values.field_text_color, true );
 
 					placeHolderInputs = [ this.baseSelector + ' input::placeholder', this.baseSelector + ' textarea::placeholder' ];
@@ -116,7 +116,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_border_focus_color' ) ) {
-					hoverColor = jQuery.Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
+					hoverColor = jQuery.AWB_Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
 
 					hoverInputs = [
 						this.baseSelector + ' input:hover',

@@ -181,7 +181,7 @@ if ( fusion_is_element_enabled( 'fusion_tagline_box' ) ) {
 						$args['button_shape'] = 'round3d';
 					}
 
-					$defaults['button_border_radius_top_left']     = isset( $button_radius[ $args['shape'] ] ) ? $button_radius[ $args['shape'] ] : '0px';
+					$defaults['button_border_radius_top_left']     = isset( $button_radius[ $args['button_shape'] ] ) ? $button_radius[ $args['button_shape'] ] : '0px';
 					$defaults['button_border_radius_top_right']    = $defaults['button_border_radius_top_left'];
 					$defaults['button_border_radius_bottom_right'] = $defaults['button_border_radius_top_left'];
 					$defaults['button_border_radius_bottom_left']  = $defaults['button_border_radius_top_left'];
@@ -483,7 +483,7 @@ if ( fusion_is_element_enabled( 'fusion_tagline_box' ) ) {
 								'label'       => esc_html__( 'Tagline Box Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the tagline box background.', 'fusion-builder' ),
 								'id'          => 'tagline_bg',
-								'default'     => '#f9f9fb',
+								'default'     => 'var(--awb-color2)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -563,7 +563,7 @@ function fusion_element_tagline_box() {
 				'preview_id'      => 'fusion-builder-block-module-tagline-preview-template',
 				'allow_generator' => true,
 				'inline_editor'   => true,
-				'help_url'        => 'https://theme-fusion.com/documentation/fusion-builder/elements/tagline-box-element/',
+				'help_url'        => 'https://theme-fusion.com/documentation/avada/elements/tagline-box-element/',
 				'params'          => [
 					[
 						'type'        => 'colorpickeralpha',

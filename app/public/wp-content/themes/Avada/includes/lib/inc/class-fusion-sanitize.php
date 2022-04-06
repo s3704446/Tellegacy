@@ -20,6 +20,10 @@ class Fusion_Sanitize {
 	 */
 	public static function size( $value, $fallback_unit = false ) {
 
+		if ( false !== strpos( $value, '--awb' ) ) {
+			return $value;
+		}
+
 		// Trim the value.
 		$value = trim( $value );
 
@@ -55,6 +59,10 @@ class Fusion_Sanitize {
 	 */
 	public static function get_unit( $value ) {
 
+		if ( false !== strpos( $value, '--awb' ) && function_exists( 'AWB_Global_Typography' ) ) {
+			$value = AWB_Global_Typography()->get_real_value( $value );
+		}
+
 		$unit_used = '';
 
 		// Trim the value.
@@ -86,6 +94,10 @@ class Fusion_Sanitize {
 	 *                              'force_replace': replace the unit of $value with $unit.
 	 */
 	public static function get_value_with_unit( $value, $unit = 'px', $unit_handling = 'add' ) {
+
+		if ( false !== strpos( $value, '--awb' ) ) {
+			return $value;
+		}
 
 		$raw_values = [];
 
@@ -174,6 +186,11 @@ class Fusion_Sanitize {
 	 * @return string
 	 */
 	public static function color( $value ) {
+
+		// If its a variable, just return it.
+		if ( is_string( $value ) && ( '--' === substr( $value, 0, 2 ) || false !== strpos( $value, 'var' ) ) ) {
+			return $value;
+		}
 		$color_obj = Fusion_Color::new_color( $value );
 		$mode      = ( is_array( $value ) ) ? 'rgba' : $color_obj->mode;
 		return $color_obj->to_css( $mode );
@@ -414,7 +431,9 @@ class Fusion_Sanitize {
 	 * @return string
 	 */
 	public static function units_to_px( $value, $body_font_size = 16, $screen_size = 1920 ) {
-
+		if ( false !== strpos( $value, '--awb' ) && function_exists( 'AWB_Global_Typography' ) ) {
+			$value = AWB_Global_Typography()->get_real_value( $value );
+		}
 		$number = self::number( $value );
 		$units  = self::get_unit( $value );
 
@@ -442,12 +461,19 @@ class Fusion_Sanitize {
 	 * @return string The changed font size.
 	 */
 	public static function convert_font_size_to_px( $font_size, $base_font_size ) {
+		if ( false !== strpos( $font_size, '--awb' ) && function_exists( 'AWB_Global_Typography' ) ) {
+			$font_size = AWB_Global_Typography()->get_real_value( $font_size );
+		}
 		$font_size_unit   = self::get_unit( $font_size );
 		$font_size_number = self::number( $font_size );
 
 		if ( 'rem' === $font_size_unit ) {
 			$body_font_size = fusion_library()->get_option( 'body_typography', 'font-size' );
 			$base_font_size = $body_font_size ? $body_font_size : $base_font_size;
+		}
+
+		if ( false !== strpos( $base_font_size, '--awb' ) && function_exists( 'AWB_Global_Typography' ) ) {
+			$base_font_size = AWB_Global_Typography()->get_real_value( $base_font_size );
 		}
 
 		$base_font_size_unit   = self::get_unit( $base_font_size );

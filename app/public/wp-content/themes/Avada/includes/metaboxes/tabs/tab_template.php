@@ -136,8 +136,9 @@ class Avada_Template_Page_Options {
 	 * @since 6.2
 	 */
 	public function set_options() {
+		$preview_types              = [ 'fusion_element', 'awb_off_canvas' ];
 		$this->sections['template'] = [
-			'label'    => 'fusion_element' === $this->post_type ? esc_html__( 'Post Card', 'Avada' ) : esc_html__( 'Layout Section', 'Avada' ),
+			'label'    => in_array( $this->post_type, $preview_types, true ) ? esc_html__( 'Preview', 'Avada' ) : esc_html__( 'Layout Section', 'Avada' ),
 			'id'       => 'template',
 			'alt_icon' => 'fusiona-file',
 			'fields'   => [],
@@ -195,12 +196,15 @@ class Avada_Template_Page_Options {
 			'public'            => true,
 			'show_in_nav_menus' => true,
 		];
+		$is_show_terms   = in_array( $this->post_type, [ 'fusion_element', 'fusion_tb_section' ], true ) ? true : false;
 
 		if ( 'fusion_element' !== $this->post_type ) {
 			$choices['archives'] = esc_attr__( 'Archives', 'Avada' );
 			$choices['search']   = esc_attr__( 'Search', 'Avada' );
 			$choices['404']      = esc_attr__( '404', 'Avada' );
-		} else {
+		}
+
+		if ( $is_show_terms ) {
 			$choices['term'] = esc_attr__( 'Term', 'Avada' );
 		}
 
@@ -226,7 +230,7 @@ class Avada_Template_Page_Options {
 				'post_type' => $post_type,
 			];
 
-			if ( 'fusion_element' === $this->post_type ) {
+			if ( $is_show_terms ) {
 				$new_taxonomies = get_object_taxonomies( $post_type->name, 'objects' );
 				foreach ( $new_taxonomies as $new_taxonomy ) {
 					$post_taxonomies[ $new_taxonomy->name ] = ucwords( esc_html( $new_taxonomy->label ) );
@@ -258,7 +262,7 @@ class Avada_Template_Page_Options {
 				/* translators: The post name. */
 				'placeholder' => sprintf( esc_attr__( 'Any %s item', 'Avada' ), $post_type->labels->singular_name ),
 				/* translators: The post name. */
-				'description' => sprintf( esc_attr__( 'Choose to view dynamic content as %s. Leave Empty for random selection.', 'Avada' ), $post_type->labels->singular_name ),
+				'description' => sprintf( esc_attr__( 'Choose to view dynamic content as %1$s. Select "Any %2$s Item" for random selection.', 'Avada' ), $post_type->labels->singular_name, $post_type->labels->singular_name ),
 				'type'        => $field_type,
 				'choices'     => $selection,
 				'ajax'        => $ajax,
@@ -286,7 +290,7 @@ class Avada_Template_Page_Options {
 			'id'          => 'dynamic_content_preview_type',
 			'type'        => 'select',
 			'label'       => esc_attr__( 'View Dynamic Content As', 'Avada' ),
-			'description' => esc_html__( 'Make a selection to view dynamic content as another item.', 'Avada' ),
+			'description' => esc_html__( 'Make a selection to view Dynamic Content based on a specific post/page.', 'Avada' ),
 			'default'     => 'default',
 			'transport'   => 'postMessage',
 			'class'       => 'fusion-no-bottom-border',
@@ -297,7 +301,7 @@ class Avada_Template_Page_Options {
 			$preview_fields['preview_archives'] = [
 				'id'          => 'preview_archives',
 				'label'       => esc_attr__( 'Select Archive Type', 'Avada' ),
-				'description' => esc_attr__( 'Choose to view dynamic content as archive type. Leave Empty for random selection.', 'Avada' ),
+				'description' => esc_attr__( 'Choose to view Dynamic Content as Archive Type.', 'Avada' ),
 				'type'        => 'select',
 				'default'     => 'post',
 				'choices'     => $archive_choices,
@@ -311,14 +315,15 @@ class Avada_Template_Page_Options {
 					],
 				],
 			];
-		} elseif ( ! empty( $post_taxonomies ) ) {
+		}
+		if ( $is_show_terms && ! empty( $post_taxonomies ) ) {
 			unset( $post_taxonomies['post_format'] );
 			unset( $post_taxonomies['product_visibility'] );
 
 			$preview_fields['preview_term'] = [
 				'id'          => 'preview_term',
 				'label'       => esc_attr__( 'Select Taxonomy', 'Avada' ),
-				'description' => esc_attr__( 'Select a taxonomy to pull a term from.  The most recent term in the taxonomy will be used.', 'Avada' ),
+				'description' => esc_attr__( 'Select a taxonomy to pull a term from. The most recent term in the taxonomy will be used.', 'Avada' ),
 				'type'        => 'select',
 				'default'     => '',
 				'choices'     => $post_taxonomies,

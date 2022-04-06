@@ -57,7 +57,7 @@ if ( class_exists( 'GFForms' ) ) {
 						'heading'     => esc_attr__( 'Select Form', 'fusion-builder' ),
 						'description' => sprintf(
 							/* translators: link to theme-options */
-							esc_html__( 'NOTE: The form uses %s for stying.', 'fusion-builder' ),
+							__( '<strong>NOTE:</strong> The form uses %s for stying.', 'fusion-builder' ),
 							$to_link
 						),
 						'param_name'  => 'id',

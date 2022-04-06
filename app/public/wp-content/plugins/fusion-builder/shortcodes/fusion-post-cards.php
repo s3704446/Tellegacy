@@ -168,6 +168,8 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					'order'                 => 'DESC',
 					'orderby'               => 'date',
 					'orderby_term'          => 'name',
+					'upcoming_events_only'  => 'yes',
+					'featured_events_only'  => 'no',
 					'post_card'             => '0',
 					'post_card_archives'    => false,
 					'post_card_list_view'   => '0',
@@ -392,6 +394,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 				}
 
 				$args['post_cards_query'] = true;
+				$args                     = apply_filters( 'fusion_post_cards_shortcode_query_args', $args );
 
 				return get_terms( $args );
 			}
@@ -406,6 +409,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 			 * @return array|Object
 			 */
 			public function post_query( $defaults, $live_request = false ) {
+				global $avada_woocommerce;
 				$fusion_settings = awb_get_fusion_settings();
 
 				$is_builder  = ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_preview_frame() ) || ( function_exists( 'fusion_is_builder_frame' ) && fusion_is_builder_frame() );
@@ -425,12 +429,15 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 
 				$args['orderby'] = $defaults['orderby'];
 				$args['order']   = $defaults['order'];
+
 				if ( 'product' === $defaults['post_type'] ) {
 					$args['orderby'] = ( isset( $_GET['product_orderby'] ) ) ? sanitize_text_field( wp_unslash( $_GET['product_orderby'] ) ) : $defaults['orderby']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$args['order']   = ( isset( $_GET['product_order'] ) ) ? sanitize_text_field( wp_unslash( $_GET['product_order'] ) ) : $defaults['order']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 					if ( function_exists( 'WC' ) ) {
-						$ordering_args   = WC()->query->get_catalog_ordering_args( $args['orderby'], $args['order'] );
+						remove_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
+						$ordering_args = WC()->query->get_catalog_ordering_args( $args['orderby'], $args['order'] );
+						add_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
 						$args['orderby'] = $ordering_args['orderby'];
 						$args['order']   = $ordering_args['order'];
 
@@ -537,6 +544,16 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					$args['post__in']     = $sells;
 				}
 
+				if ( 'posts' === $defaults['source'] && 'tribe_events' === $defaults['post_type'] ) {
+					if ( 'yes' === $defaults['upcoming_events_only'] ) {
+						$args['start_date'] = 'today';
+					}
+
+					if ( 'yes' === $defaults['featured_events_only'] ) {
+						$args['featured'] = true;
+					}
+				}
+
 				// Ajax returns protected posts, but we just want published.
 				if ( $live_request ) {
 					$args['post_status'] = 'publish';
@@ -544,7 +561,11 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 
 				$args['post_cards_query'] = true;
 
-				$query = fusion_cached_query( apply_filters( 'fusion_post_cards_shortcode_query_args', $args ) );
+				if ( 'posts' === $defaults['source'] && 'tribe_events' === $defaults['post_type'] && function_exists( 'tribe_get_events' ) ) {
+					$query = tribe_get_events( apply_filters( 'fusion_post_cards_shortcode_query_args', $args ), true );
+				} else {
+					$query = fusion_cached_query( apply_filters( 'fusion_post_cards_shortcode_query_args', $args ) );
+				}
 
 				if ( 'product' === $defaults['post_type'] ) {
 					fusion_library()->woocommerce->remove_post_clauses( $args['orderby'], $args['order'] );
@@ -582,6 +603,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 				$html = '';
 
 				if ( 0 === (int) $this->args['post_card'] ) {
+					$this->element_counter++;
 					return $this->get_placeholder();
 				}
 
@@ -593,6 +615,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 				$have_posts = ( 'terms' === $this->args['source'] && ! is_wp_error( $posts ) && ! empty( $posts ) ) || ( in_array( $this->args['source'], [ 'posts', 'related', 'up_sells', 'cross_sells' ], true ) && $posts->have_posts() );
 
 				if ( ! $have_posts ) {
+					$this->element_counter++;
 					return $this->get_placeholder( 'empty' );
 				}
 
@@ -607,6 +630,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					$original_is_tax            = $GLOBALS['wp_query']->is_tax;
 					$original_is_archive        = $GLOBALS['wp_query']->is_archive;
 					$original_is_category       = $GLOBALS['wp_query']->is_category;
+					$original_is_tag            = $GLOBALS['wp_query']->is_tag;
 					$original_is_singular       = $GLOBALS['wp_query']->is_singular;
 					$original_post_type_archive = $GLOBALS['wp_query']->is_post_type_archive;
 					$original_is_search         = $GLOBALS['wp_query']->is_search;
@@ -621,6 +645,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 						$GLOBALS['wp_query']->is_tax               = false;
 						$GLOBALS['wp_query']->is_archive           = false;
 						$GLOBALS['wp_query']->is_category          = false;
+						$GLOBALS['wp_query']->is_tag               = false;
 						$GLOBALS['wp_query']->is_singular          = true;
 						$GLOBALS['wp_query']->is_post_type_archive = false;
 						$GLOBALS['wp_query']->is_search            = false;
@@ -666,6 +691,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					$GLOBALS['wp_query']->is_tax               = $original_is_tax; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					$GLOBALS['wp_query']->is_archive           = $original_is_archive; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					$GLOBALS['wp_query']->is_category          = $original_is_category; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					$GLOBALS['wp_query']->is_tag               = $original_is_tag; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					$GLOBALS['wp_query']->is_singular          = $original_is_singular; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					$GLOBALS['wp_query']->queried_object       = $original_queried_object; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					$GLOBALS['wp_query']->is_post_type_archive = $original_post_type_archive; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -1139,7 +1165,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					Fusion_Dynamic_JS::enqueue_script( 'fusion-carousel' );
 
 					if ( 'product' === $post_type_obj->name ) {
-						if ( class_exists( 'Avada' ) ) {
+						if ( class_exists( 'Avada' ) && class_exists( 'WooCommerce' ) ) {
 							global $avada_woocommerce;
 
 							$js_folder_suffix = FUSION_BUILDER_DEV_MODE ? '/assets/js' : '/assets/min/js';
@@ -1262,7 +1288,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 			 * @return boolean
 			 */
 			public function is_load_more() {
-				return in_array( $this->args['scrolling'], [ 'infinite', 'load_more_button' ], true );
+				return in_array( $this->args['scrolling'], [ 'infinite', 'load_more_button' ], true ) && 'grid' === $this->args['layout'];
 			}
 
 			/**
@@ -1273,16 +1299,17 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 			 * @return string
 			 */
 			protected function get_placeholder( $type = 'card' ) {
-				if ( ! current_user_can( 'manage_options' ) ) {
-					return '';
-				}
 
-				if ( 'card' === $type ) {
-					return sprintf( '<a href="%s" target="_blank" class="fusion-builder-placeholder">%s</a>', admin_url( 'admin.php?page=avada-library' ), esc_html__( 'Please select post card design to display here.', 'fusion-builder' ) );
+				if ( ! current_user_can( 'manage_options' ) ) {
+					$msg = '';
+				} elseif ( 'card' === $type ) {
+					$msg = sprintf( '<a href="%s" target="_blank" class="fusion-builder-placeholder">%s</a>', admin_url( 'admin.php?page=avada-library' ), esc_html__( 'Please select post card design to display here.', 'fusion-builder' ) );
 				} else {
 					$msg = in_array( $this->args['source'], [ 'posts', 'related', 'up_sells', 'cross_sells' ], true ) ? esc_html__( 'No posts found.', 'fusion-builder' ) : esc_html__( 'No terms found.', 'fusion-builder' );
-					return sprintf( '<div class="fusion-builder-placeholder">%s</div>', $msg );
+					$msg = sprintf( '<div class="fusion-builder-placeholder">%s</div>', $msg );
 				}
+
+				return apply_filters( 'awb_post_cards_placeholder_message', $msg, $type, $this->args );
 			}
 
 			/**
@@ -2042,6 +2069,7 @@ function fusion_element_post_cards() {
 			'price'         => esc_attr__( 'Price', 'fusion-builder' ),
 			'popularity'    => esc_attr__( 'Popularity (sales)', 'fusion-builder' ),
 			'rating'        => esc_attr__( 'Average Rating', 'fusion-builder' ),
+			'event_date'    => esc_attr__( 'Event Date', 'fusion-builder' ),
 		],
 		'dependency'  => [
 			[
@@ -2083,7 +2111,6 @@ function fusion_element_post_cards() {
 			'ajax'     => true,
 		],
 	];
-
 	$params[] = [
 		'type'        => 'radio_button_set',
 		'heading'     => esc_attr__( 'Order', 'fusion-builder' ),
@@ -2107,6 +2134,64 @@ function fusion_element_post_cards() {
 			'ajax'     => true,
 		],
 	];
+
+	$params[] = [
+		'type'        => 'radio_button_set',
+		'heading'     => esc_attr__( 'Show Only Upcoming Events', 'fusion-builder' ),
+		'description' => __( 'Whether or not the events displayed will be only from the current date.', 'fusion-builder' ),
+		'param_name'  => 'upcoming_events_only',
+		'default'     => 'yes',
+		'value'       => [
+			'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+			'no'  => esc_attr__( 'No', 'fusion-builder' ),
+		],
+		'dependency'  => [
+			[
+				'element'  => 'source',
+				'value'    => 'posts',
+				'operator' => '==',
+			],
+			[
+				'element'  => 'post_type',
+				'value'    => 'tribe_events',
+				'operator' => '==',
+			],
+		],
+		'callback'    => [
+			'function' => 'fusion_ajax',
+			'action'   => 'get_fusion_post_cards',
+			'ajax'     => true,
+		],
+	];
+	$params[] = [
+		'type'        => 'radio_button_set',
+		'heading'     => esc_attr__( 'Show Only Featured Events', 'fusion-builder' ),
+		'description' => __( 'Whether or not to display only events that are featured.', 'fusion-builder' ),
+		'param_name'  => 'featured_events_only',
+		'default'     => 'no',
+		'value'       => [
+			'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+			'no'  => esc_attr__( 'No', 'fusion-builder' ),
+		],
+		'dependency'  => [
+			[
+				'element'  => 'source',
+				'value'    => 'posts',
+				'operator' => '==',
+			],
+			[
+				'element'  => 'post_type',
+				'value'    => 'tribe_events',
+				'operator' => '==',
+			],
+		],
+		'callback'    => [
+			'function' => 'fusion_ajax',
+			'action'   => 'get_fusion_post_cards',
+			'ajax'     => true,
+		],
+	];
+
 	$params[] = [
 		'type'        => 'radio_button_set',
 		'heading'     => esc_attr__( 'Pagination Type', 'fusion-builder' ),

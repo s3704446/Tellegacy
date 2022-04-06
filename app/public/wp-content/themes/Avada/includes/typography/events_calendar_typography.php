@@ -108,7 +108,7 @@ function avada_events_calendar_h4_typography( $typography_elements ) {
 		$typography_elements['size'][]   = '.fusion-content-widget-area .tribe-events-single-section-title';
 		$typography_elements['size'][]   = '#tribe-events-content .tribe-events-tooltip .entry-title';
 		$typography_elements['size'][]   = '#tribe-events-content .tribe-events-tooltip .tribe-event-title';
-		$typography_elements['size'][]   = '.tribe-block__tickets__registration__tickets__header';      
+		$typography_elements['size'][]   = '.tribe-block__tickets__registration__tickets__header';
 		$typography_elements['color'][]  = '.fusion-content-widget-area .tribe-events-single-section-title';
 		$typography_elements['family'][] = '.fusion-content-widget-area .tribe-events-single-section-title';
 		$typography_elements['family'][] = '#tribe-events-content .tribe-events-tooltip .entry-title';
@@ -160,7 +160,7 @@ function avada_events_post_title_typography_elements( $typography_elements ) {
 		$typography_elements['color'][] = '.fusion-body .fusion-wrapper #main .tribe-events .tribe-events-pro-photo__event-title';
 		$typography_elements['color'][] = '.fusion-body .fusion-wrapper #main .tribe-events .tribe-events-pro-map__event-title';
 		$typography_elements['color'][] = '.fusion-body .fusion-wrapper #main .tribe-events-calendar-month-mobile-events__mobile-event-title';
-	
+
 		$typography_elements['family'][] = '#wrapper .fusion-events-shortcode .fusion-events-meta h2';
 		$typography_elements['family'][] = '#wrapper .fusion-events-shortcode .fusion-events-meta h1';
 		$typography_elements['family'][] = '.fusion-body .fusion-wrapper #main .tribe-events.tribe-events-view article header h3';

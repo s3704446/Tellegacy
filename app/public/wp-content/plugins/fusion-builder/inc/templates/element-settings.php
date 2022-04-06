@@ -146,15 +146,15 @@
 					<p>{{ sortableItemsInfo }}</p>
 
 					<ul class="fusion-builder-sortable-options"></ul>
-					<a href="#" class="fusion-builder-add-multi-child"><span class="fusiona-plus"></span> {{ fusionAllElements[element_child].name }}</a>
+					<a href="#" class="fusion-builder-add-multi-child"><span class="fusiona-plus"></span><span class="add-sortable-child-text">{{ fusionAllElements[element_child].name }}</span></a>
 					<# if ( 'fusion_checklist' === elementData.shortcode ) { #>
-					<a href="#" class="fusion-builder-add-predefined-multi-child"><span class="fusiona-plus"></span>{{ fusionBuilderText.bulk_add }}</a>
+					<a href="#" class="fusion-builder-add-predefined-multi-child"><span class="fusiona-plus"></span><span class="add-sortable-child-text">{{ fusionBuilderText.bulk_add }}</span></a>
 					<# } #>
 					<# if ( 'fusion_gallery' === elementData.shortcode ) { #>
-					<a href="#" class="fusion-builder-add-multi-gallery-images"><span class="fusiona-plus"></span>{{ fusionBuilderText.bulk_add }}</a>
+					<a href="#" class="fusion-builder-add-multi-gallery-images"><span class="fusiona-plus"></span><span class="add-sortable-child-text">{{ fusionBuilderText.bulk_add }}</span></a>
 					<# } #>
 					<# if ( 'fusion_images' === elementData.shortcode ) { #>
-					<a href="#" class="fusion-builder-add-multi-gallery-images"><span class="fusiona-plus"></span>{{ fusionBuilderText.bulk_add }}</a>
+					<a href="#" class="fusion-builder-add-multi-gallery-images"><span class="fusiona-plus"></span><span class="add-sortable-child-text">{{ fusionBuilderText.bulk_add }}</span></a>
 					<# } #>
 				</div>
 			</div>

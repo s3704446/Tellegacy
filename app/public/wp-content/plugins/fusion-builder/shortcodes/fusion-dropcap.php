@@ -178,7 +178,7 @@ if ( fusion_is_element_enabled( 'fusion_dropcap' ) ) {
 								'label'       => esc_html__( 'Dropcap Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the dropcap text, or the dropcap box if a box is used.', 'fusion-builder' ),
 								'id'          => 'dropcap_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color5)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -192,7 +192,7 @@ if ( fusion_is_element_enabled( 'fusion_dropcap' ) ) {
 								'label'       => esc_html__( 'Dropcap Text Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the dropcap text when a box is used.', 'fusion-builder' ),
 								'id'          => 'dropcap_text_color',
-								'default'     => '#fff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -229,7 +229,7 @@ function fusion_element_dropcap() {
 				'shortcode'      => 'fusion_dropcap',
 				'generator_only' => true,
 				'icon'           => 'fusiona-font',
-				'help_url'       => 'https://theme-fusion.com/documentation/fusion-builder/elements/dropcap-element/',
+				'help_url'       => 'https://theme-fusion.com/documentation/avada/elements/dropcap-element/',
 				'params'         => [
 					[
 						'type'        => 'textarea',

@@ -68,7 +68,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -359,7 +359,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -492,7 +492,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -568,7 +568,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Footer Background Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the background color of the footer.', 'Avada' ),
 					'id'              => 'footer_bg_color',
-					'default'         => '#212934',
+					'default'         => 'var(--awb-color7)',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -603,7 +603,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Footer Border Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the border colors of the footer.', 'Avada' ),
 					'id'              => 'footer_border_color',
-					'default'         => '#e2e2e2',
+					'default'         => 'var(--awb-color3)',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -693,7 +693,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Footer Widget Divider Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the divider color in the footer widgets and also the vertical divider lines between widget areas.', 'Avada' ),
 					'id'              => 'footer_divider_color',
-					'default'         => '#26303e',
+					'default'         => 'var(--awb-color6)',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -752,7 +752,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Copyright Background Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the background color of the footer copyright area.', 'Avada' ),
 					'id'              => 'copyright_bg_color',
-					'default'         => '#1d242d',
+					'default'         => 'var(--awb-color8)',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -787,7 +787,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Copyright Border Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the border colors for the footer copyright area.', 'Avada' ),
 					'id'              => 'copyright_border_color',
-					'default'         => '#26303e',
+					'default'         => 'var(--awb-color8)',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -818,12 +818,12 @@ function avada_options_section_footer( $sections ) {
 						'color'          => true,
 					],
 					'default'         => [
-						'font-family'    => 'Open Sans',
-						'font-size'      => '14px',
+						'font-family'    => 'var(--awb-typography2-font-family)',
+						'font-size'      => 'var(--awb-typography2-font-size)',
 						'font-weight'    => '600',
-						'line-height'    => '1.5',
-						'letter-spacing' => '0',
-						'color'          => '#ffffff',
+						'line-height'    => 'var(--awb-typography2-line-height)',
+						'letter-spacing' => 'var(--awb-typography2-letter-spacing)',
+						'color'          => 'var(--awb-color1)',
 					],
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -864,7 +864,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Footer Font Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the text color of the footer font.', 'Avada' ),
 					'id'              => 'footer_text_color',
-					'default'         => 'rgba(255,255,255,0.6)',
+					'default'         => 'hsla(var(--awb-color1-h),var(--awb-color1-s),var(--awb-color1-l),calc(var(--awb-color1-a) - 40%))',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -878,7 +878,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Footer Link Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the text color of the footer link font.', 'Avada' ),
 					'id'              => 'footer_link_color',
-					'default'         => 'rgba(255,255,255,0.8)',
+					'default'         => 'hsla(var(--awb-color1-h),var(--awb-color1-s),var(--awb-color1-l),calc(var(--awb-color1-a) - 20%))',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -893,7 +893,7 @@ function avada_options_section_footer( $sections ) {
 					'label'           => esc_html__( 'Footer Link Hover Color', 'Avada' ),
 					'description'     => esc_html__( 'Controls the text hover color of the footer link font.', 'Avada' ),
 					'id'              => 'footer_link_color_hover',
-					'default'         => '#65bc7b',
+					'default'         => 'var(--awb-color4)',
 					'type'            => 'color-alpha',
 					'soft_dependency' => true,
 					'css_vars'        => [
@@ -908,7 +908,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => esc_html__( 'Copyright Text Color', 'Avada' ),
 					'description' => esc_html__( 'Controls the text color of the footer copyright area.', 'Avada' ),
 					'id'          => 'copyright_text_color',
-					'default'     => 'rgba(255,255,255,0.4)',
+					'default'     => 'hsla(var(--awb-color1-h),var(--awb-color1-s),var(--awb-color1-l),calc(var(--awb-color1-a) - 60%))',
 					'type'        => 'color-alpha',
 					'required'    => [
 						[
@@ -929,7 +929,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => esc_html__( 'Copyright Link Color', 'Avada' ),
 					'description' => esc_html__( 'Controls the link color of the footer copyright area.', 'Avada' ),
 					'id'          => 'copyright_link_color',
-					'default'     => 'rgba(255,255,255,0.8)',
+					'default'     => 'hsla(var(--awb-color1-h),var(--awb-color1-s),var(--awb-color1-l),calc(var(--awb-color1-a) - 20%))',
 					'type'        => 'color-alpha',
 					'required'    => [
 						[
@@ -950,7 +950,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => esc_html__( 'Copyright Link Hover Color', 'Avada' ),
 					'description' => esc_html__( 'Controls the link hover color of the footer copyright area.', 'Avada' ),
 					'id'          => 'copyright_link_color_hover',
-					'default'     => '#65bc7b',
+					'default'     => 'var(--awb-color4)',
 					'type'        => 'color-alpha',
 					'required'    => [
 						[

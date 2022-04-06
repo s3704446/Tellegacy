@@ -121,7 +121,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				jQuery( 'a.viewport-indicator > span[data-indicate-viewport="' + self.viewport + '"]' ).addClass( 'active' );
 
 				jQuery( window ).trigger( 'resize' );
-				jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ).trigger( 'resize' );
+
+				// Timing related check. Sometimes the jQuery isn't loaded yet in iframe.
+				if ( 'function' === typeof jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery ) {
+					jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ).trigger( 'resize' );
+				}
+
 				jQuery( '#fb-preview' ).attr( 'data-viewport', self.viewport );
 
 				// For responsive element options.

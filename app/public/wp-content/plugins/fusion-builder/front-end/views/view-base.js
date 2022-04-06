@@ -1253,6 +1253,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							if ( 'object' === typeof paramObject && 'string' === typeof paramObject.heading ) {
 								paramTitle = paramObject.heading;
 							}
+						} else if (  'object' !== typeof paramObject && jQuery( '.typography [name="' + param + '"]' ).length ) {
+							paramObject = elementMap.params[ jQuery( '.typography [name="' + param + '"]' ).closest( '.fusion-builder-option' ).attr( 'data-option-id' ) ];
+							if ( 'object' === typeof paramObject && 'string' === typeof paramObject.heading ) {
+								paramTitle = paramObject.heading;
+							}
 						}
 
 						state.oldValue = this.initialValue[ param ];

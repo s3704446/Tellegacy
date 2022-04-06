@@ -195,7 +195,7 @@ function fusion_element_highlight() {
 				'shortcode'      => 'fusion_highlight',
 				'icon'           => 'fusiona-H',
 				'generator_only' => true,
-				'help_url'       => 'https://theme-fusion.com/documentation/fusion-builder/elements/highlight-element/',
+				'help_url'       => 'https://theme-fusion.com/documentation/avada/elements/highlight-element/',
 				'params'         => [
 					[
 						'type'        => 'radio_button_set',

@@ -1,4 +1,4 @@
-/* global FusionApp, FusionPageBuilderViewManager, FusionEvents, fusionAllElements, FusionPageBuilderApp, fusionBuilderText, fusionGlobalManager, fusionBuilderInsertIntoEditor, openShortcodeGenerator */
+/* global FusionApp, FusionPageBuilderViewManager, FusionEvents, fusionAllElements, FusionPageBuilderApp, fusionBuilderText, fusionGlobalManager, fusionBuilderInsertIntoEditor, openShortcodeGenerator, awbPalette */
 /* eslint no-unused-vars: 0 */
 /* eslint no-alert: 0 */
 /* eslint no-empty-function: 0 */
@@ -358,7 +358,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			// Fix range with default value not triggering properly.
-			if ( $target.is( '.fusion-slider-input.fusion-with-default' ) ) {
+			if ( $target.is( '.fusion-slider-input.fusion-with-default' ) || $target.is( '.awb-ignore' ) ) {
 				return;
 			}
 
@@ -418,10 +418,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 * @return {void}
 		 */
 		getParamName: function( $target, $option ) {
-			var paramName  = $option.data( 'option-id' );
+			var paramName = $option.data( 'option-id' ),
+				$wrapper  = $target.closest( '.fusion-builder-option' );
 
 			// Non single dimension fields or font family input.
-			if ( $target.closest( '.fusion-builder-option' ).hasClass( 'font_family' ) || ( $target.closest( '.fusion-builder-option.dimension' ).length && ! $target.closest( '.single-builder-dimension' ).length ) ) {
+			if ( $wrapper.hasClass( 'typography' ) || ( $wrapper.hasClass( 'dimension' ) && ! $target.closest( '.single-builder-dimension' ).length ) ) {
 				paramName = $target.attr( 'name' );
 			}
 
@@ -453,7 +454,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			// Escape input fields.
 			if ( $target.is( 'input' ) && '' !== paramValue ) {
-				if ( ! $target.hasClass( 'fusion-builder-upload-field' ) && ! $target.is( '#generator_element_content' ) && ! $target.is( '#generator_multi_child_content' ) && false === $target.closest( 'li' ).data( 'dynamic' ) ) {
+				if ( ! $target.hasClass( 'fusion-builder-upload-field' ) && ! $target.hasClass( 'awb-typo-input' ) && ! $target.is( '#generator_element_content' ) && ! $target.is( '#generator_multi_child_content' ) && false === $target.closest( 'li' ).data( 'dynamic' ) ) {
 					paramValue = _.escape( paramValue );
 				}
 			}
@@ -609,6 +610,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			// Trigger temporary active state if exists.
 			this.triggerTemporaryState( $option );
 
+			// Trigger Option change for any other option to listen for it.
+			FusionEvents.trigger( 'awb-options-change-' + paramName, paramValue, this.model.get( 'cid' ) );
+
 			if ( 'generated_element' === this.model.get( 'type' ) ) {
 				return;
 			}
@@ -631,6 +635,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			// JS trigger for option specific refreshes.
 			this._refreshJs( paramName );
+
 
 			// Trigger active states.
 			this.triggerActiveStates();
@@ -685,9 +690,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			var self = this;
 
 			// Close colorpickers before saving
-			this.$el.find( '.wp-color-picker' ).each( function() {
-				if ( jQuery( this ).closest( '.wp-picker-active' ).length ) {
-					jQuery( this ).wpColorPicker( 'close' );
+			this.$el.find( '.fusion-color-created' ).each( function() {
+				if ( 'undefined' !== typeof jQuery( this ).awbColorPicker( 'instance' ) ) {
+					jQuery( this ).awbColorPicker( 'close' );
 				}
 			} );
 
@@ -784,7 +789,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			if ( 'undefined' === typeof $element && ( ( tabId && true === this.tabsRendered ) || ( 'undefined' !== typeof this.tabsRendered[ tabId ] && this.tabsRendered[ tabId ] ) || true === this.tabsRendered ) ) {
 				return;
 			}
-
 			this.optionDynamicData( $thisEl );
 			this.textFieldPlaceholder( $thisEl );
 			this.optionDateTimePicker( $thisEl );
@@ -807,8 +811,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			this.optionSortable( $thisEl );
 			this.optionSortableText( $thisEl );
 			this.optionConnectedSortable( $thisEl );
-			this.optionFontFamily( $thisEl );
 			this.optionAjaxSelect( $thisEl );
+			this.optionFocusImage( $thisEl );
+			this.optionTypography( $thisEl );
 
 			// TODO: fix for WooCommerce element.
 			if ( 'fusion_woo_shortcodes' === this.model.get( 'element_type' ) ) {
@@ -883,7 +888,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			setTimeout( function() {
-				$thisEl.find( 'select, input, textarea, radio' ).filter( ':eq(0)' ).not( '[data-placeholder]' ).focus();
+				$thisEl.find( 'select, input, textarea, radio' ).filter( ':eq(0)' ).not( '[data-placeholder], .awb-color-picker' ).focus();
 			}, 1 );
 
 			// If rendering a specific tab, save this fact to prevent reinit.
@@ -1345,6 +1350,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				optionType = false,
 				oldValue,
 				$target,
+				validColorValue,
 				values,
 				$datePicker,
 				$timePicker;
@@ -1364,14 +1370,17 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			switch ( optionType ) {
 			case 'colorpicker':
 			case 'colorpickeralpha':
-				$target = $option.find( '.fusion-builder-color-picker-hex' );
+				$target = $option.find( '.awb-color-picker' );
 				if ( $target.length ) {
-					$target.data( 'default', value ).trigger( 'change' );
+					if ( 'undefined' === typeof $target.awbColorPicker( 'instance' ) ) {
+						break;
+					}
+					$target.awbColorPicker( 'instance' ).defaultColor( value );
+
 					if ( '' === $target.val() ) {
-						$target.addClass( 'fusion-default-changed fusion-using-default' );
-						if ( $target.hasClass( 'wp-color-picker' ) ) {
-							$target.wpColorPicker( 'color', value );
-						}
+						// Refresh the preview to global color.
+						$target.awbColorPicker( 'color', value );
+						$target.awbColorPicker( 'color', '' );
 					}
 				}
 				break;
@@ -1393,7 +1402,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 		paramChanged: function( param, value ) {
 			var self       = this,
-				$option    = 0 < this.$el.find( 'li[data-option-id="' + param + '"]' ).length ? this.$el.find( 'li[data-option-id="' + param + '"]' ) : this.$el.find( '#' + param ).closest( '.fusion-builder-option' ),
+				$option    = 0 < this.$el.find( 'li[data-option-id="' + param + '"]' ).length ? this.$el.find( 'li[data-option-id="' + param + '"]' ) : this.$el.find( '[name=' + param + ']' ).closest( '.fusion-builder-option' ),
 				optionType = false,
 				$target,
 				values,
@@ -1562,7 +1571,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				self.reRender();
 				break;
 			default:
-				$option.find( '#' + param ).val( value ).trigger( 'change' );
+				$option.find( '[name=' + param + ']' ).val( value ).trigger( 'change' );
 				break;
 			}
 
@@ -1593,10 +1602,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionConnectedSortable );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionDynamicData );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionTypographyField );
-	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionFontFamilyField );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionColumnWidth );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionFormOptions );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionLogics );
+	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionImageFocusPoint );
 
 	// Active states.
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.fusionActiveStates );
