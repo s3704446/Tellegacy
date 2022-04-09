@@ -100,6 +100,8 @@ if ( fusion_is_element_enabled( 'fusion_tb_meta' ) ) {
 					'border_size'              => null,
 					'border_color'             => $fusion_settings->get( 'sep_color' ),
 					'alignment'                => 'flex-start',
+					'alignment_medium'         => '',
+					'alignment_small'          => '',
 					'stacked_vertical_align'   => 'flex-start',
 					'stacked_horizontal_align' => 'flex-start',
 					'height'                   => '33',
@@ -226,6 +228,7 @@ if ( fusion_is_element_enabled( 'fusion_tb_meta' ) ) {
 			protected function get_styles() {
 				$this->base_selector = '.fusion-meta-tb.fusion-meta-tb-' . $this->counter;
 				$this->dynamic_css   = [];
+				$fusion_settings     = awb_get_fusion_settings();
 
 				$selectors = [
 					$this->base_selector,
@@ -238,6 +241,11 @@ if ( fusion_is_element_enabled( 'fusion_tb_meta' ) ) {
 
 				if ( ! $this->is_default( 'link_color' ) ) {
 					$this->add_css_property( $this->base_selector . ' span a', 'color', $this->args['link_color'] );
+				}
+
+				// Alignment.
+				if ( '' !== $this->args['alignment'] && 'stacked' !== $this->args['layout'] ) {
+					$this->add_css_property( $this->base_selector, 'justify-content', $this->args['alignment'] );
 				}
 
 				$selectors = [
@@ -330,6 +338,22 @@ if ( fusion_is_element_enabled( 'fusion_tb_meta' ) ) {
 				}
 
 				$css = $this->parse_css();
+
+				// Responsive Alignment.
+				if ( 'stacked' !== $this->args['layout'] ) {
+					foreach ( [ 'medium', 'small' ] as $size ) {
+						$key   = 'alignment_' . $size;
+						$media = sprintf( '@media only screen and (max-width:%spx)', $fusion_settings->get( 'visibility_' . $size ) );
+
+						if ( '' === $this->args[ $key ] ) {
+							continue;
+						}
+
+						$this->dynamic_css = [];
+						$this->add_css_property( $this->base_selector, 'justify-content', $this->args[ $key ] );
+						$css .= sprintf( '%s { %s }', $media, $this->parse_css() );
+					}
+				}
 				return $css ? '<style type="text/css">' . $css . '</style>' : '';
 			}
 
@@ -358,10 +382,6 @@ if ( fusion_is_element_enabled( 'fusion_tb_meta' ) ) {
 
 				if ( $this->args['height'] ) {
 					$attr['style'] .= 'min-height:' . $this->args['height'] . ';';
-				}
-
-				if ( '' !== $this->args['alignment'] && 'stacked' !== $this->args['layout'] ) {
-					$attr['style'] .= 'justify-content:' . $this->args['alignment'] . ';';
 				}
 
 				if ( '' !== $this->args['stacked_vertical_align'] && 'floated' !== $this->args['layout'] ) {
@@ -410,6 +430,22 @@ if ( fusion_is_element_enabled( 'fusion_tb_meta' ) ) {
 					'link_color'     => 'text_color',
 					'primary_color'  => 'text_hover_color',
 					'meta_font_size' => 'font_size',
+				];
+			}
+
+			/**
+			 * Used to set any other variables for use on front-end editor template.
+			 *
+			 * @static
+			 * @access public
+			 * @since 3.6
+			 * @return array
+			 */
+			public static function get_element_extras() {
+				$fusion_settings = awb_get_fusion_settings();
+				return [
+					'visibility_medium' => $fusion_settings->get( 'visibility_medium' ),
+					'visibility_small'  => $fusion_settings->get( 'visibility_small' ),
 				];
 			}
 
@@ -820,6 +856,9 @@ function fusion_component_meta() {
 								'value'    => 'stacked',
 								'operator' => '!=',
 							],
+						],
+						'responsive'  => [
+							'state' => 'large',
 						],
 					],
 					[

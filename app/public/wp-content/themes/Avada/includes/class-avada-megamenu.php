@@ -74,6 +74,7 @@ if ( ! class_exists( 'Avada_Megamenu' ) ) {
 				'cart-counter-display',
 				'show-woo-cart-contents',
 				'searchform-mode',
+				'off-canvas-id',
 			];
 			if ( ! $args['menu-item-parent-id'] ) {
 				$field_name_suffix = [
@@ -91,6 +92,7 @@ if ( ! class_exists( 'Avada_Megamenu' ) ) {
 					'cart-counter-display',
 					'show-woo-cart-contents',
 					'searchform-mode',
+					'off-canvas-id',
 				];
 			}
 
@@ -137,6 +139,7 @@ if ( ! class_exists( 'Avada_Megamenu' ) ) {
 
 			$meta_data  = get_post_meta( $menu_item->ID );
 			$avada_meta = ! empty( $meta_data['_menu_item_fusion_megamenu'][0] ) ? maybe_unserialize( $meta_data['_menu_item_fusion_megamenu'][0] ) : [];
+			$avada_meta = apply_filters( 'avada_menu_meta', $avada_meta, $menu_item->ID );
 
 			if ( ! $menu_item->menu_item_parent ) {
 				$menu_item->fusion_menu_style = isset( $avada_meta['style'] ) ? $avada_meta['style'] : '';
@@ -152,6 +155,7 @@ if ( ! class_exists( 'Avada_Megamenu' ) ) {
 			$menu_item->fusion_cart_counter_display        = isset( $avada_meta['cart_counter_display'] ) ? $avada_meta['cart_counter_display'] : 'inline';
 			$menu_item->fusion_show_woo_cart_contents      = isset( $avada_meta['show_woo_cart_contents'] ) ? $avada_meta['show_woo_cart_contents'] : 'no';
 			$menu_item->fusion_searchform_mode             = isset( $avada_meta['searchform_mode'] ) ? $avada_meta['searchform_mode'] : 'inline';
+			$menu_item->fusion_off_canvas_id               = isset( $avada_meta['off_canvas_id'] ) ? $avada_meta['off_canvas_id'] : '';
 
 			$menu_item->fusion_highlight_label              = isset( $avada_meta['highlight_label'] ) ? $avada_meta['highlight_label'] : '';
 			$menu_item->fusion_highlight_label_background   = isset( $avada_meta['highlight_label_background'] ) ? $avada_meta['highlight_label_background'] : '';

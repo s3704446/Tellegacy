@@ -23,11 +23,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function avada_options_section_social_media( $sections ) {
 
-	// Check if we have a global header override.
+	// Check if we have a global header or footer override.
 	$has_global_header = false;
+	$has_global_footer = false;
 	if ( class_exists( 'Fusion_Template_Builder' ) ) {
 		$default_layout    = Fusion_Template_Builder::get_default_layout();
 		$has_global_header = isset( $default_layout['data']['template_terms'] ) && isset( $default_layout['data']['template_terms']['header'] ) && $default_layout['data']['template_terms']['header'];
+		$has_global_footer = isset( $default_layout['data']['template_terms'] ) && isset( $default_layout['data']['template_terms']['footer'] ) && $default_layout['data']['template_terms']['footer'];
 	}
 
 	$sections['social_media'] = [
@@ -45,7 +47,7 @@ function avada_options_section_social_media( $sections ) {
 				'fields' => [
 					'social_media_icons_important_note_info' => [
 						'label'       => '',
-						'description' => '<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> This tab controls the social networks that display in the header and footer and which can also be used in the social links widget. Add the network of your choice along with your unique URL. Each network you wish to display must be added here to show up in the header and footer. These settings do not control the avada social widget, social link element or person element.', 'Avada' ) . '</div>',
+						'description' => '<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> This tab controls the social networks that display in legacy headers and footers. Custom links created here can also be used in the Social Links and the Person element.', 'Avada' ) . '</div>',
 						'id'          => 'social_media_icons_important_note_info',
 						'type'        => 'custom',
 					],
@@ -224,7 +226,7 @@ function avada_options_section_social_media( $sections ) {
 						'hidden'      => $has_global_header,
 						'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 							/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 							Fusion_Template_Builder::get_instance()->get_template_terms()['header']['label'],
 							admin_url( 'admin.php?page=avada-layouts' )
 						) : '',
@@ -313,7 +315,7 @@ function avada_options_section_social_media( $sections ) {
 						'label'       => esc_html__( 'Header Social Icon Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the header social icons. This color will be used for all social icons in the header.', 'Avada' ),
 						'id'          => 'header_social_links_icon_color',
-						'default'     => '#ffffff',
+						'default'     => 'var(--awb-color1)',
 						'hidden'      => $has_global_header,
 						'type'        => 'color-alpha',
 						'required'    => [
@@ -362,7 +364,7 @@ function avada_options_section_social_media( $sections ) {
 						'label'       => esc_html__( 'Header Social Icon Box Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the social icon box.', 'Avada' ),
 						'id'          => 'header_social_links_box_color',
-						'default'     => '#ffffff',
+						'default'     => 'var(--awb-color1)',
 						'hidden'      => $has_global_header,
 						'type'        => 'color-alpha',
 						'required'    => [
@@ -411,6 +413,7 @@ function avada_options_section_social_media( $sections ) {
 						'description' => esc_html__( 'Controls the interior padding of the box.', 'Avada' ),
 						'id'          => 'header_social_links_boxed_padding',
 						'default'     => '8px',
+						'hidden'      => $has_global_header,
 						'type'        => 'dimension',
 						'required'    => [
 							[
@@ -436,12 +439,37 @@ function avada_options_section_social_media( $sections ) {
 				'icon'        => true,
 				'type'        => 'sub-section',
 				'fields'      => [
-					'icons_footer'                      => [
+					'footer_social_links_override_notice' => [
+						'id'          => 'footer_social_links_override_notice',
+						'label'       => '',
+						'hidden'      => ! $has_global_footer,
+						'description' => class_exists( 'Fusion_Template_Builder' ) && $has_global_footer ? sprintf(
+							/* translators: 1: Content|Footer|Page Title Bar. 2: URL. */
+							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> The options on this tab are not available because a global %1$s override is currently used. To edit your global layout please visit <a href="%2$s" target="_blank">this page</a>.', 'Avada' ) . '</div>',
+							Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
+							admin_url( 'admin.php?page=avada-layouts' )
+						) : '',
+						'type'        => 'custom',
+					],
+					'footer_social_links_notice'          => [
+						'id'          => 'footer_social_links_notice',
+						'label'       => '',
+						'hidden'      => $has_global_footer,
+						'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
+							/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
+							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+							Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
+							admin_url( 'admin.php?page=avada-layouts' )
+						) : '',
+						'type'        => 'custom',
+					],
+					'icons_footer'                        => [
 						'label'           => esc_html__( 'Display Social Icons In The Footer', 'Avada' ),
 						'description'     => esc_html__( 'Turn on to display social icons in the footer copyright bar.', 'Avada' ),
 						'id'              => 'icons_footer',
 						'default'         => '1',
 						'type'            => 'switch',
+						'hidden'          => $has_global_footer,
 						'partial_refresh' => [
 							'footer_content_icons_footer' => [
 								'selector'              => '.fusion-footer',
@@ -452,12 +480,13 @@ function avada_options_section_social_media( $sections ) {
 							],
 						],
 					],
-					'footer_social_links_font_size'     => [
+					'footer_social_links_font_size'       => [
 						'label'       => esc_html__( 'Footer Social Icon Font Size', 'Avada' ),
 						'description' => esc_html__( 'Controls the font size of the footer social icons.', 'Avada' ),
 						'id'          => 'footer_social_links_font_size',
 						'default'     => '16px',
 						'type'        => 'dimension',
+						'hidden'      => $has_global_footer,
 						'required'    => [
 							[
 								'setting'  => 'icons_footer',
@@ -478,6 +507,7 @@ function avada_options_section_social_media( $sections ) {
 						'id'              => 'footer_social_links_tooltip_placement',
 						'default'         => 'Top',
 						'type'            => 'radio-buttonset',
+						'hidden'          => $has_global_footer,
 						'choices'         => [
 							'top'    => esc_html__( 'Top', 'Avada' ),
 							'right'  => esc_html__( 'Right', 'Avada' ),
@@ -502,12 +532,13 @@ function avada_options_section_social_media( $sections ) {
 							],
 						],
 					],
-					'footer_social_links_color_type'    => [
+					'footer_social_links_color_type'      => [
 						'label'           => esc_html__( 'Footer Social Icon Color Type', 'Avada' ),
 						'description'     => esc_html__( 'Custom colors allow you to choose a color for icons and boxes. Brand colors will use the exact brand color of each network for the icons or boxes.', 'Avada' ),
 						'id'              => 'footer_social_links_color_type',
 						'default'         => 'custom',
 						'type'            => 'radio-buttonset',
+						'hidden'          => $has_global_footer,
 						'choices'         => [
 							'custom' => esc_html__( 'Custom Colors', 'Avada' ),
 							'brand'  => esc_html__( 'Brand Colors', 'Avada' ),
@@ -529,12 +560,13 @@ function avada_options_section_social_media( $sections ) {
 							],
 						],
 					],
-					'footer_social_links_icon_color'    => [
+					'footer_social_links_icon_color'      => [
 						'label'       => esc_html__( 'Footer Social Icon Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the footer social icons. This color will be used for all social icons in the footer.', 'Avada' ),
 						'id'          => 'footer_social_links_icon_color',
 						'type'        => 'color-alpha',
-						'default'     => 'rgba(255,255,255,0.8)',
+						'default'     => 'hsla(var(--awb-color1-h),var(--awb-color1-s),var(--awb-color1-l),calc(var(--awb-color1-a) - 20%))',
+						'hidden'      => $has_global_footer,
 						'required'    => [
 							[
 								'setting'  => 'icons_footer',
@@ -555,12 +587,13 @@ function avada_options_section_social_media( $sections ) {
 							],
 						],
 					],
-					'footer_social_links_boxed'         => [
+					'footer_social_links_boxed'           => [
 						'label'           => esc_html__( 'Footer Social Icons Boxed', 'Avada' ),
 						'description'     => esc_html__( 'Controls if each icon is displayed in a small box.', 'Avada' ),
 						'id'              => 'footer_social_links_boxed',
 						'default'         => '0',
 						'type'            => 'switch',
+						'hidden'          => $has_global_footer,
 						'required'        => [
 							[
 								'setting'  => 'icons_footer',
@@ -578,12 +611,13 @@ function avada_options_section_social_media( $sections ) {
 							],
 						],
 					],
-					'footer_social_links_box_color'     => [
+					'footer_social_links_box_color'       => [
 						'label'       => esc_html__( 'Footer Social Icon Box Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the social icon box.', 'Avada' ),
 						'id'          => 'footer_social_links_box_color',
-						'default'     => '#222222',
+						'default'     => 'var(--awb-color8)',
 						'type'        => 'color-alpha',
+						'hidden'      => $has_global_footer,
 						'required'    => [
 							[
 								'setting'  => 'icons_footer',
@@ -609,12 +643,13 @@ function avada_options_section_social_media( $sections ) {
 							],
 						],
 					],
-					'footer_social_links_boxed_radius'  => [
+					'footer_social_links_boxed_radius'    => [
 						'label'       => esc_html__( 'Footer Social Icon Boxed Radius', 'Avada' ),
 						'description' => esc_html__( 'Controls the box radius.', 'Avada' ),
 						'id'          => 'footer_social_links_boxed_radius',
 						'default'     => '4px',
 						'type'        => 'dimension',
+						'hidden'      => $has_global_footer,
 						'required'    => [
 							[
 								'setting'  => 'icons_footer',
@@ -634,12 +669,13 @@ function avada_options_section_social_media( $sections ) {
 							],
 						],
 					],
-					'footer_social_links_boxed_padding' => [
+					'footer_social_links_boxed_padding'   => [
 						'label'       => esc_html__( 'Footer Social Icon Boxed Padding', 'Avada' ),
 						'description' => esc_html__( 'Controls the interior padding of the box.', 'Avada' ),
 						'id'          => 'footer_social_links_boxed_padding',
 						'default'     => '8px',
 						'type'        => 'dimension',
+						'hidden'      => $has_global_footer,
 						'required'    => [
 							[
 								'setting'  => 'icons_footer',
@@ -688,7 +724,7 @@ function avada_options_section_social_media( $sections ) {
 						'label'       => esc_html__( 'Social Sharing Tagline Text Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the tagline text in the social sharing boxes.', 'Avada' ),
 						'id'          => 'sharing_box_tagline_text_color',
-						'default'     => '#212934',
+						'default'     => 'var(--awb-color8)',
 						'type'        => 'color-alpha',
 						'css_vars'    => [
 							[
@@ -702,7 +738,7 @@ function avada_options_section_social_media( $sections ) {
 						'label'       => esc_html__( 'Social Sharing Background Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the background color of the social sharing boxes.', 'Avada' ),
 						'id'          => 'social_bg_color',
-						'default'     => '#f9f9fb',
+						'default'     => 'var(--awb-color2)',
 						'type'        => 'color-alpha',
 						'css_vars'    => [
 							[
@@ -832,7 +868,7 @@ function avada_options_section_social_media( $sections ) {
 						'label'       => esc_html__( 'Social Sharing Icon Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the social icons in the social sharing boxes. This color will be used for all social icons.', 'Avada' ),
 						'id'          => 'sharing_social_links_icon_color',
-						'default'     => '#9ea0a4',
+						'default'     => 'var(--awb-color8)',
 						'type'        => 'color-alpha',
 						'required'    => [
 							[
@@ -869,7 +905,7 @@ function avada_options_section_social_media( $sections ) {
 						'label'       => esc_html__( 'Social Sharing Icon Box Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the social icon box.', 'Avada' ),
 						'id'          => 'sharing_social_links_box_color',
-						'default'     => '#e8e8e8',
+						'default'     => 'var(--awb-color3)',
 						'type'        => 'color-alpha',
 						'required'    => [
 							[

@@ -601,6 +601,15 @@ function avada_options_section_advanced( $sections ) {
 						// No need to refresh the page.
 						'transport'   => 'postMessage',
 					],
+					'status_awb_Off_Canvas'   => [
+						'label'       => esc_html__( 'Avada Off Canvas', 'Avada' ),
+						'description' => esc_html__( 'Turn on to enable the Avada Off Canvas.', 'Avada' ),
+						'id'          => 'status_awb_Off_Canvas',
+						'default'     => '1',
+						'type'        => 'switch',
+						// No need to refresh the page.
+						'transport'   => 'postMessage',
+					],
 					'status_fusion_portfolio' => [
 						'label'       => esc_html__( 'Avada Portfolio', 'Avada' ),
 						'description' => esc_html__( 'Turn on to enable the Avada Portfolio.', 'Avada' ),

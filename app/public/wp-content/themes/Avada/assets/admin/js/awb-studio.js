@@ -430,6 +430,8 @@ window.awbStudio = {
 			postType = 'fusion_icons';
 		} else if ( 'forms' === self.context.type ) {
 			postType = 'fusion_form';
+		} else if ( 'awb_off_canvas' === self.context.type ) {
+			postType = 'awb_off_canvas';
 		}
 
 		// Get data of posts we need.

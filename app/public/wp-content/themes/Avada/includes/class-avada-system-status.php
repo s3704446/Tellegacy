@@ -137,8 +137,17 @@ class Avada_System_Status {
 			$response = [ 'message' => __( 'Security check failed.' ) ];
 		}
 
-		if ( function_exists( 'Fusion_Form_Builder' ) ) {
-			Fusion_Form_Builder()->create_db_tables();
+		// Fusion Builder is active and Forms are enabled.
+		if ( class_exists( 'Fusion_Form_Builder' ) && Fusion_Form_Builder::is_enabled() ) {
+
+			// Include Form Installer.
+			if ( ! class_exists( 'Fusion_Form_DB_Install' ) ) {
+				include_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-form-db-install.php';
+			}
+
+			$fusion_form_db_install = new Fusion_Form_DB_Install();
+			$fusion_form_db_install->create_tables();
+
 			$response = [ 'message' => __( 'Database tables are created successfully.' ) ];
 		}
 

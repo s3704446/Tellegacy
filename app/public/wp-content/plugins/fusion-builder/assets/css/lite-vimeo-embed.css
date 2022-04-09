@@ -6,7 +6,12 @@ lite-vimeo {
     contain: content;
     background-position: center center;
     background-size: cover;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgOCA0LjUiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBvbHlnb24gcG9pbnRzPSIwLDAgMSwwIDEsNC41IDAsNC41IiBmaWxsPSIjODVkY2U1Ii8+PHBvbHlnb24gcG9pbnRzPSIxLDAgMiwwIDIsNC41IDEsNC41IiBmaWxsPSIjZWJmMmY0Ii8+PHBvbHlnb24gcG9pbnRzPSIyLDAgMywwIDMsNC41IDIsNC41IiBmaWxsPSIjZmU1MjIxIi8+PHBvbHlnb24gcG9pbnRzPSIzLDAgNCwwIDQsNC41IDMsNC41IiBmaWxsPSIjZjdmYzhiIi8+PHBvbHlnb24gcG9pbnRzPSI0LDAgNSwwIDUsNC41IDQsNC41IiBmaWxsPSIjMTJhOWQxIi8+PHBvbHlnb24gcG9pbnRzPSI1LDAgNiwwIDYsNC41IDUsNC41IiBmaWxsPSIjNDEzNzMxIi8+PHBvbHlnb24gcG9pbnRzPSI2LDAgNywwIDcsNC41IDYsNC41IiBmaWxsPSIjYmQyZDA3Ii8+PHBvbHlnb24gcG9pbnRzPSI3LDAgOCwwIDgsNC41IDcsNC41IiBmaWxsPSIjY2ZlZDI1Ii8+PC9zdmc+");
     cursor: pointer;
+}
+
+lite-vimeo.awb-lite-vimeo-no-background {
+    background-image: none;
 }
 
 /* gradient, vimeo doesn't have this */

@@ -173,17 +173,18 @@
   width: 1em;
   height: auto;
 }
-.fusion-body .fusion-wrapper #main .tribe-events .datepicker .prev .tribe-common-svgicon:before,
-.fusion-body .fusion-wrapper #main .tribe-events .datepicker .next .tribe-common-svgicon:after {
+.fusion-body .fusion-wrapper #main .tribe-events .datepicker .prev:before,
+.fusion-body .fusion-wrapper #main .tribe-events .datepicker .next:after {
   font-family: "awb-icons";
+  font-size: 1.2em;
   transition-property: color, background-color, border-color;
   transition-duration: 200ms;
   transition-timing-function: linear;
 }
-.fusion-body .fusion-wrapper #main .tribe-events .datepicker .prev .tribe-common-svgicon:before {
+.fusion-body .fusion-wrapper #main .tribe-events .datepicker .prev:before {
   content: "\f104";
 }
-.fusion-body .fusion-wrapper #main .tribe-events .datepicker .next .tribe-common-svgicon:after {
+.fusion-body .fusion-wrapper #main .tribe-events .datepicker .next:after {
   content: "\f105";
 }
 .fusion-body .fusion-wrapper #main .tribe-events .datepicker .dow {

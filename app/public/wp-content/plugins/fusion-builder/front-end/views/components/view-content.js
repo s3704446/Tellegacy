@@ -77,7 +77,7 @@ self = this;
 				} );
 
 				if ( !this.isDefault( 'line_height' ) ) {
-				  this.addCssProperty( this.baseSelector, 'line-height',  _.fusionGetValueWithUnit( this.values.line_height ) );
+				  this.addCssProperty( this.baseSelector, 'line-height', this.values.line_height );
 				}
 
 				if ( !this.isDefault( 'letter_spacing' ) ) {

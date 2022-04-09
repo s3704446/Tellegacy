@@ -56,12 +56,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * Calculate color scheme depend on hex color.
 			 *
 			 * @since 2.0.0
-			 * @param {string} hexColor - The hex color code to calculate color scheme against.
+			 * @param {string} color - The hex color code to calculate color scheme against.
 			 * @return {string}
 			 */
-			getColorScheme: function( hexColor ) {
-				hexColor = 'string' !== typeof hexColor ? '#ffffff' : hexColor.replace( '#', '' );
-				return ( parseInt( hexColor, 16 ) > 0xffffff / 2 ) ? 'light' : 'dark';
+			getColorScheme: function( color ) {
+				return 0.5 < jQuery.AWB_Color( color ).lightness() ? 'light' : 'dark';
 			},
 
 			/**

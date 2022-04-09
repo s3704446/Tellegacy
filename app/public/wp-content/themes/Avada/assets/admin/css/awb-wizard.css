@@ -1,7 +1,9 @@
 /* stylelint-disable no-descending-specificity */
+.avada-db-setup .avada-db-header-main-container,
 .avada-db-performance .avada-db-header-main-container {
   min-height: 78px;
 }
+.avada-db-setup .avada-db-header-main-container h1,
 .avada-db-performance .avada-db-header-main-container h1 {
   font-size: 1.4em;
   margin: 0 0 0 0.7em;
@@ -138,6 +140,16 @@ i.awb-wizard-hero-icon {
 }
 .awb-wizard-section {
   overflow: hidden;
+}
+.awb-wizard-section .pyre_metabox_field {
+  float: none;
+  overflow: hidden;
+}
+.awb-wizard-section .awb-typography {
+  margin: 0 5px;
+}
+.awb-wizard-section .awb-picker-global .awb-global-sets {
+  max-height: 182px;
 }
 .fusion-body .awb-wizard-section .awb-wizard-save.hidden {
   display: inline-flex;

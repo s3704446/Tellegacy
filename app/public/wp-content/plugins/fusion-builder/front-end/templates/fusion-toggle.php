@@ -16,11 +16,15 @@
 </div>
 </script>
 <script type="text/html" id="tmpl-fusion_toggle-shortcode">
+	<# if ( '' !== childStyles ) { #>
+		<style type="text/css">{{{ childStyles }}}</style>
+	<# } #>
 <div class="panel-heading">
 	<h4 class="panel-title toggle">
 		<a {{{ _.fusionGetAttributes( toggleShortcodeDataToggle ) }}}>
 			<span class="fusion-toggle-icon-wrapper" aria-hidden="true">
-				<i class="fa-fusion-box" aria-hidden="true"></i>
+				<i class="fa-fusion-box active-icon {{activeIcon}}" aria-hidden="true"></i>
+				<i class="fa-fusion-box inactive-icon {{inActiveIcon}}" aria-hidden="true"></i>
 			</span>
 			<span {{{ _.fusionGetAttributes( headingAttr ) }}}>
 				{{{ title }}}

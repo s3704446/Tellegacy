@@ -463,7 +463,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'description' => esc_html__( 'Controls the background color of the sliding bar.', 'Avada' ),
 				'id'          => 'slidingbar_bg_color',
 				'type'        => 'color-alpha',
-				'default'     => '#212934',
+				'default'     => 'var(--awb-color7)',
 				'required'    => [
 					[
 						'setting'  => 'slidingbar_widgets',
@@ -482,7 +482,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'label'       => esc_html__( 'Sliding Bar Item Divider Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the divider color in the sliding bar.', 'Avada' ),
 				'id'          => 'slidingbar_divider_color',
-				'default'     => '#26303e',
+				'default'     => 'var(--awb-color6)',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[
@@ -502,7 +502,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'label'       => esc_html__( 'Sliding Bar Toggle/Close Icon Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the color of the sliding bar toggle icon and of the close icon when using the main menu icon as toggle style.', 'Avada' ),
 				'id'          => 'slidingbar_toggle_icon_color',
-				'default'     => '#ffffff',
+				'default'     => 'var(--awb-color1)',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[
@@ -546,7 +546,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'label'       => esc_html__( 'Sliding Bar Headings Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the text color of the sliding bar heading font.', 'Avada' ),
 				'id'          => 'slidingbar_headings_color',
-				'default'     => '#ffffff',
+				'default'     => 'var(--awb-color1)',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[
@@ -567,7 +567,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'label'       => esc_html__( 'Sliding Bar Font Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the text color of the sliding bar font.', 'Avada' ),
 				'id'          => 'slidingbar_text_color',
-				'default'     => 'rgba(255,255,255,0.6)',
+				'default'     => 'hsla(var(--awb-color1-h),var(--awb-color1-s),var(--awb-color1-l),calc(var(--awb-color1-a) - 40%))',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[
@@ -588,7 +588,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'label'       => esc_html__( 'Sliding Bar Link Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the text color of the sliding bar link font.', 'Avada' ),
 				'id'          => 'slidingbar_link_color',
-				'default'     => 'rgba(255,255,255,0.86)',
+				'default'     => 'hsla(var(--awb-color1-h),var(--awb-color1-s),var(--awb-color1-l),calc(var(--awb-color1-a) - 14%))',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[
@@ -608,7 +608,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'label'       => esc_html__( 'Sliding Bar Link Hover Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the text hover color of the sliding bar link font.', 'Avada' ),
 				'id'          => 'slidingbar_link_color_hover',
-				'default'     => '#ffffff',
+				'default'     => 'var(--awb-color1)',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[

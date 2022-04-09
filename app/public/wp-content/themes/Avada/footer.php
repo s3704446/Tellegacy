@@ -31,12 +31,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 				<?php if ( ! is_page_template( 'blank.php' ) ) : ?>
 
-					<?php 
+					<?php
 					if ( has_action( 'avada_render_footer' ) ) {
 						do_action( 'avada_render_footer' );
 					} else {
 						Avada()->template->render_footer();
-					} 
+					}
 					?>
 
 					<div class="fusion-sliding-bar-wrapper">

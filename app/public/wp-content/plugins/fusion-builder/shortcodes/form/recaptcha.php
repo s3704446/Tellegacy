@@ -78,21 +78,23 @@ if ( fusion_is_element_enabled( 'fusion_form_recaptcha' ) ) {
 					var fusionOnloadCallback = function () {
 						grecaptcha.ready( function () {
 							jQuery( '.g-recaptcha-response' ).each( function () {
-								var $el           = jQuery( this ),
-									$container    = $el.parent().find( 'div.recaptcha-container' ),
-									id            = $container.attr( 'id' ),
-									renderId      = grecaptcha.render(
-										id,
-										{
-											sitekey: $container.data( 'sitekey' ),
-											badge: $container.data( 'badge' ),
-											size: 'invisible'
-										}
-									);
+								var $el        = jQuery( this ),
+									$container = $el.parent().find( 'div.recaptcha-container' ),
+									id         = $container.attr( 'id' ),
+									renderId;
 
 								if ( 0 === $container.length || 'undefined' !== typeof active_captcha[ id ] || ( 1 === jQuery( '.fusion-modal' ).find( $container ).length && $container.closest( '.fusion-modal' ).is( ':hidden' ) ) ) {
 									return;
 								}
+
+								renderId = grecaptcha.render(
+									id,
+									{
+										sitekey: $container.data( 'sitekey' ),
+										badge: $container.data( 'badge' ),
+										size: 'invisible'
+									}
+								);
 
 								active_captcha[ id ] = renderId;
 
@@ -142,7 +144,7 @@ if ( fusion_is_element_enabled( 'fusion_form_recaptcha' ) ) {
 					<div <?php echo FusionBuilder::attributes( 'recaptcha-shortcode' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> >
 						<?php if ( 'v2' === $fusion_settings->get( 'recaptcha_version' ) ) : ?>
 							<div
-								id="g-recaptcha-<?php echo esc_attr( $this->params['form_number'] ); ?>"
+								id="g-recaptcha-<?php echo esc_attr( $this->params['form_number'] . '-' . $this->counter ); ?>"
 								class="fusion-form-recaptcha-v2"
 								data-theme="<?php echo esc_attr( $this->args['color_theme'] ); ?>"
 								data-sitekey="<?php echo esc_attr( $fusion_settings->get( 'recaptcha_public' ) ); ?>"

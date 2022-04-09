@@ -98,11 +98,44 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			buildStyles: function( values ) {
 				var styles = '',
+					title_styles,
 					cid = this.model.get( 'cid' );
 
+				// Title typography.
+				styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a {';
+
 				if ( '' !== values.title_font_size ) {
-					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a{ font-size: ' + values.title_font_size + ';}';
+					styles += 'font-size: ' + values.title_font_size + ';';
 				}
+
+				if ( ! _.isEmpty( values.title_color ) ) {
+					styles += 'color:' + values.title_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'title_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
+
+				// Content typography.
+				styles += '.fusion-accordian  #accordion-cid' + cid + ' .toggle-content {';
+
+				if ( '' !== values.content_font_size ) {
+					styles += 'font-size: ' + values.content_font_size + ';';
+				}
+
+				if ( ! _.isEmpty( values.content_color ) ) {
+					styles += 'color:' + values.content_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'content_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
 
 				if ( '' !== values.icon_size ) {
 					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a .fa-fusion-box:before{ font-size: ' + values.icon_size + '; width: ' + values.icon_size + ';}';
@@ -121,18 +154,20 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! _.isEmpty( values.toggle_hover_accent_color ) ) {
-					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode:hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
-					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a.hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode.hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
+					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active):hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode:hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
+					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active).hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode.hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
 
 					if ( '1' === values.icon_boxed_mode || 'yes' === values.icon_boxed_mode ) {
-						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title .active .fa-fusion-box,';
-						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
-						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a.hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
+						if ( _.isEmpty( values.toggle_active_accent_color ) ) {
+							styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title .active .fa-fusion-box,';
+						}
+						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active):hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
+						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active).hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
 					} else {
 						styles += '.fusion-accordian  #accordion-cid' + cid + ' .fusion-toggle-boxed-mode:hover .panel-title a .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ';}';
-						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
+						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:not(.active):hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
 						styles += '.fusion-accordian  #accordion-cid' + cid + ' .fusion-toggle-boxed-mode.hover .panel-title a .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ';}';
-						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a.hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
+						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:not(.active).hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
 					}
 				}
 
@@ -155,6 +190,28 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						styles += ' background-color:' + values.background_color + ';';
 					}
 					styles += ' }';
+				} else if ( '0' !== values.divider_line || 0 !== values.divider_line || 'no' !== values.divider_line ) {
+					if ( ! _.isEmpty( values.divider_hover_color ) ) {
+						styles += '#accordion-cid' + cid + ' .fusion-panel:hover{ border-color: ' + values.divider_hover_color + ' }';
+					}
+
+					styles += ' #accordion-cid' + cid + ' .fusion-panel {';
+
+					if ( ! _.isEmpty( values.divider_color ) ) {
+						styles += ' border-color:' + values.divider_color + ';';
+					}
+
+					styles += ' }';
+				}
+
+				if ( ! _.isEmpty( values.toggle_active_accent_color ) ) {
+					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a.active{ color: ' + values.toggle_active_accent_color + ' !important;}';
+
+					if ( '1' === values.icon_boxed_mode || 'yes' === values.icon_boxed_mode ) {
+						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title .active .fa-fusion-box { background-color: ' + values.toggle_active_accent_color + '!important;border-color: ' + values.toggle_active_accent_color + '!important;}';
+					} else {
+						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a.active .fa-fusion-box{ color: ' + values.toggle_active_accent_color + ' !important;}';
+					}
 				}
 
 				return styles;

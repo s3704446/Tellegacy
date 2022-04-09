@@ -1718,9 +1718,11 @@ body.side-header-right.rtl #side-header .login-box {
   border-right: 1px solid transparent;
   border-bottom: 1px solid transparent;
 }
-.fusion-mobile-menu-text-align-left .fusion-mobile-nav-item a,
 .fusion-mobile-menu-text-align-left .fusion-mobile-selector {
   text-align: left;
+}
+.fusion-mobile-menu-text-align-left .fusion-mobile-nav-item a {
+  justify-content: left;
 }
 .fusion-mobile-menu-text-align-left .fusion-selector-down {
   right: 0;
@@ -1781,9 +1783,11 @@ body.side-header-right.rtl #side-header .login-box {
 .fusion-mobile-menu-text-align-left li.fusion-mobile-nav-item .submenu-languages li a:before {
   content: none;
 }
-.fusion-mobile-menu-text-align-right .fusion-mobile-nav-item a,
 .fusion-mobile-menu-text-align-right .fusion-mobile-selector {
   text-align: right;
+}
+.fusion-mobile-menu-text-align-right .fusion-mobile-nav-item a {
+  justify-content: right;
 }
 .fusion-mobile-menu-text-align-right .fusion-selector-down {
   left: 0;
@@ -1852,9 +1856,11 @@ body.side-header-right.rtl #side-header .login-box {
 .fusion-mobile-menu-text-align-right .wpml-ls-item .wpml-ls-flag {
   order: 2;
 }
-.fusion-mobile-menu-text-align-center .fusion-mobile-nav-item a,
 .fusion-mobile-menu-text-align-center .fusion-mobile-selector {
   text-align: center;
+}
+.fusion-mobile-menu-text-align-center .fusion-mobile-nav-item a {
+  justify-content: center;
 }
 .fusion-mobile-menu-text-align-center .fusion-has-highlight-label .menu-text {
   justify-content: center;
@@ -1943,7 +1949,8 @@ body.side-header-right.rtl #side-header .login-box {
   color: #333;
   padding: 0 12px;
   font-size: 12px;
-  display: block;
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid transparent;
 }
 .fusion-mobile-nav-item .iclflag {

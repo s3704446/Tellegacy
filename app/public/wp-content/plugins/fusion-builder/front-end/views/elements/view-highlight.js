@@ -38,7 +38,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						class: 'fusion-highlight',
 						style: ''
 					},
-					brightnessLevel = jQuery.Color( values.color ).lightness() * 100;
+					brightnessLevel = jQuery.AWB_Color( values.color ).lightness() * 100;
 
 				if ( values.text_color ) {
 					highlightShortcode[ 'class' ] += ' custom-textcolor';

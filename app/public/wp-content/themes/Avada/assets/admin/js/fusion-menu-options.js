@@ -255,9 +255,7 @@ jQuery( window ).on( 'load', function() {
 		if ( $colorPicker.length ) {
 			$colorPicker.each( function() {
 				if ( ! jQuery( this ).closest( '.wp-picker-container' ).length ) {
-					jQuery( this ).wpColorPicker( {
-						palettes: [ '#000000', '#ffffff', '#f44336', '#E91E63', '#03A9F4', '#00BCD4', '#8BC34A', '#FFEB3B', '#FFC107', '#FF9800', '#607D8B' ]
-					} );
+					jQuery( this ).awbColorPicker();
 				}
 			} );
 		}
@@ -323,7 +321,7 @@ jQuery( window ).on( 'load', function() {
 		if ( colorPickers.length ) {
 			colorPickers.each( function() {
 				if ( jQuery( this ).closest( '.wp-picker-container' ).hasClass( 'wp-picker-active' ) ) {
-					jQuery( this ).wpColorPicker( 'close' );
+					jQuery( this ).awbColorPicker( 'close' );
 				}
 			} );
 		}
@@ -360,7 +358,7 @@ jQuery( window ).on( 'load', function() {
 		if ( colorPickers.length ) {
 			colorPickers.each( function() {
 				if ( jQuery( this ).closest( '.wp-picker-container' ).hasClass( 'wp-picker-active' ) ) {
-					jQuery( this ).wpColorPicker( 'close' );
+					jQuery( this ).awbColorPicker( 'close' );
 				}
 			} );
 		}
@@ -395,7 +393,7 @@ jQuery( window ).on( 'load', function() {
 		if ( colorPickers.length ) {
 			colorPickers.each( function() {
 				if ( jQuery( this ).closest( '.wp-picker-container' ).hasClass( 'wp-picker-active' ) ) {
-					jQuery( this ).wpColorPicker( 'close' );
+					jQuery( this ).awbColorPicker( 'close' );
 				}
 			} );
 		}

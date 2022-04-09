@@ -450,7 +450,7 @@ if ( fusion_is_element_enabled( 'fusion_image_before_after' ) ) {
 
 				$image_data = fusion_library()->images->get_attachment_data_by_helper( $this->args['after_image_id'], $this->args['after_image'] );
 
-				$alt = ( isset( $image_data['alt'] ) && $image_data['alt'] ) ? $image_data['alt'] : $this->args['before_label'];
+				$alt = ( isset( $image_data['alt'] ) && $image_data['alt'] ) ? $image_data['alt'] : $this->args['after_label'];
 
 				if ( isset( $image_data['url'] ) ) {
 					$this->args['after_image'] = $image_data['url'];
@@ -650,7 +650,7 @@ if ( fusion_is_element_enabled( 'fusion_image_before_after' ) ) {
 								'label'           => esc_html__( 'Label Accent Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the color of the label background and text. Text takes 100% of this color, background takes a % of it.', 'fusion-builder' ),
 								'id'              => 'before_after_accent_color',
-								'default'         => '#ffffff',
+								'default'         => 'var(--awb-color1)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -690,7 +690,7 @@ if ( fusion_is_element_enabled( 'fusion_image_before_after' ) ) {
 								'label'           => esc_html__( 'Handle Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the color of the before and after image handle line and arrows. ex: #ffffff.', 'fusion-builder' ),
 								'id'              => 'before_after_handle_color',
-								'default'         => '#ffffff',
+								'default'         => 'var(--awb-color1)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -776,7 +776,7 @@ if ( fusion_is_element_enabled( 'fusion_image_before_after' ) ) {
 								'label'           => esc_html__( 'Border Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the border color of the image before & after element.', 'fusion-builder' ),
 								'id'              => 'before_after_border_color',
-								'default'         => '#e2e2e2',
+								'default'         => 'var(--awb-color3)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -858,7 +858,7 @@ function fusion_element_image_before_after() {
 				'icon'       => 'fusiona-object-ungroup',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-image-before-after-preview.php',
 				'preview_id' => 'fusion-builder-block-module-image-before-after-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/image-before-after-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/image-before-after-element/',
 				'params'     => [
 					[
 						'type'        => 'radio_button_set',

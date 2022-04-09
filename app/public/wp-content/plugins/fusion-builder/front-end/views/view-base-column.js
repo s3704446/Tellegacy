@@ -931,9 +931,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var borderRadius;
 
 				// Alpha related checks.
-				this.values.alpha_background_color     = jQuery.Color( this.values.background_color ).alpha();
-				this.values.alpha_gradient_start_color = jQuery.Color( this.values.gradient_start_color ).alpha();
-				this.values.alpha_gradient_end_color   = jQuery.Color( this.values.gradient_end_color ).alpha();
+				this.values.alpha_background_color     = jQuery.AWB_Color( this.values.background_color ).alpha();
+				this.values.alpha_gradient_start_color = jQuery.AWB_Color( this.values.gradient_start_color ).alpha();
+				this.values.alpha_gradient_end_color   = jQuery.AWB_Color( this.values.gradient_end_color ).alpha();
 
 				if ( '' !== this.values.margin_bottom ) {
 					this.values.margin_bottom = _.fusionGetValueWithUnit( this.values.margin_bottom );

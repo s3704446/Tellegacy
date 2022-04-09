@@ -509,7 +509,7 @@ if ( fusion_is_element_enabled( 'fusion_separator' ) ) {
 								'label'       => esc_html__( 'Separator Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of all separators, divider lines and borders for meta, previous & next, filters, archive pages, boxes around number pagination, sidebar widgets, accordion divider lines, counter boxes and more.', 'fusion-builder' ),
 								'id'          => 'sep_color',
-								'default'     => '#e2e2e2',
+								'default'     => 'var(--awb-color3)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -549,7 +549,7 @@ if ( fusion_is_element_enabled( 'fusion_separator' ) ) {
 								'label'       => esc_html__( 'Icon Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the Icon', 'fusion-builder' ),
 								'id'          => 'separator_icon_color',
-								'default'     => '#e2e2e2',
+								'default'     => 'var(--awb-color3)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -613,7 +613,7 @@ function fusion_element_separator() {
 				'icon'       => 'fusiona-minus',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-separator-preview.php',
 				'preview_id' => 'fusion-builder-block-module-separator-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/separator-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/separator-element/',
 				'params'     => [
 					[
 						'type'        => 'select',

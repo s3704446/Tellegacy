@@ -121,6 +121,7 @@ if ( fusion_is_element_enabled( 'fusion_youtube' ) ) {
 					$html .= '<lite-youtube videoid="' . $id . '" params="wmode=transparent&autoplay=1' . $api_params . '" title="' . esc_attr( $title ) . '"></lite-youtube>';
 				} else {
 					$html .= '<iframe title="' . esc_attr( $title ) . '" src="https://www.youtube.com/embed/' . $id . '?wmode=transparent&autoplay=0' . $api_params . '" width="' . $width . '" height="' . $height . '" allowfullscreen allow="autoplay; fullscreen"></iframe>';
+					$html  = fusion_library()->images->apply_global_selected_lazy_loading_to_iframe( $html );
 				}
 
 				$html .= '</div></div>';
@@ -257,14 +258,15 @@ function fusion_element_youtube() {
 				'icon'       => 'fusiona-youtube',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-youtube-preview.php',
 				'preview_id' => 'fusion-builder-block-module-youtube-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/youtube-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/youtube-element/',
 				'params'     => [
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Video ID', 'fusion-builder' ),
-						'description' => esc_attr__( 'For example the Video ID for https://www.youtube.com/watch?v=569TlvRLn90 is 569TlvRLn90.', 'fusion-builder' ),
-						'param_name'  => 'id',
-						'value'       => '',
+						'type'         => 'textfield',
+						'heading'      => esc_attr__( 'Video ID or Url', 'fusion-builder' ),
+						'description'  => esc_attr__( 'For example the Video ID for https://www.youtube.com/watch?v=569TlvRLn90 is 569TlvRLn90.', 'fusion-builder' ),
+						'param_name'   => 'id',
+						'dynamic_data' => true,
+						'value'        => '',
 					],
 					[
 						'type'        => 'radio_button_set',

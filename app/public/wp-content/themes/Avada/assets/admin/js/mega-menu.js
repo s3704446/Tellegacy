@@ -1,3 +1,4 @@
+/* global ajaxurl, AvadaMegaMenuVars */
 /**
  * Handles the admin manipulation of the mega menu plugin.
  *
@@ -223,4 +224,73 @@
 			fusionMediaFrame.open();
 		} );
 	}
+
+	/*
+	*	Autocomplete
+	*/
+	jQuery( window ).click( function( event ) { // eslint-disable-line no-unused-vars
+		jQuery( '.autocomplete-ajax-results' ).removeClass( 'show' );
+	} );
+	jQuery( document ).on( 'click', '.fusion-autocomplete-wrap', function( event ) {
+		event.stopPropagation();
+	} );
+	jQuery( document ).on( 'change', '.autocomplete-saved-value', function( event ) { // eslint-disable-line no-unused-vars
+		const	val = this.value,
+				search = jQuery( this ).parent().find( '.fusion-autocomplete-search' );
+
+		if ( val ) {
+			search.addClass( 'hidden' );
+		} else {
+			search.removeClass( 'hidden' );
+		}
+	} );
+	jQuery( document ).on( 'click', '.autocomplete-container .selected-holder .remove', function( event ) { // eslint-disable-line no-unused-vars
+		const	input = jQuery( this ).parents( '.autocomplete-container' ).find( '.autocomplete-saved-value' ),
+				selected = jQuery( this ).parent();
+
+		selected.remove();
+		input.val( '' ).trigger( 'change' );
+	} );
+
+	jQuery( document ).on( 'keyup focus', '.fusion-autocomplete-search', function( event ) { // eslint-disable-line no-unused-vars
+		const 	input = jQuery( this ),
+				val = input.val(),
+				wrap = input.parent(),
+				ajaxResults = wrap.find( '.autocomplete-ajax-results' ),
+				valueInput = wrap.find( '.autocomplete-saved-value' ),
+				selected = wrap.find( '.selected-holder' ),
+				postType = input.data( 'post-type' );
+
+
+		if ( val && 2 < val.length ) {
+			jQuery.ajax( {
+				type: 'post',
+				url: ajaxurl,
+				dataType: 'json',
+				data: {
+					action: 'avada_mega_menu_autocomplete',
+					nonce: AvadaMegaMenuVars.nonce,
+					keyword: val,
+					post_type: postType
+				},
+				beforeSend: function () {
+					ajaxResults.addClass( 'show' ).html( '<a>' + AvadaMegaMenuVars.text_loading + '</a>' );
+				},
+				success: function ( response ) {
+					ajaxResults.html( response.html );
+				}
+			} );
+		} else {
+			ajaxResults.removeClass( 'show' );
+		}
+
+		wrap.on( 'click', '.autocomplete-ajax-results a', function( e ) {
+			e.preventDefault();
+			valueInput.val( this.dataset.id ).trigger( 'change' );
+			selected.html( '<div class="item">' + this.innerText + ' <span class="remove fas fa-times"></span></div>' );
+			input.val( '' );
+		} );
+
+	} );
+
 }( jQuery ) );

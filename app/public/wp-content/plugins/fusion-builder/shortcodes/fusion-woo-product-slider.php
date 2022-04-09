@@ -511,7 +511,7 @@ function fusion_element_products_slider() {
 					'name'      => esc_attr__( 'Woo Product Carousel', 'fusion-builder' ),
 					'shortcode' => 'fusion_products_slider',
 					'icon'      => 'fusiona-tag',
-					'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/woocommerce-product-carousel-element/',
+					'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/woocommerce-product-carousel-element/',
 					'params'    => [
 						[
 							'type'        => 'radio_button_set',

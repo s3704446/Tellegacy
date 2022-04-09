@@ -306,12 +306,17 @@ function fusion_component_woo_short_description() {
 		fusion_builder_frontend_data(
 			'FusionTB_Woo_Short_Description',
 			[
-				'name'      => esc_attr__( 'Woo Short Description', 'fusion-builder' ),
-				'shortcode' => 'fusion_tb_woo_short_description',
-				'icon'      => 'fusiona-woo-short-description',
-				'component' => true,
-				'templates' => [ 'content', 'post_cards', 'page_title_bar' ],
-				'params'    => [
+				'name'         => esc_attr__( 'Woo Short Description', 'fusion-builder' ),
+				'shortcode'    => 'fusion_tb_woo_short_description',
+				'icon'         => 'fusiona-woo-short-description',
+				'component'    => true,
+				'templates'    => [ 'content', 'post_cards', 'page_title_bar' ],
+				'subparam_map' => [
+					'fusion_font_family_text_font'  => 'main_typography',
+					'fusion_font_variant_text_font' => 'main_typography',
+					'text_font_size'                => 'main_typography',
+				],
+				'params'       => [
 					[
 						'type'             => 'dimension',
 						'remove_from_atts' => true,
@@ -337,36 +342,33 @@ function fusion_component_woo_short_description() {
 						],
 					],
 					[
-						'type'        => 'colorpickeralpha',
-						'heading'     => esc_attr__( 'Text Color', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the color of the text, ex: #000.' ),
-						'param_name'  => 'text_color',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'    => [
-							'function' => 'fusion_style_block',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the description text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'main_typography',
+						'choices'          => [
+							'font-family'    => 'text_font',
+							'font-size'      => 'text_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
 						],
-					],
-					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Text Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the text.', 'fusion-builder' ),
-						'param_name'       => 'text_font',
 						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '',
+							'font-family' => '',
+							'variant'     => '400',
 						],
+						'remove_from_atts' => true,
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'         => [
 							'function' => 'fusion_style_block',
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Text Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the text. Enter value including any valid CSS unit, ex: 20px. Note: font size will be applied only to plain text.', 'fusion-builder' ),
-						'param_name'  => 'text_font_size',
+						'type'        => 'colorpickeralpha',
+						'heading'     => esc_attr__( 'Text Color', 'fusion-builder' ),
+						'description' => esc_html__( 'Controls the color of the text, ex: #000.' ),
+						'param_name'  => 'text_color',
 						'value'       => '',
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'    => [
@@ -399,7 +401,7 @@ function fusion_component_woo_short_description() {
 						'preview_selector' => '.fusion-woo-short-description-tb',
 					],
 				],
-				'callback'  => [
+				'callback'     => [
 					'function' => 'fusion_ajax',
 					'action'   => 'get_fusion_tb_woo_short_description',
 					'ajax'     => true,

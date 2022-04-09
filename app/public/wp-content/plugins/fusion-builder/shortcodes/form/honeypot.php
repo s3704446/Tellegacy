@@ -111,7 +111,7 @@ function fusion_form_honeypot() {
 					[
 						'type'        => 'textfield',
 						'heading'     => esc_html__( 'Field Name', 'fusion-builder' ),
-						'description' => esc_html__( 'Enter the field name. Should be single word without spaces. Underscores and dashes are allowed.', 'fusion-builder' ),
+						'description' => esc_html__( 'Enter the field name. Please use only lowercase alphanumeric characters, dashes, and underscores.', 'fusion-builder' ),
 						'param_name'  => 'name',
 						'value'       => 'hypot_field',
 						'placeholder' => true,

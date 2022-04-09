@@ -236,7 +236,7 @@ final class Fusion_Helper {
 		}
 		return false;
 
-	}   
+	}
 
 	/**
 	 * Check if we're on an Event post.

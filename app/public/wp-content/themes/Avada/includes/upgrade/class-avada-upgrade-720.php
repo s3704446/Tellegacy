@@ -100,7 +100,6 @@ class Avada_Upgrade_720 extends Avada_Upgrade_Abstract {
 			$options['woocommerce_product_images_layout'] = $options['disable_woo_gallery'] ? 'avada' : 'woocommerce';
 		}
 
-
 		if ( isset( $options['enable_woo_gallery_zoom'] ) ) {
 			$options['woocommerce_product_images_zoom'] = $options['enable_woo_gallery_zoom'];
 		}

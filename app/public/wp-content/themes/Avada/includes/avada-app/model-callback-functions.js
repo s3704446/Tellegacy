@@ -6,7 +6,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 	_.extend( FusionPageBuilder.Callback.prototype, {
 
 		fusion_get_alpha: function( value ) {
-			var color = jQuery.Color( value );
+			var color = jQuery.AWB_Color( value );
 			return color.alpha();
 		},
 

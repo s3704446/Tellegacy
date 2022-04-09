@@ -4578,10 +4578,6 @@
   color: #46494a;
   display: inline-block;
 }
-#fusion_builder_layout .fusion-social-networks .fusion-social-network-icon:hover,
-.fusion-builder-ui-wireframe .fusion-builder-live-editor .fusion-social-networks .fusion-social-network-icon:hover {
-  opacity: 0.8;
-}
 #fusion_builder_layout .fusion-social-networks .fusion-social-network-icon:before,
 .fusion-builder-ui-wireframe .fusion-builder-live-editor .fusion-social-networks .fusion-social-network-icon:before {
   color: inherit;

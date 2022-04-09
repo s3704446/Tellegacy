@@ -160,7 +160,7 @@ class Fusion_WooCommerce {
 			$gallery = '[product-gallery]';
 		}
 
-		$html = str_replace( '</div>', '<a class="avada-product-gallery-lightbox-trigger" href="' . esc_url( $full_size_image[0] ) . '" data-rel="iLightbox' . $gallery . '" alt="' . $attachment_data['alt'] . '" data-title="' . $attachment_data['title_attribute'] . '" data-caption="' . $attachment_data['caption_attribute'] . '"></a></div>', $html );
+		$html = str_replace( '</div>', '<a class="avada-product-gallery-lightbox-trigger" href="' . esc_url( $full_size_image[0] ) . '" data-rel="iLightbox' . $gallery . '" alt="' . $attachment_data['alt'] . '" data-title="' . $attachment_data['title_attribute'] . '" title="' . $attachment_data['title_attribute'] . '" data-caption="' . $attachment_data['caption_attribute'] . '"></a></div>', $html );
 
 		return $html;
 	}

@@ -298,7 +298,7 @@ if ( fusion_is_element_enabled( 'fusion_tb_content' ) ) {
 				}
 
 				if ( ! $this->is_default( 'line_height' ) ) {
-					$this->add_css_property( $this->base_selector, 'line-height', fusion_library()->sanitize->get_value_with_unit( $this->args['line_height'] ) );
+					$this->add_css_property( $this->base_selector, 'line-height', $this->args['line_height'] );
 				}
 
 				if ( ! $this->is_default( 'letter_spacing' ) ) {
@@ -478,6 +478,13 @@ function fusion_component_content() {
 				'component'               => true,
 				'templates'               => [ 'content', 'post_cards' ],
 				'components_per_template' => 1,
+				'subparam_map'            => [
+					'fusion_font_family_text_font'  => 'main_typography',
+					'fusion_font_variant_text_font' => 'main_typography',
+					'font_size'                     => 'main_typography',
+					'line_height'                   => 'main_typography',
+					'letter_spacing'                => 'main_typography',
+				],
 				'params'                  => [
 					[
 						'type'        => 'radio_button_set',
@@ -577,41 +584,28 @@ function fusion_component_content() {
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-					],
-					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Font Family', 'fusion-builder' ),
+						'global'           => true,
+						'heading'          => esc_attr__( 'Typography', 'fusion-builder' ),
 						/* translators: URL for the link. */
-						'description'      => sprintf( esc_html__( 'Controls the font family of the text.  Leave empty if the global font family for the text should be used: %s.', 'fusion-builder' ), $to_link ),
-						'param_name'       => 'text_font',
+						'description'      => sprintf( esc_html__( 'Controls the title text typography.  Leave empty if the global typography for the corresponding heading size (h1-h6) should be used: %s.', 'fusion-builder' ), $to_link ),
+						'param_name'       => 'main_typography',
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
+						'choices'          => [
+							'font-family'    => 'text_font',
+							'font-size'      => 'font_size',
+							'line-height'    => 'line_height',
+							'letter-spacing' => 'letter_spacing',
+							'text-transform' => false,
 						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Line Height', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the line height of the text. Enter value including any valid CSS unit, ex: 28px.', 'fusion-builder' ),
-						'param_name'  => 'line_height',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Letter Spacing', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the letter spacing of the text. Enter value including any valid CSS unit, ex: 2px.', 'fusion-builder' ),
-						'param_name'  => 'letter_spacing',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+						'default'          => [
+							'font-family'    => '',
+							'variant'        => '',
+							'font-size'      => '',
+							'line-height'    => '',
+							'letter-spacing' => '',
+						],
 					],
 					[
 						'type'        => 'colorpickeralpha',

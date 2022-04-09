@@ -383,6 +383,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			FusionPageBuilderApp.clearBuilderLayout();
 			FusionPageBuilderApp.$el.find( '.fusion_builder_container' ).remove();
 
+			// Try to make the shortcode if the content does not contain them.
+			data = FusionPageBuilderApp.validateContent( data );
+
 			// Reset models with new elements
 			FusionPageBuilderApp.createBuilderLayout( data );
 		},

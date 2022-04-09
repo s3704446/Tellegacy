@@ -80,7 +80,7 @@ function fusion_parse_import_data( $import_array ) {
 	global $wp_registered_sidebars;
 	$sidebars_data    = $import_array[0];
 	$widget_data      = $import_array[1];
-	$current_sidebars = get_option( 'sidebars_widgets' );
+	$current_sidebars = (array) get_option( 'sidebars_widgets' );
 	$new_widgets      = array();
 
 	foreach ( $sidebars_data as $import_sidebar => $import_widgets ) {
@@ -150,7 +150,7 @@ function fusion_parse_import_data( $import_array ) {
  * @return array
  */
 function fusion_get_new_widget_name( $widget_name, $widget_index ) {
-	$current_sidebars = get_option( 'sidebars_widgets' );
+	$current_sidebars = (array) get_option( 'sidebars_widgets' );
 	$all_widget_array = array();
 	foreach ( $current_sidebars as $sidebar => $widgets ) {
 		if ( ! empty( $widgets ) && is_array( $widgets ) && 'wp_inactive_widgets' !== $sidebar ) {

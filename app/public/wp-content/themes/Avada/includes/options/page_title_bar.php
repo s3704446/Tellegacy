@@ -54,7 +54,7 @@ function avada_options_section_page_title_bar( $sections ) {
 				'label'       => '',
 				'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 					/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-					'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+					'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 					Fusion_Template_Builder::get_instance()->get_template_terms()['page_title_bar']['label'],
 					admin_url( 'admin.php?page=avada-layouts' )
 				) : '',
@@ -221,7 +221,7 @@ function avada_options_section_page_title_bar( $sections ) {
 				'label'           => esc_html__( 'Page Title Bar Background Color', 'Avada' ),
 				'description'     => esc_html__( 'Controls the background color of the page title bar.', 'Avada' ),
 				'id'              => 'page_title_bg_color',
-				'default'         => '#f2f3f5',
+				'default'         => 'var(--awb-color2)',
 				'hidden'          => $has_global_ptb,
 				'type'            => 'color-alpha',
 				'soft_dependency' => true,
@@ -303,7 +303,7 @@ function avada_options_section_page_title_bar( $sections ) {
 				'label'           => esc_html__( 'Page Title Bar Heading Font Color', 'Avada' ),
 				'description'     => esc_html__( 'Controls the text color of the page title bar main heading.', 'Avada' ),
 				'id'              => 'page_title_color',
-				'default'         => '#212934',
+				'default'         => 'var(--awb-color8)',
 				'hidden'          => $has_global_ptb,
 				'type'            => 'color-alpha',
 				'soft_dependency' => true,
@@ -337,7 +337,7 @@ function avada_options_section_page_title_bar( $sections ) {
 				'label'           => esc_html__( 'Page Title Bar Subheading Font Color', 'Avada' ),
 				'description'     => esc_html__( 'Controls the text color of the page title bar subheading.', 'Avada' ),
 				'id'              => 'page_title_subheader_color',
-				'default'         => '#4a4e57',
+				'default'         => 'var(--awb-color8)',
 				'hidden'          => $has_global_ptb,
 				'type'            => 'color-alpha',
 				'soft_dependency' => true,

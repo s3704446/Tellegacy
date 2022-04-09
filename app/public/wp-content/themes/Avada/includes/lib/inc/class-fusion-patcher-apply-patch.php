@@ -160,26 +160,27 @@ class Fusion_Patcher_Apply_Patch {
 		if ( ! isset( $patch['patch'] ) ) {
 			return;
 		}
+
 		foreach ( $patch['patch'] as $key => $args ) {
 			if ( ! isset( $args['context'] ) || ! isset( $args['path'] ) || ! isset( $args['reference'] ) ) {
 				continue;
 			}
-			$valid_contexts   = [];
-			$valid_contexts[] = $avada_patcher->get_args( 'context' );
-			$bundled          = $avada_patcher->get_args( 'bundled' );
-			if ( ! empty( $bundled ) ) {
-				foreach ( $bundled as $product ) {
-					$valid_contexts[] = $product;
-				}
-			}
-			foreach ( $valid_contexts as $context ) {
+
+			$product = $avada_patcher->get_args( 'context' );
+			$bundled = $avada_patcher->get_args( 'bundled' );
+			array_unshift( $bundled, $product );
+
+			foreach ( $bundled as $context ) {
 				if ( $context === $args['context'] ) {
-					$patcher_instance = $avada_patcher->get_instance( $context );
-					if ( null === $patcher_instance ) {
-						continue;
+
+					if ( $context === $product ) {
+						$v1 = Fusion_Helper::normalize_version( $avada_patcher->get_args( 'version' ) );
+					} else {
+						$v1 = Fusion_Helper::normalize_version( $avada_patcher->get_bundled_version( $context ) );
 					}
-					$v1 = Fusion_Helper::normalize_version( $patcher_instance->get_args( 'version' ) );
+					
 					$v2 = Fusion_Helper::normalize_version( $args['version'] );
+
 					if ( version_compare( $v1, $v2, '==' ) ) {
 						$patches[ $context ][ $args['path'] ] = $args['reference'];
 					}

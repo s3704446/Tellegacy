@@ -240,7 +240,6 @@ module.exports = function( grunt ) {
 					options: {
 						// sourcemap: 'none',
 						style: 'compressed',
-						noCache: true,
 					},
 
 					files: [{
@@ -255,7 +254,6 @@ module.exports = function( grunt ) {
 					options: {
 						// sourcemap: 'none',
 						style: 'compressed',
-						noCache: true,
 					},
 
 					files: [{
@@ -270,7 +268,6 @@ module.exports = function( grunt ) {
 					options: {
 						// sourcemap: 'none',
 						style: 'compressed',
-						noCache: true
 					},
 
 					files: {
@@ -287,13 +284,9 @@ module.exports = function( grunt ) {
 					options: {
 						// sourcemap: 'none',
 						style: 'compressed',
-						noCache: true
 					},
 
 					files: {
-						"FusionReduxCore/assets/css/color-picker/color-picker.css": [
-							"FusionReduxCore/assets/css/color-picker/color-picker.scss"
-						],
 						"FusionReduxCore/assets/css/media/media.css": [
 							"FusionReduxCore/assets/css/media/media.scss"
 						],
@@ -309,7 +302,6 @@ module.exports = function( grunt ) {
 					options: {
 						// sourcemap: 'none',
 						style: 'compressed',
-						noCache: true
 					},
 
 					files: {
@@ -325,7 +317,6 @@ module.exports = function( grunt ) {
 					files: {
 						'FusionReduxCore/assets/css/fusionredux-fields.css': [
 							'FusionReduxCore/inc/fields/**/*.css',
-							"FusionReduxCore/assets/css/color-picker/color-picker.css",
 							"FusionReduxCore/assets/css/media/media.css"
 						]
 					}

@@ -40,6 +40,11 @@ FusionPageBuilder.options.fusionRepeaterField = {
 			values,
 			rowTitle;
 
+		// When doing a search we need to set the context correctly.
+		if ( 'search' === this.context ) {
+			this.context = jQuery( '.fusion-sidebar-section[data-context]' ).data( 'context' );
+		}
+
 		switch ( this.context ) {
 
 		case 'TO':

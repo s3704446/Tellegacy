@@ -365,14 +365,14 @@ if ( fusion_is_element_enabled( 'fusion_alert' ) ) {
 										'callback' => [ 'sanitize_color' ],
 									],
 								],
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 							],
 							'info_accent_color'        => [
 								'label'       => esc_attr__( 'General Accent Color', 'fusion-builder' ),
 								'description' => esc_attr__( 'Set the accent color for general alert boxes.', 'fusion-builder' ),
 								'id'          => 'info_accent_color',
-								'default'     => '#4a4e57',
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -634,7 +634,7 @@ function fusion_element_alert() {
 				'allow_generator'          => true,
 				'inline_editor'            => true,
 				'inline_editor_shortcodes' => false,
-				'help_url'                 => 'https://theme-fusion.com/documentation/fusion-builder/elements/alert-element/',
+				'help_url'                 => 'https://theme-fusion.com/documentation/avada/elements/alert-element/',
 				'params'                   => [
 					[
 						'type'        => 'select',

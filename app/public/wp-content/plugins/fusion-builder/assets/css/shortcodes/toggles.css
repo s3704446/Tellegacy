@@ -6,9 +6,12 @@
 .fusion-accordian .fusion-panel {
   box-shadow: none;
   border: none;
-  border-bottom: 1px solid #E5E4E3;
+  border-bottom: 1px solid var(--accordion_divider_color);
   border-radius: 0;
   background-clip: padding-box;
+}
+.fusion-accordian .fusion-panel:hover {
+  border-bottom: 1px solid var(--accordion_divider_hover_color);
 }
 .fusion-accordian .panel-heading {
   padding: 0;
@@ -20,6 +23,12 @@
 .fusion-accordian .panel-heading .panel-title a {
   display: flex;
   align-items: baseline;
+}
+.fusion-accordian .panel-heading .panel-title a:not(.active) .fusion-toggle-icon-wrapper .active-icon {
+  display: none;
+}
+.fusion-accordian .panel-heading .panel-title a.active .fusion-toggle-icon-wrapper .inactive-icon {
+  display: none;
 }
 .fusion-accordian .panel-title {
   position: relative;
@@ -49,13 +58,10 @@
   background-color: #333;
   color: #fff;
   text-align: center;
-  font-family: "awb-icons";
   padding: 4.5px;
   -webkit-font-smoothing: subpixel-antialiased;
 }
 .fusion-accordian .panel-title a .fa-fusion-box:before {
-  font-family: "awb-icons";
-  content: "\e61d";
   font-style: normal;
   line-height: normal;
   font-size: 13px;
@@ -63,9 +69,6 @@
 }
 .fusion-accordian .panel-title .active .fa-fusion-box {
   background-color: #65bc7b;
-}
-.fusion-accordian .panel-title .active .fa-fusion-box:before {
-  content: "\e61c";
 }
 .fusion-accordian .panel-title .fusion-toggle-heading {
   margin-left: 18px;

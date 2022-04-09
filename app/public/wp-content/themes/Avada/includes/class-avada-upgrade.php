@@ -171,6 +171,8 @@ class Avada_Upgrade {
 			'740' => [ '7.4.0', false ],
 			'741' => [ '7.4.1', false ],
 			'750' => [ '7.5.0', false ],
+			'760' => [ '7.6.0', false ],
+			'761' => [ '7.6.1', false ],
 		];
 
 		$upgraded = false;

@@ -703,9 +703,9 @@ class Fusion_Form_Builder {
 				preg_match_all( '/\[fusion_form_[^\]]*\slabel=\"([^\"]*)\"/', $form_post_content, $matches );
 				$field_labels = isset( $matches[1] ) ? $matches[1] : [];
 
-				// If (some) labels are missing use name instead.
-				if ( count( $field_names ) !== count( $field_labels ) ) {
-					$field_labels = $field_names;
+				// If (some) labels are missing or empty use name instead.
+				if ( count( $field_names ) !== count( array_filter( $field_labels ) ) ) {
+					$field_labels = map_deep( $field_names, 'Fusion_Builder_Form_Helper::fusion_name_to_label' );
 				}
 			}
 

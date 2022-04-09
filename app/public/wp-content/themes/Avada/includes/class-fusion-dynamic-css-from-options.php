@@ -420,16 +420,23 @@ class Fusion_Dynamic_CSS_From_Options {
 				$value = $original_value;
 				if ( isset( $css_var['choice'] ) ) {
 					if ( is_array( $value ) && isset( $value[ $css_var['choice'] ] ) ) {
-						$value = $value[ $css_var['choice'] ];
 
-						// PO set not to be used.
-						if ( isset( $css_var['po'] ) && false === $css_var['po'] ) {
-							$value_combo = Avada()->settings->get( $id, $css_var['choice'] );
+						// If we want a weight or style from a var family.
+						if ( ( 'font-weight' === $css_var['choice'] || 'font-style' === $css_var['choice'] ) && isset( $value['font-family'] ) && AWB_Global_Typography()->is_typography_css_var( $value['font-family'] ) ) {
+							$value = AWB_Global_Typography()->get_var_string( $value['font-family'], $css_var['choice'] );
 						} else {
-							$value_combo = fusion_get_option( $id . '[' . $css_var['choice'] . ']' );
-						}
-						if ( 0 === $value_combo || '0' === $value_combo || ( $value_combo && ! empty( $value_combo ) ) ) {
-							$value = $value_combo;
+							$value = $value[ $css_var['choice'] ];
+
+							// PO set not to be used.
+							if ( isset( $css_var['po'] ) && false === $css_var['po'] ) {
+								$value_combo = Avada()->settings->get( $id, $css_var['choice'] );
+							} else {
+								$value_combo = fusion_get_option( $id . '[' . $css_var['choice'] . ']' );
+							}
+
+							if ( 0 === $value_combo || '0' === $value_combo || ( $value_combo && ! empty( $value_combo ) ) ) {
+								$value = $value_combo;
+							}
 						}
 					} elseif ( ! is_string( $value ) ) {
 						$value = Avada()->settings->get( $id, $css_var['choice'] );
@@ -466,6 +473,7 @@ class Fusion_Dynamic_CSS_From_Options {
 						$value = call_user_func_array( 'Fusion_Panel_Callbacks::' . $css_var['callback'][0], [ $value, $css_var['callback'][1] ] );
 					}
 				}
+
 				Fusion_Dynamic_CSS::add_css_var(
 					[
 						'name'    => $css_var['name'],

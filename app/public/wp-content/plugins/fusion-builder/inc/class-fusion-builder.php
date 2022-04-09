@@ -401,6 +401,32 @@ class FusionBuilder {
 			return $extra_fonts;
 		}
 
+		// Check for encoded off canvas ID.
+		if ( false !== strpos( $content, 'b2ZmX2NhbnZhc' ) && false !== strpos( $content, 'dynamic_params' ) ) {
+			preg_match_all( '/(?<=dynamic_params=")(.*?)(?=\")/', $content, $matches );
+			if ( ! empty( $matches ) ) {
+				foreach ( (array) $matches[0] as $match ) {
+					if ( false !== strpos( $match, 'b2ZmX2NhbnZhc' ) ) {
+						$dynamic_params = json_decode( base64_decode( $match ), true );
+						if ( ! empty( $dynamic_params ) ) {
+							foreach ( $dynamic_params as $id => $data ) {
+								if ( isset( $data['off_canvas_id'] ) ) {
+									$post_id = $data['off_canvas_id'];
+
+									// Already processed this item.
+									if ( in_array( $post_id, $post_ids, true ) ) {
+										continue;
+									}
+
+									$post_ids[] = $post_id;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		// Check for nested content.
 		if ( false !== strpos( $content, 'form_post_id=' ) || false !== strpos( $content, 'post_card=' ) ) {
 			preg_match_all( '/(?<=post_card="|form_post_id=")(.*?)(?=\")/', $content, $matches );
@@ -415,33 +441,37 @@ class FusionBuilder {
 					}
 
 					$post_ids[] = $post_id;
-
-					$content_fonts = get_post_meta( $post_id, '_fusion_google_fonts', true );
-
-					if ( is_string( $content_fonts ) ) {
-						$content_fonts = maybe_unserialize( $content_fonts );
-					}
-
-					if ( empty( $content_fonts ) ) {
-						continue;
-					}
-
-					if ( ! $extra_fonts ) {
-						$extra_fonts = $content_fonts;
-						continue;
-					}
-
-					foreach ( $content_fonts as $font => $details ) {
-						if ( isset( $extra_fonts[ $font ] ) ) {
-							$extra_fonts[ $font ]['variants'] = array_merge( $extra_fonts[ $font ]['variants'], $details['variants'] );
-						} else {
-							$extra_fonts[ $font ] = $details;
-						}
-					}
 				}
 			}
 		}
 
+		// If we have found any posts which need to be checked.
+		if ( ! empty( $post_ids ) ) {
+			foreach ( $post_ids as $post_id ) {
+				$content_fonts = get_post_meta( $post_id, '_fusion_google_fonts', true );
+
+				if ( is_string( $content_fonts ) ) {
+					$content_fonts = maybe_unserialize( $content_fonts );
+				}
+
+				if ( empty( $content_fonts ) ) {
+					continue;
+				}
+
+				if ( ! $extra_fonts ) {
+					$extra_fonts = $content_fonts;
+					continue;
+				}
+
+				foreach ( $content_fonts as $font => $details ) {
+					if ( isset( $extra_fonts[ $font ] ) ) {
+						$extra_fonts[ $font ]['variants'] = array_merge( $extra_fonts[ $font ]['variants'], $details['variants'] );
+					} else {
+						$extra_fonts[ $font ] = $details;
+					}
+				}
+			}
+		}
 		return $extra_fonts;
 	}
 
@@ -488,6 +518,41 @@ class FusionBuilder {
 						}
 
 						foreach ( $template_fonts as $font => $details ) {
+							if ( isset( $extra_fonts[ $font ] ) ) {
+
+								$extra_fonts[ $font ]['variants'] = array_merge( $extra_fonts[ $font ]['variants'], $details['variants'] );
+							} else {
+								$extra_fonts[ $font ] = $details;
+							}
+						}
+					}
+				}
+			}
+
+			if ( class_exists( 'AWB_Off_Canvas_Front_End' ) && function_exists( 'get_post_type' ) && 'awb_off_canvas' !== get_post_type() && class_exists( 'AWB_Off_Canvas' ) && false !== AWB_Off_Canvas::is_enabled() ) {
+				$off_canvases = AWB_Off_Canvas_Front_End()->get_current_page_off_canvases();
+				foreach ( $off_canvases as $oc => $oc_name ) {
+					$off_canvas = get_post( $oc );
+					if ( $off_canvas ) {
+
+						// Process nested layout section content.
+						$extra_fonts = $this->get_nested_fonts( $extra_fonts, $off_canvas->post_content );
+
+						$off_canvas_fonts = get_post_meta( $off_canvas->ID, '_fusion_google_fonts', true );
+						if ( is_string( $off_canvas_fonts ) ) {
+							$off_canvas_fonts = maybe_unserialize( $off_canvas_fonts );
+						}
+
+						if ( empty( $off_canvas_fonts ) ) {
+							continue;
+						}
+
+						if ( ! $extra_fonts ) {
+							$extra_fonts = $off_canvas_fonts;
+							continue;
+						}
+
+						foreach ( $off_canvas_fonts as $font => $details ) {
 							if ( isset( $extra_fonts[ $font ] ) ) {
 
 								$extra_fonts[ $font ]['variants'] = array_merge( $extra_fonts[ $font ]['variants'], $details['variants'] );
@@ -743,6 +808,12 @@ class FusionBuilder {
 				fusion_builder_auto_activate_element( 'fusion_image_hotspots' );
 				fusion_builder_auto_activate_element( 'fusion_views_counter' );
 				fusion_builder_auto_activate_element( 'fusion_news_ticker' );
+			}
+			if ( version_compare( $db_version, '3.6', '<' ) ) {
+				fusion_builder_auto_activate_element( 'fusion_facebook_page' );
+				fusion_builder_auto_activate_element( 'fusion_twitter_timeline' );
+				fusion_builder_auto_activate_element( 'fusion_flickr' );
+				fusion_builder_auto_activate_element( 'fusion_tagcloud' );
 			}
 		}
 
@@ -1008,6 +1079,10 @@ class FusionBuilder {
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'shortcodes/fusion-post-card-image.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'shortcodes/fusion-post-card-cart.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'shortcodes/fusion-post-cards.php';
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'shortcodes/fusion-facebook-page.php';
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'shortcodes/fusion-twitter-timeline.php';
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'shortcodes/fusion-flickr.php';
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'shortcodes/fusion-tagcloud.php';
 	}
 
 	/**
@@ -1469,6 +1544,15 @@ class FusionBuilder {
 			true
 		);
 
+		Fusion_Dynamic_JS::register_script(
+			'fusion-flickr',
+			self::$js_folder_url . '/general/fusion-flickr.js',
+			self::$js_folder_path . '/general/fusion-flickr.js',
+			[ 'jquery' ],
+			'0.1.0',
+			true
+		);
+
 		Fusion_Dynamic_JS::enqueue_script( 'fusion-lightbox' );
 	}
 
@@ -1537,8 +1621,10 @@ class FusionBuilder {
 			// WP Editor.
 			wp_enqueue_script( 'fusion-builder-wp-editor-js', FUSION_LIBRARY_URL . '/inc/fusion-app/assets/js/wpeditor/wp-editor.js', [ 'jquery' ], FUSION_BUILDER_VERSION, true );
 
-			// ColorPicker Alpha Channel.
-			wp_enqueue_script( 'wp-color-picker-alpha', FUSION_LIBRARY_URL . '/inc/redux/custom-fields/color_alpha/wp-color-picker-alpha.js', [ 'wp-color-picker', 'jquery-color' ], FUSION_BUILDER_VERSION, false );
+			// Our own color picker.
+			if ( function_exists( 'AWB_Global_Colors' ) ) {
+				AWB_Global_Colors()->enqueue();
+			}
 
 			// Bootstrap date and time picker.
 			wp_enqueue_script( 'bootstrap-datetimepicker', FUSION_LIBRARY_URL . '/inc/fusion-app/assets/js/datetimepicker/bootstrap-datetimepicker-back.min.js', [ 'jquery' ], FUSION_BUILDER_VERSION, false );
@@ -1593,8 +1679,7 @@ class FusionBuilder {
 				}
 			}
 
-			// Assets model for webfonts.
-			wp_enqueue_script( 'fusion_app_assets', FUSION_LIBRARY_URL . '/inc/fusion-app/model-assets.js', [], FUSION_BUILDER_VERSION, true );
+			AWB_Global_Typography()->enqueue();
 
 			// Developer mode is enabled.
 			if ( true === FUSION_BUILDER_DEV_MODE ) {
@@ -1866,6 +1951,7 @@ class FusionBuilder {
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/helpers.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-builder-options.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-builder-dynamic-css.php';
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-layout-conditions.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-template-builder.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-form-builder.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-hubspot.php';
@@ -1886,6 +1972,8 @@ class FusionBuilder {
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-studio-import.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-studio-remove.php';
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-demo-import.php';
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-off-canvas.php';
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-off-canvas-front-end.php';
 
 		Fusion_Builder_Options::get_instance();
 		new Fusion_Elements_Dynamic_CSS();
@@ -1928,6 +2016,8 @@ class FusionBuilder {
 			require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-template-builder-table.php';
 			require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-form-builder-table.php';
 			require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-custom-icons-table.php';
+			require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-off-canvas-admin.php';
+			require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-off-canvas-table.php';
 			$this->fusion_builder_options_panel = new Fusion_Builder_Options_Panel();
 		}
 
@@ -2011,6 +2101,7 @@ class FusionBuilder {
 				'fusion_tb_section',
 				'fusion_tb_layout',
 				'fusion_form',
+				'awb_off_canvas',
 			]
 		);
 	}
@@ -2038,6 +2129,7 @@ class FusionBuilder {
 			$post_types[]             = 'fusion_element';
 			$post_types[]             = 'fusion_tb_section';
 			$post_types[]             = 'fusion_form';
+			$post_types[]             = 'awb_off_canvas';
 			self::$allowed_post_types = $post_types;
 		}
 
@@ -2054,7 +2146,7 @@ class FusionBuilder {
 	 */
 	public function add_builder_meta_box( $post_type ) {
 		if ( post_type_supports( $post_type, 'editor' ) ) {
-			add_meta_box( 'fusion_builder_layout', '<span class="fusion-builder-logo-wrapper"><span class="fusion-builder-logo fusiona-avada-logo"></span><span class="fusion-builder-title">' . esc_html__( 'Avada Builder', 'fusion-builder' ) . '</span></span><a href="https://theme-fusion.com/documentation/fusion-builder/" target="_blank" rel="noopener noreferrer"><span class="fusion-builder-help dashicons dashicons-editor-help"></span></a>', 'fusion_pagebuilder_meta_box', null, 'normal', 'high' );
+			add_meta_box( 'fusion_builder_layout', '<span class="fusion-builder-logo-wrapper"><span class="fusion-builder-logo fusiona-avada-logo"></span><span class="fusion-builder-title">' . esc_html__( 'Avada Builder', 'fusion-builder' ) . '</span></span><a href="https://theme-fusion.com/documentation/avada/avada-builder/" target="_blank" rel="noopener noreferrer"><span class="fusion-builder-help dashicons dashicons-editor-help"></span></a>', 'fusion_pagebuilder_meta_box', null, 'normal', 'high' );
 		}
 	}
 
@@ -3631,39 +3723,76 @@ class FusionBuilder {
 		];
 
 		// Person.
-		$element_option_map['background_color']['fusion_person']  = [
+		$element_option_map['background_color']['fusion_person']              = [
 			'theme-option' => 'person_background_color',
 			'reset'        => true,
 		];
-		$element_option_map['pic_style']['fusion_person']         = [ 'theme-option' => 'person_pic_style' ];
-		$element_option_map['pic_style_blur']['fusion_person']    = [
+		$element_option_map['pic_style']['fusion_person']                     = [ 'theme-option' => 'person_pic_style' ];
+		$element_option_map['pic_style_blur']['fusion_person']                = [
 			'theme-option' => 'person_pic_style_blur',
 			'type'         => 'range',
 		];
-		$element_option_map['pic_style_color']['fusion_person']   = [
+		$element_option_map['pic_style_color']['fusion_person']               = [
 			'theme-option' => 'person_style_color',
 			'reset'        => true,
 		];
-		$element_option_map['pic_bordercolor']['fusion_person']   = [
+		$element_option_map['pic_bordercolor']['fusion_person']               = [
 			'theme-option' => 'person_border_color',
 			'reset'        => true,
 		];
-		$element_option_map['pic_bordersize']['fusion_person']    = [
+		$element_option_map['pic_bordersize']['fusion_person']                = [
 			'theme-option' => 'person_border_size',
 			'type'         => 'range',
 		];
-		$element_option_map['pic_borderradius']['fusion_person']  = [ 'theme-option' => 'person_border_radius' ];
-		$element_option_map['pic_style_color']['fusion_person']   = [
+		$element_option_map['pic_borderradius']['fusion_person']              = [ 'theme-option' => 'person_border_radius' ];
+		$element_option_map['pic_style_color']['fusion_person']               = [
 			'theme-option' => 'person_style_color',
 			'reset'        => true,
 		];
-		$element_option_map['content_alignment']['fusion_person'] = [
+		$element_option_map['content_alignment']['fusion_person']             = [
 			'theme-option' => 'person_alignment',
 			'type'         => 'select',
 		];
-		$element_option_map['icon_position']['fusion_person']     = [
+		$element_option_map['icon_position']['fusion_person']                 = [
 			'theme-option' => 'person_icon_position',
 			'type'         => 'select',
+		];
+		$element_option_map['social_icon_colors']['fusion_person']            = [ 'theme-option' => 'social_links_icon_color' ];
+		$element_option_map['social_box_colors']['fusion_person']             = [ 'theme-option' => 'social_links_box_color' ];
+		$element_option_map['social_box_border_color']['fusion_person']       = [ 'theme-option' => 'social_links_border_color' ];
+		$element_option_map['social_icon_colors_hover']['fusion_person']      = [ 'theme-option' => 'social_links_icon_color_hover' ];
+		$element_option_map['social_box_colors_hover']['fusion_person']       = [ 'theme-option' => 'social_links_box_color_hover' ];
+		$element_option_map['social_box_border_color_hover']['fusion_person'] = [ 'theme-option' => 'social_links_border_color_hover' ];
+
+		$element_option_map['social_icon_boxed_radius']['fusion_person'] = [ 'theme-option' => 'social_links_boxed_radius' ];
+
+		$element_option_map['social_icon_tooltip']['fusion_person'] = [
+			'theme-option' => 'social_links_tooltip_placement',
+			'type'         => 'select',
+		];
+
+		$element_option_map['margin']['fusion_person']        = [
+			'theme-option' => 'social_links_margin',
+		];
+		$element_option_map['margin_top']['fusion_person']    = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'top',
+		];
+		$element_option_map['margin_right']['fusion_person']  = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'right',
+		];
+		$element_option_map['margin_bottom']['fusion_person'] = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'bottom',
+		];
+		$element_option_map['margin_left']['fusion_person']   = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'left',
+		];
+
+		$element_option_map['box_border']['fusion_person'] = [
+			'theme-option' => 'social_links_border',
 		];
 
 		// Popover.
@@ -3919,23 +4048,54 @@ class FusionBuilder {
 		$element_option_map['box_colors']['fusion_sharing']               = [ 'theme-option' => 'sharing_social_links_box_color' ];
 
 		// Social Icons.
-		$element_option_map['font_size']['fusion_social_links']          = [
+		$element_option_map['font_size']['fusion_social_links']   = [
 			'theme-option' => 'social_links_font_size',
 		];
-		$element_option_map['color_type']['fusion_social_links']         = [
+		$element_option_map['color_type']['fusion_social_links']  = [
 			'theme-option' => 'social_links_color_type',
 			'type'         => 'select',
 		];
-		$element_option_map['icon_colors']['fusion_social_links']        = [ 'theme-option' => 'social_links_icon_color' ];
-		$element_option_map['icons_boxed']['fusion_social_links']        = [
+		$element_option_map['icons_boxed']['fusion_social_links'] = [
 			'theme-option' => 'social_links_boxed',
 			'type'         => 'yesno',
 		];
-		$element_option_map['box_colors']['fusion_social_links']         = [ 'theme-option' => 'social_links_box_color' ];
+
+		$element_option_map['icon_colors']['fusion_social_links']            = [ 'theme-option' => 'social_links_icon_color' ];
+		$element_option_map['box_colors']['fusion_social_links']             = [ 'theme-option' => 'social_links_box_color' ];
+		$element_option_map['box_border_color']['fusion_social_links']       = [ 'theme-option' => 'social_links_border_color' ];
+		$element_option_map['icon_colors_hover']['fusion_social_links']      = [ 'theme-option' => 'social_links_icon_color_hover' ];
+		$element_option_map['box_colors_hover']['fusion_social_links']       = [ 'theme-option' => 'social_links_box_color_hover' ];
+		$element_option_map['box_border_color_hover']['fusion_social_links'] = [ 'theme-option' => 'social_links_border_color_hover' ];
+
 		$element_option_map['icons_boxed_radius']['fusion_social_links'] = [ 'theme-option' => 'social_links_boxed_radius' ];
-		$element_option_map['tooltip_placement']['fusion_social_links']  = [
+
+		$element_option_map['tooltip_placement']['fusion_social_links'] = [
 			'theme-option' => 'social_links_tooltip_placement',
 			'type'         => 'select',
+		];
+
+		$element_option_map['margin']['fusion_social_links']        = [
+			'theme-option' => 'social_links_margin',
+		];
+		$element_option_map['margin_top']['fusion_social_links']    = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'top',
+		];
+		$element_option_map['margin_right']['fusion_social_links']  = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'right',
+		];
+		$element_option_map['margin_bottom']['fusion_social_links'] = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'bottom',
+		];
+		$element_option_map['margin_left']['fusion_social_links']   = [
+			'theme-option' => 'social_links_margin',
+			'subset'       => 'left',
+		];
+
+		$element_option_map['box_border']['fusion_social_links'] = [
+			'theme-option' => 'social_links_border',
 		];
 
 		// Social Icons for Person.
@@ -4092,60 +4252,133 @@ class FusionBuilder {
 		];
 
 		// Toggles.
-		$element_option_map['type']['fusion_accordion']                      = [
+		$element_option_map['type']['fusion_accordion']                       = [
 			'theme-option' => 'accordion_type',
 			'type'         => 'select',
 		];
-		$element_option_map['divider_line']['fusion_accordion']              = [
+		$element_option_map['divider_line']['fusion_accordion']               = [
 			'theme-option' => 'accordion_divider_line',
 			'type'         => 'yesno',
 		];
-		$element_option_map['boxed_mode']['fusion_accordion']                = [
+		$element_option_map['divider_color']['fusion_accordion']              = [
+			'theme-option' => 'accordion_divider_color',
+			'reset'        => true,
+		];
+		$element_option_map['divider_hover_color']['fusion_accordion']        = [
+			'theme-option' => 'accordion_divider_hover_color',
+			'reset'        => true,
+		];
+		$element_option_map['title_font']['fusion_accordion']                 = [
+			'theme-option' => 'accordion_title_typography',
+			'subset'       => 'font-family',
+			'type'         => 'select',
+		];
+		$element_option_map['title_font_size']['fusion_accordion']            = [
+			'theme-option' => 'accordion_title_typography',
+			'subset'       => 'font-size',
+			'type'         => 'select',
+		];
+		$element_option_map['title_color']['fusion_accordion']                = [
+			'theme-option' => 'accordion_title_typography',
+			'subset'       => 'color',
+			'reset'        => true,
+		];
+		$element_option_map['content_font']['fusion_accordion']               = [
+			'theme-option' => 'accordion_content_typography',
+			'subset'       => 'font-family',
+			'type'         => 'select',
+		];
+		$element_option_map['content_font_size']['fusion_accordion']          = [
+			'theme-option' => 'accordion_content_typography',
+			'subset'       => 'font-size',
+			'type'         => 'select',
+		];
+		$element_option_map['content_color']['fusion_accordion']              = [
+			'theme-option' => 'accordion_content_typography',
+			'subset'       => 'color',
+			'reset'        => true,
+		];
+		$element_option_map['boxed_mode']['fusion_accordion']                 = [
 			'theme-option' => 'accordion_boxed_mode',
 			'type'         => 'yesno',
 		];
-		$element_option_map['border_size']['fusion_accordion']               = [
+		$element_option_map['border_size']['fusion_accordion']                = [
 			'theme-option' => 'accordion_border_size',
 			'type'         => 'range',
 		];
-		$element_option_map['border_color']['fusion_accordion']              = [
+		$element_option_map['border_color']['fusion_accordion']               = [
 			'theme-option' => 'accordian_border_color',
 			'reset'        => true,
 		];
-		$element_option_map['background_color']['fusion_accordion']          = [
+		$element_option_map['background_color']['fusion_accordion']           = [
 			'theme-option' => 'accordian_background_color',
 			'reset'        => true,
 		];
-		$element_option_map['hover_color']['fusion_accordion']               = [
+		$element_option_map['hover_color']['fusion_accordion']                = [
 			'theme-option' => 'accordian_hover_color',
 			'reset'        => true,
 		];
-		$element_option_map['title_font_size']['fusion_accordion']           = [
-			'theme-option' => 'accordion_title_font_size',
-		];
-		$element_option_map['icon_size']['fusion_accordion']                 = [
+		$element_option_map['icon_size']['fusion_accordion']                  = [
 			'theme-option' => 'accordion_icon_size',
 			'type'         => 'range',
 		];
-		$element_option_map['icon_color']['fusion_accordion']                = [
+		$element_option_map['icon_color']['fusion_accordion']                 = [
 			'theme-option' => 'accordian_icon_color',
 			'reset'        => true,
 		];
-		$element_option_map['icon_boxed_mode']['fusion_accordion']           = [
+		$element_option_map['icon_boxed_mode']['fusion_accordion']            = [
 			'theme-option' => 'accordion_icon_boxed',
 			'type'         => 'yesno',
 		];
-		$element_option_map['icon_box_color']['fusion_accordion']            = [
+		$element_option_map['icon_box_color']['fusion_accordion']             = [
 			'theme-option' => 'accordian_inactive_color',
 			'reset'        => true,
 		];
-		$element_option_map['icon_alignment']['fusion_accordion']            = [
+		$element_option_map['icon_alignment']['fusion_accordion']             = [
 			'theme-option' => 'accordion_icon_align',
 			'type'         => 'select',
 		];
-		$element_option_map['toggle_hover_accent_color']['fusion_accordion'] = [
+		$element_option_map['toggle_hover_accent_color']['fusion_accordion']  = [
 			'theme-option' => 'accordian_active_color',
 			'reset'        => true,
+		];
+		$element_option_map['toggle_active_accent_color']['fusion_accordion'] = [
+			'theme-option' => 'accordian_active_accent_color',
+			'reset'        => true,
+		];
+
+		// Accordion Child.
+		$element_option_map['title_font']['fusion_toggle']        = [
+			'theme-option' => 'accordion_title_typography',
+			'subset'       => 'font-family',
+			'type'         => 'child',
+		];
+		$element_option_map['title_font_size']['fusion_toggle']   = [
+			'theme-option' => 'accordion_title_typography',
+			'subset'       => 'font-size',
+			'type'         => 'child',
+		];
+		$element_option_map['title_color']['fusion_toggle']       = [
+			'theme-option' => 'accordion_title_typography',
+			'subset'       => 'color',
+			'reset'        => true,
+			'type'         => 'child',
+		];
+		$element_option_map['content_font']['fusion_toggle']      = [
+			'theme-option' => 'accordion_content_typography',
+			'subset'       => 'font-family',
+			'type'         => 'child',
+		];
+		$element_option_map['content_font_size']['fusion_toggle'] = [
+			'theme-option' => 'accordion_content_typography',
+			'subset'       => 'font-size',
+			'type'         => 'child',
+		];
+		$element_option_map['content_color']['fusion_toggle']     = [
+			'theme-option' => 'accordion_content_typography',
+			'subset'       => 'color',
+			'reset'        => true,
+			'type'         => 'child',
 		];
 
 		// User Login Element.
@@ -5105,6 +5338,32 @@ class FusionBuilder {
 			'reset'        => true,
 		];
 
+		// Tag cloud.
+		$element_option_map['background_color']['fusion_tagcloud']       = [
+			'theme-option' => 'tagcloud_bg',
+			'reset'        => true,
+		];
+		$element_option_map['background_hover_color']['fusion_tagcloud'] = [
+			'theme-option' => 'tagcloud_bg_hover',
+			'reset'        => true,
+		];
+		$element_option_map['text_color']['fusion_tagcloud']             = [
+			'theme-option' => 'tagcloud_color',
+			'reset'        => true,
+		];
+		$element_option_map['text_hover_color']['fusion_tagcloud']       = [
+			'theme-option' => 'tagcloud_color_hover',
+			'reset'        => true,
+		];
+		$element_option_map['border_color']['fusion_tagcloud']           = [
+			'theme-option' => 'tagcloud_border_color',
+			'reset'        => true,
+		];
+		$element_option_map['border_hover_color']['fusion_tagcloud']     = [
+			'theme-option' => 'tagcloud_border_color_hover',
+			'reset'        => true,
+		];
+
 		self::$element_descriptions_map = $element_option_map;
 	}
 
@@ -5239,7 +5498,7 @@ class FusionBuilder {
 		$element_option_map['infobox_text_color']['fusion_map'][]       = $is_js_map;
 		$element_option_map['infobox_background_color']['fusion_map'][] = $is_js_map;
 
-		// Fontawesome Icon.
+		// Icon.
 		$has_icon_background                                       = [
 			'check'  => [
 				'element-option' => 'icon_circle',

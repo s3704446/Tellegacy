@@ -524,7 +524,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 						$html .= '<a data-toggle="collapse" class="collapsed" data-parent="#accordian-' . $this->faq_counter . '" data-target="#collapse-' . $this->faq_counter . '-' . $post_id . '" href="#collapse-' . $this->faq_counter . '-' . $post_id . '">';
 					}
 
-					$html .= '<div class="fusion-toggle-icon-wrapper"><div class="fusion-toggle-icon-wrapper-main"><div class="fusion-toggle-icon-wrapper-sub"><i class="fa-fusion-box" aria-hidden="true"></i></div></div></div>';
+					$html .= '<div class="fusion-toggle-icon-wrapper"><div class="fusion-toggle-icon-wrapper-main"><div class="fusion-toggle-icon-wrapper-sub"><i class="fa-fusion-box active-icon awb-icon-minus" aria-hidden="true"></i><i class="fa-fusion-box inactive-icon awb-icon-plus" aria-hidden="true"></i></div></div></div>';
 					$html .= '<div class="fusion-toggle-heading">' . get_the_title() . '</div>';
 					$html .= '</a>';
 					$html .= '</h4>';
@@ -689,7 +689,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'           => esc_html__( 'FAQ Item Boxed Mode Border Color', 'fusion-core' ),
 								'description'     => esc_html__( 'Controls the border color of the FAQ item.', 'fusion-core' ),
 								'id'              => 'faq_accordian_border_color',
-								'default'         => '#e2e2e2',
+								'default'         => 'var(--awb-color3)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -698,7 +698,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'           => esc_html__( 'FAQ Item Boxed Mode Background Color', 'fusion-core' ),
 								'description'     => esc_html__( 'Controls the background color of the FAQ item.', 'fusion-core' ),
 								'id'              => 'faq_accordian_background_color',
-								'default'         => '#ffffff',
+								'default'         => 'var(--awb-color1)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -707,7 +707,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'           => esc_html__( 'FAQ Item Boxed Mode Background Hover Color', 'fusion-core' ),
 								'description'     => esc_html__( 'Controls the background hover color of the FAQ item.', 'fusion-core' ),
 								'id'              => 'faq_accordian_hover_color',
-								'default'         => '#f9f9fb',
+								'default'         => 'var(--awb-color2)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -746,7 +746,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'       => esc_html__( 'FAQ Item Icon Color', 'fusion-core' ),
 								'description' => esc_html__( 'Controls the color of icon in FAQ box.', 'fusion-core' ),
 								'id'          => 'faq_accordian_icon_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -762,7 +762,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'           => esc_html__( 'FAQ Item Icon Inactive Box Color', 'fusion-core' ),
 								'description'     => esc_html__( 'Controls the color of the inactive FAQ box.', 'fusion-core' ),
 								'id'              => 'faq_accordian_inactive_color',
-								'default'         => '#212934',
+								'default'         => 'var(--awb-color7)',
 								'type'            => 'color-alpha',
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
@@ -783,7 +783,7 @@ if ( function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled
 								'label'       => esc_html__( 'FAQ Item Icon Toggle Hover Accent Color', 'fusion-core' ),
 								'description' => esc_html__( 'Controls the accent color on hover for icon box and title.', 'fusion-core' ),
 								'id'          => 'faq_accordian_active_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color4)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -1254,6 +1254,7 @@ function fusion_element_faq() {
 						'group'       => esc_html__( 'General', 'fusion-core' ),
 					],
 				],
+
 				'callback'   => [
 					'function' => 'fusion_ajax',
 					'action'   => 'get_fusion_faqs',

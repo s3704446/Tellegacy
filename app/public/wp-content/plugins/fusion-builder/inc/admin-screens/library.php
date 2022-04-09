@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Screen markup (Ligrary page).
+ * Admin Screen markup (Library page).
  *
  * @package fusion-builder
  */
@@ -20,7 +20,7 @@
 					printf(
 						/* translators: %s: "Icons Documentation Link". */
 						esc_html__( 'Please see the %s.', 'fusion-builder' ),
-						'<a href="https://theme-fusion.com/documentation/fusion-builder/fusion-builder-library/" target="_blank">' . esc_attr__( 'Avada Library Documentation', 'fusion-builder' ) . '</a>'
+						'<a href="https://theme-fusion.com/documentation/avada/library/avada-builder-library/" target="_blank">' . esc_attr__( 'Avada Library Documentation', 'fusion-builder' ) . '</a>'
 					);
 					?>
 				</p>

@@ -58,16 +58,32 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @since 2.0.3
 			 * @return {void}
 			 */
-			initLightbox: function() {
-				var link = jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( this.$el.find( '.fusion-lightbox' ) );
+			initLightbox: function( remove ) {
+				var parentCid           = this.model.get( 'parent' ),
+					galleryLightboxName = 'iLightbox[awb_gallery_' + parentCid + ']',
+					galleryLightbox,
+					elements,
+					link;
+
+				if ( 'object' !== typeof jQuery( '#fb-preview' )[ 0 ].contentWindow.$ilInstances ) {
+					return;
+				}
+
+				galleryLightbox = jQuery( '#fb-preview' )[ 0 ].contentWindow.$ilInstances[ galleryLightboxName ];
+
+				if ( 'undefined' !== typeof remove && remove ) {
+					elements = this.$el.closest( '.fusion-gallery' ).find( '.fusion-builder-live-child-element:not([data-cid="' + this.model.get( 'cid' ) + '"]' ).find( '[data-rel="' + galleryLightboxName + '"]' );
+				} else {
+					elements = this.$el.closest( '.fusion-gallery' ).find( '[data-rel="' + galleryLightboxName + '"]' );
+				}
+
+				link = jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( elements );
 
 				if ( 'object' === typeof jQuery( '#fb-preview' )[ 0 ].contentWindow.avadaLightBox ) {
-					if ( 'undefined' !== typeof this.iLightbox ) {
-						this.iLightbox.destroy();
-					}
+					if ( 'undefined' !== typeof galleryLightbox ) {
+						galleryLightbox.destroy();
 
-					if ( link.length && ! link.find( '.fusion-builder-placeholder' ).length ) {
-						this.iLightbox = link.iLightBox( jQuery( '#fb-preview' )[ 0 ].contentWindow.avadaLightBox.prepare_options( 'single' ) );
+						link.iLightBox( jQuery( '#fb-preview' )[ 0 ].contentWindow.avadaLightBox.prepare_options( galleryLightboxName ) );
 					}
 				}
 			},
@@ -79,7 +95,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @return {void}
 			 */
 			beforeRemove: function() {
-				var parentView = FusionPageBuilderViewManager.getView( this.model.get( 'parent' ) );
+				var self = this,
+parentCid           = this.model.get( 'parent' ),
+					parentView          = FusionPageBuilderViewManager.getView( parentCid );
 
 				if ( 'undefined' !== typeof parentView.fusionIsotope ) {
 					parentView.fusionIsotope.remove( self.$el );
@@ -94,6 +112,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						parentView.fusionIsotope.reloadItems();
 					}
 				}, 100 );
+
+				self.initLightbox( true );
 			},
 
 			/**
@@ -257,7 +277,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			buildImagesAttr: function( values ) {
 				var imagesAttr = {},
-					cid        = this.model.get( 'cid' ),
 					imageId    = this.model.attributes.params.image_id,
 					parentView = FusionPageBuilderViewManager.getView( this.model.get( 'parent' ) ),
 					image      = 'undefined' !== typeof parentView.imageMap ? parentView.imageMap.images[ imageId ] : undefined,
@@ -273,7 +292,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				columnSpacing = 0;
 				isPortrait    = false;
 				isLandscape   = false;
-				borderColor   = jQuery.Color( values.bordercolor );
+				borderColor   = jQuery.AWB_Color( values.bordercolor );
 
 				imagesAttr = {};
 
@@ -342,7 +361,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						class: 'fusion-lightbox'
 					};
 
-					imagesAttr.link[ 'data-rel' ] = 'iLightbox[gallery-' + cid + ']';
+					imagesAttr.link[ 'data-rel' ] = 'iLightbox[awb_gallery_' + this.model.get( 'parent' ) + ']';
 
 					// TODO: fix
 					// if ( 'undefined' !== typeof image.image_data ) {

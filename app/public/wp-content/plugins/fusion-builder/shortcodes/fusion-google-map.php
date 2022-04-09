@@ -203,8 +203,8 @@ if ( fusion_is_element_enabled( 'fusion_map' ) ) {
 				$lang_code     = fusion_get_google_maps_language_code();
 
 				$html .= '<iframe width="' . $this->args['width'] . '" height="' . $this->args['height'] . '" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=' . $api_key . '&language=' . $lang_code . '&q=' . $embed_address . '&maptype=' . $this->args['embed_map_type'] . '&zoom=' . $this->args['zoom'] . '" allowfullscreen></iframe>';
-
-				$html = '<div ' . FusionBuilder::attributes( 'google-map-shortcode' ) . '>' . $html . '</div>';
+				$html  = fusion_library()->images->apply_global_selected_lazy_loading_to_iframe( $html );
+				$html  = '<div ' . FusionBuilder::attributes( 'google-map-shortcode' ) . '>' . $html . '</div>';
 
 				return $html;
 			}
@@ -331,7 +331,7 @@ if ( fusion_is_element_enabled( 'fusion_map' ) ) {
 							$infobox_text_color = '#fff';
 						}
 					} elseif ( 'custom' === $map_style ) {
-						if ( fusion_is_color_transparent( $overlay_color ) ) {
+						if ( Fusion_Color::new_color( $overlay_color )->is_color_transparent() ) {
 							$overlay_color = '';
 						}
 					}
@@ -707,7 +707,7 @@ function fusion_element_google_map() {
 				'icon'       => 'fusiona-map',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-google-map-preview.php',
 				'preview_id' => 'fusion-builder-block-module-google-map-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/google-map-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/google-map-element/',
 				'params'     => [
 					[
 						'type'        => 'radio_button_set',
@@ -724,12 +724,13 @@ function fusion_element_google_map() {
 						'default'     => '',
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Address', 'fusion-builder' ),
-						'description' => esc_attr__( 'Add the address of the location you wish to display. Address example: 775 New York Ave, Brooklyn, Kings, New York 11203. If the location is off, please try to use long/lat coordinates. ex: 12.381068,-1.492711.', 'fusion-builder' ),
-						'param_name'  => 'embed_address',
-						'value'       => '',
-						'dependency'  => [
+						'type'         => 'textfield',
+						'heading'      => esc_attr__( 'Address', 'fusion-builder' ),
+						'description'  => esc_attr__( 'Add the address of the location you wish to display. Address example: 775 New York Ave, Brooklyn, Kings, New York 11203. If the location is off, please try to use long/lat coordinates. ex: 12.381068,-1.492711.', 'fusion-builder' ),
+						'param_name'   => 'embed_address',
+						'dynamic_data' => true,
+						'value'        => '',
+						'dependency'   => [
 							[
 								'element'  => 'api_type',
 								'value'    => 'js',

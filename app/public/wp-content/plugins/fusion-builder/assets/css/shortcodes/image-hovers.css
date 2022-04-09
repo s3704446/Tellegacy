@@ -96,6 +96,9 @@
   opacity: 1;
   transform: scale(1.02);
 }
+.fusion-image-hovers .liftup-with-aspect-ratio {
+  display: block;
+}
 .fusion-image-hovers .hover-type-liftup {
   position: relative;
   display: inline-block;

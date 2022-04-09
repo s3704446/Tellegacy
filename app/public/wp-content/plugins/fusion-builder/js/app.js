@@ -218,11 +218,6 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 
 				this.render();
 
-				// Typograph uses assets model.
-				if ( 'function' === typeof FusionPageBuilder.Assets ) {
-					this.assets = new FusionPageBuilder.Assets();
-				}
-
 				if ( ! jQuery( 'body' ).hasClass( 'gutenberg-editor-page' ) ) {
 					if ( $( '#fusion_toggle_builder' ).hasClass( 'fusion_builder_is_active' ) ) {
 
@@ -262,7 +257,8 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					forms: {},
 					post_cards: {},
 					videos: {},
-					icons: {}
+					icons: {},
+					off_canvases: {}
 				};
 
 				// Settings to params map for form only.
@@ -1228,6 +1224,8 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					imagePreview,
 					imageIDField;
 
+				FusionPageBuilderEvents.trigger( 'awb-image-upload-url-' + $uploadButton.data( 'param' ), imageURL );
+
 				if ( 0 <= imageURL.indexOf( '<img' ) ) {
 					imagePreview = imageURL;
 				} else {
@@ -2059,6 +2057,9 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 				if ( event ) {
 					event.preventDefault();
 				}
+
+				// Off canvas.
+				category = 'undefined' !== typeof fusionBuilderConfig.post_type && 'awb_off_canvas' === fusionBuilderConfig.post_type ? fusionBuilderConfig.post_type : category;
 
 				if ( 'string' === typeof fusionBuilderConfig.template_category && 0 < fusionBuilderConfig.template_category.length ) {
 					category = fusionBuilderConfig.template_category;
@@ -3055,7 +3056,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 								backgroundColor = fusionAllElements[ shortcodeName ].defaults.background_color;
 							}
 							if ( '' !== backgroundColor  ) {
-								alphaBackgroundColor = jQuery.Color( backgroundColor ).alpha();
+								alphaBackgroundColor = jQuery.AWB_Color( backgroundColor ).alpha();
 								if ( 1 > alphaBackgroundColor && 0 !== alphaBackgroundColor && ( '' !== shortcodeAttributes.named.background_image || '' !== videoBg ) ) {
 									shortcodeAttributes.named.background_blend_mode = 'overlay';
 								}
@@ -3198,7 +3199,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 							if ( 'overlay_color' === key && '' !== shortcodeAttributes.named[ key ] && 'fusion_builder_container' === shortcodeName ) {
 								delete prefixedAttributes.params[ prefixedKey ];
 								alpha = ( 'undefined' !== typeof shortcodeAttributes.named.overlay_opacity ) ? shortcodeAttributes.named.overlay_opacity : 1;
-								prefixedAttributes.params.background_color = jQuery.Color( shortcodeAttributes.named[ key ] ).alpha( alpha ).toRgbaString();
+								prefixedAttributes.params.background_color = jQuery.AWB_Color( shortcodeAttributes.named[ key ] ).alpha( alpha ).toRgbaString();
 							}
 							if ( 'overlay_opacity' === key ) {
 								delete prefixedAttributes.params[ prefixedKey ];
@@ -3937,7 +3938,9 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 			builderToShortcodes: function() {
 
 				var shortcode = '',
-					thisEl    = this;
+					thisEl    = this,
+					plugins   = 'object' === typeof fusionBuilderConfig.plugins_active ? fusionBuilderConfig.plugins_active : false,
+					offCanvases;
 
 				this.simplifiedMap = [];
 
@@ -3948,7 +3951,8 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					forms: {},
 					post_cards: {},
 					videos: {},
-					icons: {}
+					icons: {},
+					off_canvases: {}
 				};
 
 				if ( jQuery( 'body' ).hasClass( 'fusion-builder-library-edit' ) ) {
@@ -4003,6 +4007,17 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 						FusionPageBuilderApp.setGoogleFonts( shortcode );
 						jQuery( document ).trigger( 'fusion-builder-content-updated' );
 					}, 500 );
+				}
+
+				// Add Off Canvases to media map.
+				if ( false !== plugins && true === plugins.awb_studio ) {
+					offCanvases = jQuery( '#pyre_off_canvases' ).val();
+
+					if ( offCanvases.length ) {
+						_.each( offCanvases, function( key, value ) {
+							FusionPageBuilderApp.mediaMap.off_canvases[ key ] = true;
+						} );
+					}
 				}
 
 				// If media map exists, add to post meta for saving.
@@ -5047,10 +5062,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 							$passedArray.push( doesTestPass( $currentVal, dependency.value, dependency.operator ) );
 						} );
 
-						$targetElement = thisEl.find( '#' + index ).parents( '.fusion-builder-option' ).first();
-						if ( 0 === $targetElement.length && 'font_family' === thisEl.find( '.fusion-builder-option[data-option-id="' + index + '"]' ).data( 'option-type' ) ) {
-							$targetElement = thisEl.find( '.fusion-builder-option[data-option-id="' + index + '"]' );
-						}
+						$targetElement = thisEl.find( '#' + index ).closest( '.fusion-builder-option' );
 
 						// Check if it passes for regular "and" test.
 						if ( -1 === $.inArray( false, $passedArray ) && 'undefined' === typeof value.or ) {
@@ -5118,10 +5130,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 								$passedArray.push( doesTestPass( $currentVal, dependency.value, dependency.operator ) );
 							} );
 
-							$targetElement = thisEl.find( '#' + value.option ).parents( '.fusion-builder-option' ).first();
-							if ( 0 === $targetElement.length && 'font_family' === thisEl.find( '.fusion-builder-option[data-option-id="' + value.option + '"]' ).data( 'option-type' ) ) {
-								$targetElement = thisEl.find( '.fusion-builder-option[data-option-id="' + value.option + '"]' );
-							}
+							$targetElement = thisEl.find( '#' + value.option ).closest( '.fusion-builder-option' );
 
 							// Check if it passes for regular "and" test.
 							if ( -1 === $.inArray( false, $passedArray ) && 'undefined' === typeof value.or ) {
@@ -5428,6 +5437,8 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 			$upload.val( 'Upload Image' );
 			$preview.remove();
 
+			FusionPageBuilderEvents.trigger( 'awb-image-upload-url-' + $upload.data( 'param' ), '' );
+
 			// Remove image ID if image is removed.
 			imageIDField = $upload.parents( '.fusion-builder-option' ).next().find( '#' + $upload.data( 'param' ) + '_id' );
 
@@ -5528,9 +5539,16 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 				event.preventDefault();
 			}
 
+			// EOs.
 			$portLink.closest( '.fusion-builder-modal-settings-container' ).find( '.fusion-builder-main-settings' ).removeClass( 'fusion-large fusion-medium fusion-small' ).addClass( port );
 			$portLink.closest( 'ul' ).find( 'li' ).removeClass( 'active' );
 			$portLink.closest( 'li' ).addClass( 'active' );
+
+			// POs.
+			$portLink.closest( '.postbox' ).removeClass( 'fusion-large fusion-medium fusion-small' ).addClass( port );
+			$portLink.closest( '.postbox' ).find( 'ul.fusion-viewport-indicator li' ).removeClass( 'active' );
+			$portLink.closest( '.postbox' ).find( 'ul.fusion-viewport-indicator' ).find( 'li[data-viewport="' + port + '"]' ).addClass( 'active' );
+
 		} );
 
 		// Responsive setup on option change.

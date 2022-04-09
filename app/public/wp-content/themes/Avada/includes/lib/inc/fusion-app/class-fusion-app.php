@@ -152,7 +152,6 @@ class Fusion_App {
 			$this->set_builder_status();
 			$this->set_preview_status();
 
-
 			$this->init();
 		}
 
@@ -228,6 +227,7 @@ class Fusion_App {
 		add_action( $add_to_admin_bar_hook, [ $this, 'builder_trigger' ], 999 );
 
 		add_action( 'wp_footer', [ $this, 'remove_unused_form_links' ], 997 );
+		add_action( 'wp_footer', [ $this, 'remove_unused_off_canvas_links' ], 997 );
 	}
 
 	/**
@@ -239,7 +239,8 @@ class Fusion_App {
 	 */
 	public function remove_unused_form_links() {
 		$maybe_has_forms = class_exists( 'Fusion_Template_Builder' ) && function_exists( 'get_post_type' ) && 'fusion_tb_section' !== get_post_type();
-		if ( ! current_user_can( 'edit_others_posts' ) || ! is_admin_bar_showing() || ! $maybe_has_forms ) {
+		$forms_enabled   = class_exists( 'Fusion_Form_Builder' ) && false !== Fusion_Form_Builder::is_enabled();
+		if ( ! $forms_enabled || ! current_user_can( 'edit_others_posts' ) || ! is_admin_bar_showing() || ! $maybe_has_forms ) {
 			return;
 		}
 		?>
@@ -252,6 +253,43 @@ class Fusion_App {
 						$formEditLinks.each( function() {
 							var formId = this.id.replace( 'wp-admin-bar-fb-edit-form', 'fusion-form' );
 							if ( ! jQuery( '.' + formId ).length ) {
+								this.remove();
+							}
+						} );
+
+						// Remove empty Ul.
+						if ( $ul.length && ! $ul.children().length ) {
+							$ul.remove();
+						}
+					}
+				} )
+			</script>
+		<?php
+	}
+
+	/**
+	 * Remove unused off canvas links.
+	 *
+	 * @access public
+	 * @since 3.6
+	 * @return void
+	 */
+	public function remove_unused_off_canvas_links() {
+		$maybe_has_off_canvas = class_exists( 'Fusion_Template_Builder' ) && function_exists( 'get_post_type' ) && 'fusion_tb_section' !== get_post_type();
+		$off_canvas_enabled   = class_exists( 'AWB_Off_Canvas_Front_End' ) && false !== AWB_Off_Canvas_Front_End::is_enabled();
+		if ( ! $off_canvas_enabled || ! current_user_can( 'edit_others_posts' ) || ! is_admin_bar_showing() || ! $maybe_has_off_canvas ) {
+			return;
+		}
+		?>
+			<script>
+				jQuery( document ).ready( function() {
+					var $offCanvasEditLink = jQuery( 'li[id^="wp-admin-bar-fb-edit-off-canvas-"]' ),
+						$ul            = jQuery( '#wp-admin-bar-fb-edit-default' );
+
+					if ( 0 < $offCanvasEditLink.length ) {
+						$offCanvasEditLink.each( function() {
+							var offCanvasId = this.id.replace( 'wp-admin-bar-fb-edit-off-canvas', 'awb-oc' );
+							if ( ! jQuery( '#' + offCanvasId ).length ) {
 								this.remove();
 							}
 						} );
@@ -420,7 +458,6 @@ class Fusion_App {
 				$post_content .= '[fusion_builder_next_page last="true"]';
 			}
 		}
-
 
 		if ( ( is_category() || is_tax() ) && ( ! function_exists( 'FusionBuilder' ) || ! FusionBuilder()->editing_post_card ) ) {
 			$category     = get_queried_object();
@@ -668,6 +705,7 @@ class Fusion_App {
 		$customize_url      = fusion_app_get_permalink( $admin_bar );
 		$forms_enabled      = class_exists( 'Fusion_Form_Builder' ) && false !== Fusion_Form_Builder::is_enabled();
 		$post_cards_enabled = function_exists( 'fusion_is_element_enabled' ) && fusion_is_element_enabled( 'fusion_post_cards' );
+		$off_canvas_enabled = class_exists( 'AWB_Off_Canvas_Front_End' ) && false !== AWB_Off_Canvas_Front_End::is_enabled();
 
 		if ( ! $customize_url || '' === $customize_url ) {
 			return;
@@ -807,6 +845,31 @@ class Fusion_App {
 					);
 				}
 			}
+
+			// Add all off canvas.
+			if ( $off_canvas_enabled && current_user_can( 'edit_others_posts' ) && ! is_admin() && function_exists( 'get_post_type' ) && 'awb_off_canvas' !== get_post_type() ) {
+				$args         = [
+					'post_type'      => 'awb_off_canvas',
+					'posts_per_page' => -1, // phpcs:ignore WPThemeReview.CoreFunctionality.PostsPerPage.posts_per_page_posts_per_page
+					'post_status'    => 'publish',
+				];
+				$off_canvases = get_posts( $args );
+
+				foreach ( $off_canvases as $off_canvas ) {
+					$element_post_id    = $off_canvas->ID;
+					$element_post_title = $off_canvas->post_title;
+
+					$admin_bar->add_node(
+						[
+							'parent' => 'fb-edit',
+							'id'     => 'fb-edit-off-canvas-' . $element_post_id,
+							/* translators: Template name, for example Content */
+							'title'  => sprintf( __( 'Edit Off Canvas - %s', 'fusion-builder' ), $element_post_title ),
+							'href'   => add_query_arg( 'fb-edit', true, get_permalink( $element_post_id ) ),
+						]
+					);
+				}
+			}
 		}
 	}
 
@@ -833,7 +896,7 @@ class Fusion_App {
 			$classes[] = 'fusion-hide-droppables';
 		}
 
-		if ( isset( $preferences::$preferences['tooltips'] ) && 'off' === $preferences::$preferences['tooltips'] ) {
+		if ( ( isset( $preferences::$preferences['tooltips'] ) && 'off' === $preferences::$preferences['tooltips'] ) || 'awb_off_canvas' === get_post_type() ) {
 			$classes[] = 'fusion-hide-all-tooltips';
 		}
 
@@ -901,6 +964,8 @@ class Fusion_App {
 
 		if ( is_rtl() ) {
 			$classes[] = 'rtl';
+		} else {
+			$classes[] = 'ltr';
 		}
 
 		$classes[] = 'locale-' . sanitize_html_class( strtolower( str_replace( '_', '-', get_user_locale() ) ) );
@@ -1159,6 +1224,7 @@ class Fusion_App {
 	public function load_templates() {
 		include FUSION_LIBRARY_PATH . '/inc/fusion-app/templates/front-end-toolbar.php';
 		include FUSION_LIBRARY_PATH . '/inc/fusion-app/templates/repeater-fields.php';
+		include FUSION_LIBRARY_PATH . '/inc/fusion-app/templates/typography-set.php';
 		include FUSION_LIBRARY_PATH . '/inc/fusion-app/templates/modal-dialog-more.php';
 		include FUSION_LIBRARY_PATH . '/inc/fusion-app/templates/bulk-add.php';
 	}
@@ -1182,24 +1248,9 @@ class Fusion_App {
 		}
 		wp_enqueue_style( 'fusion-font-icomoon', FUSION_LIBRARY_URL . '/inc/fusion-app/assets/fonts/icomoon' . $min . '.css', false, $fusion_library_latest_version, 'all' );
 
-		// For inline editor.
-		wp_enqueue_script( 'jquery-touch-punch' );
-		wp_enqueue_script( 'jquery-color' );
-		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script( 'iris', admin_url( 'js/iris.min.js' ), [], $fusion_library_latest_version, true );
-		wp_enqueue_script( 'wp-color-picker', admin_url( 'js/color-picker.min.js' ), [ 'wp-i18n' ], $fusion_library_latest_version, true );
-
-		$colorpicker_l10n = [
-			'clear'         => __( 'Clear', 'Avada' ),
-			'defaultString' => __( 'Default', 'Avada' ),
-			'pick'          => __( 'Select Color', 'Avada' ),
-			'current'       => __( 'Current Color', 'Avada' ),
-		];
-
-		wp_localize_script( 'wp-color-picker', 'wpColorPickerL10n', $colorpicker_l10n );
-
-		// ColorPicker Alpha Channel.
-		wp_enqueue_script( 'wp-color-picker-alpha', FUSION_LIBRARY_URL . '/inc/redux/custom-fields/color_alpha/wp-color-picker-alpha.js', [ 'wp-i18n' ], $fusion_library_latest_version, true );
+		if ( function_exists( 'AWB_Global_Colors' ) ) {
+			AWB_Global_Colors()->enqueue();
+		}
 
 		// Media.
 		wp_enqueue_media();
@@ -1276,23 +1327,13 @@ class Fusion_App {
 		wp_enqueue_style( 'thickbox' );
 		wp_enqueue_style( 'forms' );
 
-		wp_enqueue_script( 'jquery-touch-punch' );
-		wp_enqueue_script( 'jquery-color' );
-		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script( 'iris', admin_url( 'js/iris.min.js' ), [], $fusion_library_latest_version, true );
-		wp_enqueue_script( 'wp-color-picker', admin_url( 'js/color-picker.min.js' ), [], $fusion_library_latest_version, true );
+		if ( function_exists( 'AWB_Global_Colors' ) ) {
+			AWB_Global_Colors()->enqueue();
+		}
 
-		$colorpicker_l10n = [
-			'clear'         => __( 'Clear', 'Avada' ),
-			'defaultString' => __( 'Default', 'Avada' ),
-			'pick'          => __( 'Select Color', 'Avada' ),
-			'current'       => __( 'Current Color', 'Avada' ),
-		];
-
-		wp_localize_script( 'wp-color-picker', 'wpColorPickerL10n', $colorpicker_l10n );
-
-		// ColorPicker Alpha Channel.
-		wp_enqueue_script( 'wp-color-picker-alpha', FUSION_LIBRARY_URL . '/inc/redux/custom-fields/color_alpha/wp-color-picker-alpha.js', [], $fusion_library_latest_version, true );
+		if ( function_exists( 'AWB_Global_Typography' ) ) {
+			AWB_Global_Typography()->enqueue();
+		}
 
 		// Code Mirror.
 		if ( function_exists( 'wp_enqueue_code_editor' ) ) {
@@ -1343,7 +1384,6 @@ class Fusion_App {
 			wp_enqueue_script( 'fusion_app_validation', FUSION_LIBRARY_URL . '/inc/fusion-app/model-validation.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_callback_functions', FUSION_LIBRARY_URL . '/inc/fusion-app/model-callback-functions.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_dependencies', FUSION_LIBRARY_URL . '/inc/fusion-app/model-dependencies.js', [], $fusion_library_latest_version, true );
-			wp_enqueue_script( 'fusion_app_assets', FUSION_LIBRARY_URL . '/inc/fusion-app/model-assets.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_model_view_manager', FUSION_LIBRARY_URL . '/inc/fusion-app/model-view-manager.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_active_states', FUSION_LIBRARY_URL . '/inc/fusion-app/model-active-states.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_hotkeys', FUSION_LIBRARY_URL . '/inc/fusion-app/model-hotkeys.js', [], $fusion_library_latest_version, true );
@@ -1373,18 +1413,20 @@ class Fusion_App {
 			wp_enqueue_script( 'fusion_app_option_repeater', FUSION_LIBRARY_URL . '/inc/fusion-app/options/repeater.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_switch', FUSION_LIBRARY_URL . '/inc/fusion-app/options/switch.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_typography', FUSION_LIBRARY_URL . '/inc/fusion-app/options/typography.js', [], $fusion_library_latest_version, true );
-			wp_enqueue_script( 'fusion_app_option_font_family', FUSION_LIBRARY_URL . '/inc/fusion-app/options/font-family.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_import', FUSION_LIBRARY_URL . '/inc/fusion-app/options/import.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_export', FUSION_LIBRARY_URL . '/inc/fusion-app/options/export.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_sortable', FUSION_LIBRARY_URL . '/inc/fusion-app/options/sortable.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_sortable_text', FUSION_LIBRARY_URL . '/inc/fusion-app/options/sortable-text.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_connected_sortable', FUSION_LIBRARY_URL . '/inc/fusion-app/options/connected-sortable.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_color_palette', FUSION_LIBRARY_URL . '/inc/fusion-app/options/color-palette.js', [], $fusion_library_latest_version, true );
+			wp_enqueue_script( 'fusion_app_option_typography_sets', FUSION_LIBRARY_URL . '/inc/fusion-app/options/typography-sets.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_column_width', FUSION_LIBRARY_URL . '/inc/fusion-app/options/column-width.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_form_options', FUSION_LIBRARY_URL . '/inc/fusion-app/options/form-options.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_fusion_logics', FUSION_LIBRARY_URL . '/inc/fusion-app/options/fusion-logics.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_hubspot_map', FUSION_LIBRARY_URL . '/inc/fusion-app/options/hubspot-map.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_mailchimp_map', FUSION_LIBRARY_URL . '/inc/fusion-app/options/mailchimp-map.js', [], $fusion_library_latest_version, true );
+			wp_enqueue_script( 'fusion_app_option_image_focus_point', FUSION_LIBRARY_URL . '/inc/fusion-app/options/image-focus-point.js', [], $fusion_library_latest_version, true );
+			wp_enqueue_script( 'fusion_app_option_layout_conditions', FUSION_LIBRARY_URL . '/inc/fusion-app/options/layout-conditions.js', [], $fusion_library_latest_version, true );
 
 			wp_enqueue_script( 'fusion-extra-panel-functions', FUSION_LIBRARY_URL . '/inc/fusion-app/callbacks.js', [], $fusion_library_latest_version, true );
 

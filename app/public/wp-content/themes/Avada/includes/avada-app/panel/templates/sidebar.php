@@ -15,6 +15,7 @@ $po_name_array            = [
 	'default'           => __( 'Page Options', 'Avada' ),
 	'fusion_tb_section' => __( 'Layout Section Options', 'Avada' ),
 	'fusion_form'       => __( 'Form Options', 'Avada' ),
+	'awb_off_canvas'    => __( 'Off Canvas Options', 'Avada' ),
 ];
 
 $po_name = isset( $po_name_array[ $_post_type ] ) ? $po_name_array[ $_post_type ] : $po_name_array['default'];

@@ -480,7 +480,7 @@ function fusion_element_post_slider() {
 				'icon'       => 'fusiona-layers-alt',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-post-slider-preview.php',
 				'preview_id' => 'fusion-builder-block-module-post-slider-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/post-slider-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/post-slider-element/',
 				'params'     => [
 					[
 						'type'        => 'select',

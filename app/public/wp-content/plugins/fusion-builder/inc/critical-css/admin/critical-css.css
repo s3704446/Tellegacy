@@ -34,6 +34,19 @@
   display: none;
   border: none !important;
 }
+.awb-critical-hero .pyre_field .select2-selection--multiple .select2-search__field {
+  margin-bottom: 5px;
+  padding-left: 7px;
+}
+.awb-critical-hero .pyre_field .select2-container .select2-selection > .select2-selection__rendered {
+  margin-right: 0;
+}
+.awb-critical-hero .pyre_field .select2-selection--multiple {
+  display: flex;
+}
+.awb-critical-hero .pyre_metabox_field {
+  padding-top: 0;
+}
 .awb-critical-loader {
   align-items: center;
   display: none;

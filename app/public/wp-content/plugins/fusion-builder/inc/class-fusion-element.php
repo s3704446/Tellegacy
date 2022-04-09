@@ -133,8 +133,11 @@ abstract class Fusion_Element {
 		self::$global_options = array_merge_recursive( self::$global_options, $element_options );
 		self::$fb_options->add_options( $element_options );
 
-		add_action( 'wp_loaded', [ $this, 'load_css' ], 30 );
-		add_action( 'wp_loaded', [ $this, 'add_css_files' ] );
+		if ( ! is_admin() ) {
+			add_action( 'wp_loaded', [ $this, 'load_css' ], 30 );
+			add_action( 'wp_loaded', [ $this, 'add_css_files' ] );
+		}
+
 		// Dynamic JS script.
 		$this->add_scripts();
 

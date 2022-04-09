@@ -99,6 +99,37 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' === values.chart_type ) {
 					values.chart_type = 'bar';
 				}
+
+				// validate bg_colors.
+				if ( values.bg_colors ) {
+					values.bg_colors = this.validateGlobalColors( values.bg_colors );
+				}
+
+				// validate border_colors.
+				if ( values.border_colors ) {
+					values.border_colors = this.validateGlobalColors( values.border_colors );
+				}
+			},
+
+			/**
+			 * Validate global color variable.
+			 *
+			 * @since 3.6
+			 * @param {String} value - The value.
+			 * @return {Object|String}
+			 */
+			validateGlobalColors: function( value ) {
+				var colors    = value.split( '|' ),
+					newColors = [];
+
+				if ( colors ) {
+					_.each( colors, function( v ) {
+						var newValue = '' !== v ? jQuery.AWB_Color( v ).toRgbaString() : '';
+						newColors.push( newValue );
+					} );
+					return newColors.join( '|' );
+				}
+				return value;
 			},
 
 			/**
@@ -177,19 +208,19 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( '' !== values.chart_point_bg_color ) {
-					chartShortcode[ 'data-chart_point_bg_color' ] = values.chart_point_bg_color;
+					chartShortcode[ 'data-chart_point_bg_color' ] = jQuery.AWB_Color( values.chart_point_bg_color ).toRgbaString();
 				}
 
 				if ( '' !== values.chart_point_border_color ) {
-					chartShortcode[ 'data-chart_point_border_color' ] = values.chart_point_border_color;
+					chartShortcode[ 'data-chart_point_border_color' ] = jQuery.AWB_Color( values.chart_point_border_color ).toRgbaString();
 				}
 
 				if ( '' !== values.chart_axis_text_color ) {
-					chartShortcode[ 'data-chart_axis_text_color' ] = values.chart_axis_text_color;
+					chartShortcode[ 'data-chart_axis_text_color' ] = jQuery.AWB_Color( values.chart_axis_text_color ).toRgbaString();
 				}
 
 				if ( '' !== values.chart_gridline_color ) {
-					chartShortcode[ 'data-chart_gridline_color' ] = values.chart_gridline_color;
+					chartShortcode[ 'data-chart_gridline_color' ] = jQuery.AWB_Color( values.chart_gridline_color ).toRgbaString();
 				}
 
 				if ( '' !== values[ 'class' ] ) {

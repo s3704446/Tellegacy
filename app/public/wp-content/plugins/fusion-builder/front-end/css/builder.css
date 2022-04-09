@@ -56,10 +56,18 @@
   content: "\f0ac";
   font-family: fusion-builder-icons;
   font-size: 16px;
-  margin-right: 10px;
-  margin-left: 1px;
   color: #93999f;
   vertical-align: middle;
+}
+.ltr .fusion-builder-live .fusion-global h4.fusion-page-layout-title:before,
+.ltr .fusion-builder-live .fusion-global h4.fusion_module_title:before {
+  margin-right: 10px;
+  margin-left: 1px;
+}
+.rtl .fusion-builder-live .fusion-global h4.fusion-page-layout-title:before,
+.rtl .fusion-builder-live .fusion-global h4.fusion_module_title:before {
+  margin-left: 10px;
+  margin-right: 1px;
 }
 .fusion-builder-live .fusion-global h4.fusion-page-layout-title .fusion-global-tooltip-wrapper,
 .fusion-builder-live .fusion-global h4.fusion_module_title .fusion-global-tooltip-wrapper {
@@ -368,10 +376,14 @@
   font-size: 14px;
   transition: background-color 0.1s ease;
 }
-.fusion-builder-live .fusion-builder-add-predefined-multi-child span,
-.fusion-builder-live .fusion-builder-add-multi-child span,
-.fusion-builder-live .fusion-builder-add-multi-gallery-images span {
-  padding-right: 5px;
+.fusion-builder-live .fusion-builder-add-predefined-multi-child .fusiona-plus,
+.fusion-builder-live .fusion-builder-add-multi-child .fusiona-plus,
+.fusion-builder-live .fusion-builder-add-multi-gallery-images .fusiona-plus,
+.fusion-builder-live .fusion-builder-add-predefined-multi-child .add-sortable-child-text,
+.fusion-builder-live .fusion-builder-add-multi-child .add-sortable-child-text,
+.fusion-builder-live .fusion-builder-add-multi-gallery-images .add-sortable-child-text {
+  padding-right: 2.5px;
+  padding-left: 2.5px;
 }
 .fusion-builder-live .fusion-builder-add-predefined-multi-child:hover,
 .fusion-builder-live .fusion-builder-add-multi-child:hover,
@@ -1278,10 +1290,6 @@
 .fusion-builder-main-settings .fusion-table-builder-chart.fusion-table-builder .fusion-builder-option.colorpickeralpha .wp-picker-holder {
   clear: both;
 }
-.fusion-builder-main-settings .fusion-table-builder-chart.fusion-table-builder .fusion-builder-option.colorpickeralpha .option-field .iris-square,
-.fusion-builder-main-settings .fusion-table-builder-chart.fusion-table-builder .fusion-builder-option.colorpickeralpha .option-field .iris-strip {
-  height: 140px !important;
-}
 .fusion-builder-main-settings .fusion-table-builder-chart.fusion-table-builder .fusion-builder-option.colorpickeralpha .wp-picker-container .iris-picker {
   margin-top: 0;
   border-left: none;
@@ -1310,7 +1318,7 @@
   background: #fff;
   z-index: 2;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
-  width: 300px;
+  min-width: 300px;
   border-radius: 5px;
   display: none;
 }
@@ -1511,6 +1519,9 @@
 .fusion-builder-main-settings .fusion-table-builder-chart .fusion-builder-table-delete-row:hover,
 .fusion-builder-main-settings .fusion-table-builder-chart .fusion-builder-table-delete-column:hover {
   color: #e0284f;
+}
+.fusion-builder-main-settings .fusion-table-builder-chart .option-field .fusion-colorpicker-container {
+  padding: 12px;
 }
 .fusion-builder-main-settings .fusion-table-builder-chart .option-field .fusion-colorpicker-container .wp-picker-input-wrap .wp-picker-clear {
   position: absolute;
@@ -1841,6 +1852,9 @@
   cursor: not-allowed;
 }
 li[data-direction="row"] + li .fusion-form-radio-button-set a > span {
+  transform: rotate(-90deg);
+}
+li[data-direction="row"] + li.radio-buttonset a > span {
   transform: rotate(-90deg);
 }
 .fusion-mapping > span {

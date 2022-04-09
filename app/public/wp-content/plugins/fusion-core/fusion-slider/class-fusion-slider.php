@@ -74,7 +74,9 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 		 */
 		public function change_slide_labels( $labels ) {
 			foreach ( $labels as $index => $label ) {
-				$labels->$index = str_replace( [ 'Categories', 'Category', 'categories', 'category' ], [ 'Slides', 'Slides', 'slides', 'slide' ], $label );
+				if ( null !== $label ) {
+					$labels->$index = str_replace( [ 'Categories', 'Category', 'categories', 'category' ], [ 'Slides', 'Slides', 'slides', 'slide' ], $label );
+				}
 			}
 
 			return $labels;
@@ -294,10 +296,10 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 
 			// Admin role menu entry.
 			if ( current_user_can( 'switch_themes' ) ) {
-				$sliders = add_submenu_page( 'avada', esc_html__( 'Avada Sliders', 'fusion-core' ), esc_html__( 'Sliders', 'fusion-core' ), 'manage_options', 'avada_sliders', null, 7 );
+				$sliders = add_submenu_page( 'avada', esc_html__( 'Avada Sliders', 'fusion-core' ), esc_html__( 'Sliders', 'fusion-core' ), 'manage_options', 'avada_sliders', null, 9 );
 			} else { // Editor role menu entry.
 				$sliders     = add_menu_page( esc_html__( 'Avada Sliders', 'fusion-core' ), esc_html__( 'Avada Sliders', 'fusion-core' ), 'edit_pages', 'avada_sliders', '', 'dashicons-avada', '2.111111' );
-				$sliders_sub = add_submenu_page( 'avada_sliders', esc_html__( 'Avada Slides', 'fusion-core' ), esc_html__( 'Avada Slides', 'fusion-core' ), 'edit_pages', 'avada_slides', null, 1 );
+				$sliders_sub = add_submenu_page( 'avada_sliders', esc_html__( 'Avada Slides', 'fusion-core' ), esc_html__( 'Avada Slides', 'fusion-core' ), 'edit_pages', 'avada_slides', null, 29 );
 			}
 
 			add_submenu_page( 'avada', __( 'Export / Import', 'fusion-core' ), __( 'Export / Import', 'fusion-core' ), 'manage_options', 'avada_slider_export_import', [ $this, 'add_slider_import_export' ], 30 );

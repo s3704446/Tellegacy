@@ -1,4 +1,4 @@
-/* global customizer, Fuse, FusionPageBuilderApp, FusionApp, FusionEvents, fusionBuilderText, fusionSanitize, fusionAppConfig */
+/* global customizer, Fuse, FusionPageBuilderApp, FusionApp, FusionEvents, fusionBuilderText, fusionSanitize, fusionAppConfig, awbPalette */
 var FusionPageBuilder = FusionPageBuilder || {};
 
 ( function() {
@@ -1162,7 +1162,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 * @return {string} - Returns the value as a string.
 		 */
 		fixToValueName: function( to, value, type, subset ) {
-			var flatTo  = this.getFlatToObject();
+			var flatTo  = this.getFlatToObject(),
+				colorObject;
 
 			if ( 'undefined' !== typeof flatTo[ to ] && 'undefined' !== typeof flatTo[ to ].choices && 'undefined' !== typeof flatTo[ to ].choices[ value ] && 'yesno' !== type ) {
 				return flatTo[ to ].choices[ value ];
@@ -1173,6 +1174,15 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				} else {
 					value = _.values( value ).join( ', ' );
 				}
+			}
+
+			if ( _.isString( value ) && awbPalette.getColorSlugFromCssVar( value ) ) {
+				colorObject = awbPalette.getColorObject( awbPalette.getColorSlugFromCssVar( value ) );
+				if ( ! colorObject ) {
+					colorObject = awbPalette.getDefaultColorObject();
+				}
+
+				value = colorObject.label;
 			}
 
 			switch ( type ) {

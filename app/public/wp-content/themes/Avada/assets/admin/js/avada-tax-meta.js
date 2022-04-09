@@ -19,14 +19,13 @@
 
 			// Picker with default.
 			if ( jQuery( this ).data( 'default' ) &&  jQuery( this ).data( 'default' ).length ) {
-				jQuery( this ).wpColorPicker( {
+				jQuery( this ).awbColorPicker( {
 					change: function( event, ui ) {
 						avadaTaxMeta.colorChange( ui.color.toString(), self, $defaultReset );
 					},
 					clear: function( event ) {
 						avadaTaxMeta.colorClear( event, self );
-					},
-					palettes: [ '#000000', '#ffffff', '#f44336', '#E91E63', '#03A9F4', '#00BCD4', '#8BC34A', '#FFEB3B', '#FFC107', '#FF9800', '#607D8B' ]
+					}
 				} );
 
 				// Make it so the reset link also clears color.
@@ -37,9 +36,7 @@
 
 			// Picker without default.
 			} else {
-				jQuery( this ).wpColorPicker( {
-					palettes: [ '#000000', '#ffffff', '#f44336', '#E91E63', '#03A9F4', '#00BCD4', '#8BC34A', '#FFEB3B', '#FFC107', '#FF9800', '#607D8B' ]
-				} );
+				jQuery( this ).awbColorPicker();
 			}
 		} );
 	};

@@ -375,7 +375,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				  if (  !  this.isDefault( 'swatch_border_color_active' ) ) {
 				    this.addCssProperty( active_swatches, 'border-color',  this.values.swatch_border_color_active );
-				    hover_color = jQuery.Color( this.values.swatch_border_color_active ).alpha( 0.5 ).toRgbaString();
+				    hover_color = jQuery.AWB_Color( this.values.swatch_border_color_active ).alpha( 0.5 ).toRgbaString();
 				    this.addCssProperty( hover_swatches, 'border-color', hover_color );
 				  }
 

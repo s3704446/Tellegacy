@@ -41,7 +41,6 @@ $fusion_demo_import_cmd = function( $args, $assoc_args ) {
 				continue;
 			}
 
-
 			if ( isset( $import_stage['data'] ) && 'content' === $import_stage['data'] ) {
 				$demo_content_types[] = $import_stage['value'];
 
@@ -55,7 +54,6 @@ $fusion_demo_import_cmd = function( $args, $assoc_args ) {
 
 		$demo_import_stages[]            = 'general_data';
 		$demos[ $demo ]['import_stages'] = $demo_import_stages;
-
 
 		$demos[ $demo ]['content_types'] = $demo_content_types;
 	}

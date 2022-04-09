@@ -296,7 +296,7 @@ function avada_options_section_elastic_slider( $sections ) {
 				'label'       => esc_html__( 'Title Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the color of the elastic slider title.', 'Avada' ),
 				'id'          => 'es_title_color',
-				'default'     => '#212934',
+				'default'     => 'var(--awb-color8)',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[
@@ -317,7 +317,7 @@ function avada_options_section_elastic_slider( $sections ) {
 				'label'       => esc_html__( 'Caption Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the color of the elastic slider caption.', 'Avada' ),
 				'id'          => 'es_caption_color',
-				'default'     => '#4a4e57',
+				'default'     => 'var(--awb-color8)',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[

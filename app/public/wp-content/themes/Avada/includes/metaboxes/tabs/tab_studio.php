@@ -17,6 +17,8 @@
  */
 function avada_page_options_tab_studio( $sections ) {
 
+	$off_canvas_items = class_exists( 'AWB_Off_Canvas_Front_End' ) ? AWB_Off_Canvas_Front_End()->get_available_items() : [];
+
 	$sections['studio'] = [
 		'label'    => esc_attr__( 'Studio', 'Avada' ),
 		'id'       => 'studio',
@@ -48,9 +50,17 @@ function avada_page_options_tab_studio( $sections ) {
 				'transport'   => 'postMessage',
 				'default'     => 'no',
 			],
+			'off_canvases'          => [
+				'type'        => 'multiple_select',
+				'label'       => esc_html__( 'Select Referenced Off Canvases', 'Avada' ),
+				'description' => esc_html__( 'Select off canvases which are referenced in this item. Leaving blank if none.', 'Avada' ),
+				'id'          => 'off_canvases',
+				'choices'     => $off_canvas_items,
+				'transport'   => 'postMessage',
+			],
 		],
 	];
-	
+
 	return $sections;
 }
 

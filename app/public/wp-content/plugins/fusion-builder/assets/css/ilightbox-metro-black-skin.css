@@ -35,6 +35,9 @@
   left: 8px;
   height: 25px;
 }
+.admin-bar:not(.isMobile) .ilightbox-toolbar.metro-black {
+  top: 40px;
+}
 .ilightbox-toolbar.metro-black a {
   width: 27px;
   height: 25px;

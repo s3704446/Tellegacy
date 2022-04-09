@@ -66,7 +66,6 @@ function avada_fusion_core_h4_typography( $typography_elements ) {
 	$typography_elements['family'][] = '.popover .popover-title';
 	$typography_elements['family'][] = '.fusion-flip-boxes .fusion-flip-box .flip-box-heading-back';
 	$typography_elements['family'][] = '.fusion-tabs .nav-tabs  li .fusion-tab-heading';
-	$typography_elements['family'][] = '.fusion-accordian .panel-heading a';
 	$typography_elements['family'][] = '.fusion-person .person-desc .person-author .person-author-wrapper';
 
 	return $typography_elements;

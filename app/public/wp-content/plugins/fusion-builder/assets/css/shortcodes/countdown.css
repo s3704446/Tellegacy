@@ -1,13 +1,21 @@
 .fusion-countdown {
+  padding: 30px;
+}
+.fusion-countdown.fusion-no-bg {
+  padding: 0;
+}
+.fusion-countdown .fusion-countdown-wrapper {
   display: flex;
   flex-wrap: nowrap;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 30px;
+  margin: 0 -7.5px;
 }
-.fusion-countdown.fusion-no-bg {
-  padding: 0;
+.fusion-countdown .fusion-countdown-heading-wrapper,
+.fusion-countdown .fusion-countdown-counter-wrapper,
+.fusion-countdown .fusion-countdown-link-wrapper {
+  margin: 0 7.5px;
 }
 .fusion-countdown .fusion-countdown-heading {
   font-weight: bold;
@@ -22,9 +30,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  flex-grow: 1;
   overflow: hidden;
-  margin: 0 10px;
   text-align: center;
 }
 .fusion-countdown .fusion-dash-wrapper {
@@ -49,8 +55,13 @@
   display: none;
 }
 .fusion-countdown .fusion-dash-title {
-  padding-left: 0.25em;
   min-width: 46px;
+}
+.ltr .fusion-countdown .fusion-dash-title {
+  padding-left: 0.25em;
+}
+.rtl .fusion-countdown .fusion-dash-title {
+  padding-right: 0.25em;
 }
 .fusion-countdown .fusion-countdown-link {
   letter-spacing: 2px;
@@ -61,7 +72,7 @@
 .fusion-countdown.fusion-countdown-has-heading .fusion-countdown-subheading {
   margin-bottom: 0.4em;
 }
-.fusion-countdown.fusion-countdown-stacked {
+.fusion-countdown.fusion-countdown-stacked .fusion-countdown-wrapper {
   flex-direction: column;
 }
 .fusion-countdown.fusion-countdown-stacked .fusion-countdown-heading-wrapper {

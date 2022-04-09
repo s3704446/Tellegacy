@@ -173,6 +173,10 @@ body.layout-boxed-mode.layout-scroll-offset-framed {
   z-index: 99999;
   width: 100%;
 }
+.layout-boxed-mode.layout-scroll-offset-framed:not(.avada-has-zero-margin-offset-top) .fusion-top-frame,
+.layout-boxed-mode.layout-scroll-offset-framed:not(.avada-has-zero-margin-offset-top) .fusion-sides-frame {
+  top: 0;
+}
 .layout-boxed-mode.layout-scroll-offset-framed:not(.avada-has-zero-margin-offset-top).avada-has-boxed-modal-shadow-none .fusion-boxed-shadow {
   display: none;
 }

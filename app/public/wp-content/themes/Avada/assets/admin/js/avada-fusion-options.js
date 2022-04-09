@@ -8,7 +8,7 @@ jQuery( document ).ready( function() {
 		$i,
 		fusionSelect2;
 
-	fusionSelect2 = jQuery( '.pyre_field select:not(.hidden-sidebar):not([data-ajax])' ).filter( function() {
+	fusionSelect2 = jQuery( '.pyre_field select:not(.hidden-sidebar):not([data-ajax]):not(.skip-select2)' ).filter( function() {
 		return ! jQuery( this ).closest( '.fusion-repeater-wrapper' ).length;
 	} ).select2( {
 		minimumResultsForSearch: 10
@@ -129,32 +129,39 @@ jQuery( document ).ready( function() {
 
 		// Picker with default.
 		if ( jQuery( this ).data( 'default' ) &&  jQuery( this ).data( 'default' ).length ) {
-			jQuery( this ).wpColorPicker( {
-				change: function( event, ui ) {
-					colorChange( ui.color.toString(), self, $defaultReset );
+			jQuery( this ).awbColorPicker( {
+				change: function( event ) {
+					colorChange( jQuery( event.target ), $defaultReset );
 				},
 				clear: function( event ) {
-					colorClear( event, self );
-				},
-				palettes: [ '#000000', '#ffffff', '#f44336', '#E91E63', '#03A9F4', '#00BCD4', '#8BC34A', '#FFEB3B', '#FFC107', '#FF9800', '#607D8B' ]
+					colorClear( jQuery( event.target ) );
+				}
 			} );
 
-			// Make it so the reset link also clears color.
+			if ( ! self.val() ) {
+				$defaultReset.addClass( 'checked' );
+			} else {
+				$defaultReset.removeClass( 'checked' );
+			}
+
+			// Default reset icon, set value to empty.
 			$defaultReset.on( 'click', 'a', function( event ) {
+				var dataDefault,
+					$input = jQuery( this ).closest( '.pyre_metabox_field' ).find( '.color-picker' );
+
 				event.preventDefault();
-				colorClear( event, self );
+				dataDefault = $input.attr( 'data-default' ) || $input.attr( 'data-default-color' );
+
+				// Make the color picker to start from the default color on open.
+				if ( dataDefault ) {
+					$input.val( dataDefault ).trigger( 'change' );
+				}
+				$input.val( '' ).trigger( 'change' );
 			} );
 
 		// Picker without default.
 		} else {
-			jQuery( this ).wpColorPicker( {
-				palettes: [ '#000000', '#ffffff', '#f44336', '#E91E63', '#03A9F4', '#00BCD4', '#8BC34A', '#FFEB3B', '#FFC107', '#FF9800', '#607D8B' ]
-			} );
-		}
-
-		// For some reason non alpha are not triggered straight away.
-		if ( true !== jQuery( this ).data( 'alpha' ) ) {
-			jQuery( this ).wpColorPicker().change();
+			jQuery( this ).awbColorPicker();
 		}
 	} );
 
@@ -359,35 +366,27 @@ jQuery( document ).ready( function() {
 
 	}
 
-	function colorChange( value, self, defaultReset ) {
-		var defaultColor = self.data( 'default' );
-
-		if ( value === defaultColor ) {
+	function colorChange( input, defaultReset ) {
+		if ( ! input.val() ) {
 			defaultReset.addClass( 'checked' );
 		} else {
 			defaultReset.removeClass( 'checked' );
 		}
 
-		if ( '' === value && null !== defaultColor ) {
-			self.val( defaultColor );
-			self.trigger( 'change' );
-			self.val( '' );
-		}
-
-		self.trigger( 'fusion-changed' );
+		input.trigger( 'fusion-changed' );
 	}
 
-	function colorClear( event, self ) {
-		var defaultColor = self.data( 'default' );
+	function colorClear( input ) {
+		var defaultColor = input.data( 'default' );
 
 		if ( null !== defaultColor ) {
-			self.val( defaultColor );
-			self.change();
-			self.val( '' );
-			self.parent().parent().find( '.wp-color-result' ).css( 'background-color', defaultColor );
+			input.val( defaultColor );
+			input.change();
+			input.val( '' );
+			input.parent().parent().find( '.wp-color-result' ).css( 'background-color', defaultColor );
 		}
 
-		self.trigger( 'fusion-changed' );
+		input.trigger( 'fusion-changed' );
 	}
 
 	/* PO export / import tab */
@@ -890,6 +889,16 @@ jQuery( document ).ready( function() {
 			}
 		}
 	);
+
+// content layout icons.
+const contentLayoutVal = jQuery( '#pyre_content_layout' ).val();
+jQuery( '#pyre_align_content' ).parent().attr( 'data-direction', contentLayoutVal );
+
+jQuery( document ).on( 'change', '#pyre_content_layout', function( e ) { // eslint-disable-line no-unused-vars
+	const alignmentField = jQuery( '#pyre_align_content' ).parent();
+	alignmentField.attr( 'data-direction', this.value );
+} );
+
 } );
 
 function awbUpdatePOPanel( customFields ) {

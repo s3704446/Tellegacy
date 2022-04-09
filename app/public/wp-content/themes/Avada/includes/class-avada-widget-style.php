@@ -69,6 +69,9 @@ class Avada_Widget_Style {
 		$is_builder = ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_preview_frame() ) || ( function_exists( 'fusion_is_builder_frame' ) && fusion_is_builder_frame() );
 		if ( ! $is_builder ) {
 			add_filter( 'widget_title', [ $this, 'filter_widget_title' ], 10, 3 );
+
+			add_filter( 'tribe_widget_arguments', [ $this, 'filter_tec_widget_title' ], 10 );
+
 		}
 	}
 
@@ -85,6 +88,10 @@ class Avada_Widget_Style {
 
 		// General JS for fields.
 		if ( 'widgets' === $screen->base && current_user_can( 'switch_themes' ) ) {
+			if ( function_exists( 'AWB_Global_Colors' ) ) {
+				AWB_Global_Colors()->enqueue();
+			}
+
 			wp_enqueue_script(
 				'avada-fusion-options',
 				Avada::$template_dir_url . '/assets/admin/js/avada-fusion-options.js',
@@ -96,7 +103,7 @@ class Avada_Widget_Style {
 	}
 
 	/**
-	 * Hides the widget title if title option is set to "no.
+	 * Hides the widget title if title option is set to "no".
 	 *
 	 * @since 6.2.1
 	 *
@@ -111,6 +118,22 @@ class Avada_Widget_Style {
 		}
 
 		return $title;
+	}
+
+	/**
+	 * Hides the TEC widget title if title option is set to "no".
+	 *
+	 * @since 7.6.1
+	 *
+	 * @param array $updated_instance  The widget options.
+	 * @return array The updated widget options.
+	 */
+	public function filter_tec_widget_title( $updated_instance ) {
+		if ( isset( $updated_instance['fusion_display_title'] ) && 'no' === $updated_instance['fusion_display_title'] ) {
+			$updated_instance['title'] = '';
+		}
+
+		return $updated_instance;
 	}
 
 	/**
@@ -534,7 +557,7 @@ class Avada_Widget_Style {
 
 			if ( '' !== $widget_opt[ $widget_num ]['fusion_divider_color'] ) {
 				$fusion_divider_color = Fusion_Sanitize::color( $widget_opt[ $widget_num ]['fusion_divider_color'] );
-	
+
 				$divider_styles .= '#' . $widget_id . ' .menu { border-right-color:' . $fusion_divider_color . ' !important;border-top-color:' . $fusion_divider_color . ' !important;}';
 				$divider_styles .= '#' . $widget_id . ' .menu li a { border-bottom-color:' . $fusion_divider_color . ' !important; }';
 				$divider_styles .= '#' . $widget_id . ' .right .menu { border-left-color:' . $fusion_divider_color . ' !important; }';

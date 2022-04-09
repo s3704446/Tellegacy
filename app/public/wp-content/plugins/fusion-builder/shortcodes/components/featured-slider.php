@@ -206,7 +206,7 @@ if ( fusion_is_element_enabled( 'fusion_tb_featured_slider' ) ) {
 
 				$post_type   = get_post_type( $this->get_target_post() );
 				$post_id     = get_the_ID();
-				$video_embed = fusion_get_page_option( 'video', $post_id );
+				$video_embed = apply_filters( 'privacy_iframe_embed', fusion_get_page_option( 'video', $post_id ) );
 				$image_src   = [];
 				$images      = [];
 

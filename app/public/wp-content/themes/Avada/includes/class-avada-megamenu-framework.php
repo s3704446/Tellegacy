@@ -69,6 +69,10 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 
 			// Add special menu items meta box.
 			add_action( 'admin_head-nav-menus.php', [ $this, 'add_special_links_meta_box' ] );
+
+			// AutoComplete field ajax.
+			add_action( 'wp_ajax_avada_mega_menu_autocomplete', [ $this, 'get_autocomplete' ] );
+
 		}
 
 		/**
@@ -86,6 +90,14 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 				wp_enqueue_media();
 				wp_register_script( 'avada-megamenu', Avada::$template_dir_url . '/assets/admin/js/mega-menu.js', [], self::$theme_info->get( 'Version' ), false );
 				wp_enqueue_script( 'avada-megamenu' );
+				wp_localize_script(
+					'avada-megamenu',
+					'AvadaMegaMenuVars',
+					[
+						'nonce'        => wp_create_nonce( 'avada_mega_menu_nonce' ),
+						'text_loading' => __( 'Loading...', 'Avada' ),
+					]
+				);
 			}
 		}
 
@@ -250,8 +262,9 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 					<ul id="avada-special-menu-items-checklist" class="categorychecklist form-no-clear">
 						<?php
 						$endpoints = [
-							'#fusion-search'             => esc_html__( 'Search', 'Avada' ),
-							'#fusion-sliding-bar-toggle' => esc_html__( 'Sliding Bar Toggle', 'Avada' ),
+							'#fusion-search'               => esc_html__( 'Search', 'Avada' ),
+							'#fusion-sliding-bar-toggle'   => esc_html__( 'Sliding Bar Toggle', 'Avada' ),
+							'#awb-off-canvas-menu-trigger' => esc_html__( 'Off Canvas Toggle', 'Avada' ),
 						];
 						if ( class_exists( 'WooCommerce' ) ) {
 							$endpoints['#fusion-woo-cart']       = esc_html__( 'WooCommerce Cart', 'Avada' );
@@ -319,6 +332,15 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 		 * @return array.
 		 */
 		public static function special_link_options_map( $fields, $item_url, $depth ) {
+
+			$off_canvas_field_type = 'autocomplete';
+			$off_canvas_items      = [ '' => __( 'Select Off Canvas', 'Avada' ) ];
+
+			if ( 25 > wp_count_posts( 'awb_off_canvas' )->publish ) {
+				$off_canvas_field_type = 'select';
+				$off_canvas_items      = AWB_Off_Canvas_Front_End()->get_available_items();
+			}
+
 			$custom_fields = [
 				'fusion-megamenu-special-link-note'    => [
 					'id'          => 'fusion-megamenu-special-link-note',
@@ -444,6 +466,22 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 						[
 							'field'      => 'fusion-megamenu-special-link',
 							'value'      => 'fusion-search',
+							'comparison' => '==',
+						],
+					],
+				],
+				'megamenu-off-canvas-id'               => [
+					'id'          => 'megamenu-off-canvas-id',
+					'label'       => esc_html__( 'Off Canvas', 'Avada' ),
+					'description' => esc_html__( 'Select off canvas to show when click on menu item.', 'Avada' ),
+					'type'        => $off_canvas_field_type,
+					'choices'     => $off_canvas_items,
+					'post_type'   => 'awb_off_canvas',
+					'save_id'     => 'fusion_off_canvas_id',
+					'dependency'  => [
+						[
+							'field'      => 'fusion-megamenu-special-link',
+							'value'      => 'awb-off-canvas-menu-trigger',
 							'comparison' => '==',
 						],
 					],
@@ -643,7 +681,7 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 		 */
 		public function parse_options( $item_id, $item, $depth ) {
 			$fields   = self::menu_options_map();
-			$specials = [ '#fusion-woo-cart', '#fusion-woo-my-account', '#fusion-search', '#fusion-sliding-bar-toggle' ];
+			$specials = [ '#fusion-woo-cart', '#fusion-woo-my-account', '#fusion-search', '#fusion-sliding-bar-toggle', '#awb-off-canvas-menu-trigger' ];
 
 			// Add special-links options.
 			if ( isset( $item->object ) && 'custom' === $item->object && in_array( $item->url, $specials, true ) ) {
@@ -697,6 +735,11 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 							case 'iconpicker':
 								$this->iconpicker( $field['id'], $field['label'], $field['description'], $field['dependency'], $item_id, $item, $field['save_id'] );
 								break;
+							case 'autocomplete':
+								$post_type = isset( $field['post_type'] ) ? $field['post_type'] : '';
+								$this->autocomplete( $field['id'], $field['label'], $post_type, $field['description'], $field['default'], $field['dependency'], $item_id, $item, $field['save_id'] );
+								break;
+
 						}
 					}
 				}
@@ -1064,7 +1107,98 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 
 			return $title . $svg;
 		}
+
+		/**
+		 * Autocomplete controls.
+		 *
+		 * @access public
+		 * @since 7.6
+		 * @param string $id         The ID.
+		 * @param string $label      The label.
+		 * @param string $post_type  The post type.
+		 * @param string $desc       The description.
+		 * @param string $default    The default value.
+		 * @param array  $dependency The dependencies array.
+		 * @param string $item_id    The ID of the menu item.
+		 * @param object $item       The menu item object.
+		 * @param string $save_id    The save ID if it is different from ID.
+		 * @param string $placeholder    Search text.
+		 */
+		public function autocomplete( $id, $label, $post_type = '', $desc = '', $default = '', $dependency = [], $item_id = 0, $item = null, $save_id = '', $placeholder = '' ) {
+			$placeholder = $placeholder ? $placeholder : __( 'Search ...', 'Avada' );
+
+			$value        = $item->{ $save_id };
+			$name         = '' !== $value ? wp_strip_all_tags( get_the_title( $value ) ) : '';
+			$search_class = '' !== $value ? 'hidden' : '';
+			?>
+			<div class="fusion-builder-option field-<?php echo esc_attr( $id ); ?>">
+				<div class="option-details">
+					<h3><?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput ?></h3>
+					<p class="description"><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
+				</div>
+				<div class="option-field fusion-builder-option-container autocomplete-container">
+					<div class="fusion-autocomplete-wrap">
+						<div class="selected-holder">
+							<?php
+							if ( '' !== $name ) {
+								echo '<div class="item">' . $name . '<span class="remove fusiona-plus2"></span></div>'; // phpcs:ignore
+							}
+							?>
+						</div>
+						<input type="text" class="fusion-autocomplete-search <?php echo esc_attr( $search_class ); ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" data-post-type="<?php echo esc_attr( $post_type ); ?>" />
+						<input type="hidden" id="edit-menu-item-<?php echo esc_attr( $id ); ?>-<?php echo esc_attr( $item_id ); ?>" class="edit-menu-item-<?php echo esc_attr( $id ); ?>  autocomplete-saved-value" name="menu-item-fusion-<?php echo esc_attr( $id ); ?>[<?php echo esc_attr( $item_id ); ?>]" value="<?php echo esc_attr( $value ); ?>" />
+						<div class="autocomplete-ajax-results"></div>
+					</div>
+				</div>
+			</div>
+			<?php
+		}
+
+		/**
+		 * Autocomplete ajax.
+		 *
+		 * @access public
+		 * @since 7.6
+		 */
+		public function get_autocomplete() {
+			check_ajax_referer( 'avada_mega_menu_nonce', 'nonce' );
+
+			$keyword   = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
+			$post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'post';
+
+			ob_start();
+
+			if ( '' !== $keyword ) {
+				$args  = [
+					'post_type'           => $post_type,
+					'ignore_sticky_posts' => 1,
+					'posts_per_page'      => -1, // phpcs:ignore WPThemeReview.CoreFunctionality.PostsPerPage.posts_per_page_posts_per_page
+					's'                   => $keyword,
+				];
+				$query = new WP_Query( $args );
+				if ( $query->have_posts() ) {
+					echo '<div class="results">';
+					while ( $query->have_posts() ) {
+						$query->the_post();
+						?>
+								<a href="#" data-id="<?php echo esc_attr( get_the_ID() ); ?>"><?php echo esc_html( get_the_title() ); ?></a>
+						<?php
+					}
+					echo '</div>';
+				} else {
+					echo esc_html__( 'Sorry, no posts matched your criteria.', 'Avada' );
+				}
+			}
+			$content = ob_get_clean();
+
+			$return_data = [
+				'code' => 200,
+				'html' => $content,
+			];
+
+			echo wp_json_encode( $return_data );
+			wp_die();
+		}
 	}
 }
-
 /* Omit closing PHP tag to avoid "Headers already sent" issues. */

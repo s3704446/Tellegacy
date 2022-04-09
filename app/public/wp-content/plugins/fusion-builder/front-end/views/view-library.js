@@ -721,6 +721,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					event.preventDefault();
 				}
 
+				// Off canvas.
+				category = 'undefined' !== typeof FusionApp.data.postDetails.post_type && 'awb_off_canvas' === FusionApp.data.postDetails.post_type ? FusionApp.data.postDetails.post_type : category;
+
 				if ( 'string' === typeof FusionApp.data.template_category ) {
 					category = FusionApp.data.template_category;
 				}

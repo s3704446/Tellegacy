@@ -271,8 +271,12 @@
 					true
 				);
 
-				array_push( $depArray, 'fusionredux-vendor' );
+				if ( function_exists( 'AWB_Global_Colors' ) ) {
+					AWB_Global_Colors()->enqueue();
+				}
 
+				array_push( $depArray, 'fusionredux-vendor' );
+				array_push( $depArray, 'awb-color-picker' );
 				//*****************************************************************
 				// FusionRedux JS
 				//*****************************************************************

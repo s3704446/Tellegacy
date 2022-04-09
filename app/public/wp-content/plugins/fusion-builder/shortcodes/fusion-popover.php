@@ -247,7 +247,7 @@ if ( fusion_is_element_enabled( 'fusion_popover' ) ) {
 								'label'       => esc_html__( 'Popover Heading Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the popover heading background.', 'fusion-builder' ),
 								'id'          => 'popover_heading_bg_color',
-								'default'     => '#f9f9fb',
+								'default'     => 'var(--awb-color2)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -261,7 +261,7 @@ if ( fusion_is_element_enabled( 'fusion_popover' ) ) {
 								'label'       => esc_html__( 'Popover Content Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of popover content background.', 'fusion-builder' ),
 								'id'          => 'popover_content_bg_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -275,7 +275,7 @@ if ( fusion_is_element_enabled( 'fusion_popover' ) ) {
 								'label'       => esc_html__( 'Popover Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the border color of popover box.', 'fusion-builder' ),
 								'id'          => 'popover_border_color',
-								'default'     => '#e2e2e2',
+								'default'     => 'var(--awb-color3)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -289,7 +289,7 @@ if ( fusion_is_element_enabled( 'fusion_popover' ) ) {
 								'label'       => esc_html__( 'Popover Text Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the popover text.', 'fusion-builder' ),
 								'id'          => 'popover_text_color',
-								'default'     => '#4a4e57',
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -360,7 +360,7 @@ function fusion_element_popover() {
 				'name'      => esc_attr__( 'Popover', 'fusion-builder' ),
 				'shortcode' => 'fusion_popover',
 				'icon'      => 'fusiona-uniF61C',
-				'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/popover-element/',
+				'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/popover-element/',
 				'params'    => [
 					[
 						'type'         => 'tinymce',

@@ -276,6 +276,12 @@ class Fusion_Dynamic_CSS_Helpers {
 		$google_font    = isset( $typo_array['font-family'] ) ? $typo_array['font-family'] : false;
 		$fallback_fonts = isset( $typo_array['font-backup'] ) ? $typo_array['font-backup'] : false;
 
+		// If a global variable is set to the font, then return the variable,
+		// since the global typography variable will also contain the fallback fonts.
+		if ( false !== strpos( $google_font, 'var(' ) ) {
+			return $google_font;
+		}
+
 		// Exit early by returning the fallback font
 		// in case no google-font is defined.
 		if ( false === $google_font ) {

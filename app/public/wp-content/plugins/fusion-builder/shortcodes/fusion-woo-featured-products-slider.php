@@ -488,7 +488,7 @@ function fusion_element_featured_products_slider() {
 					'name'      => esc_attr__( 'Woo Featured Products Slider', 'fusion-builder' ),
 					'shortcode' => 'fusion_featured_products_slider',
 					'icon'      => 'fusiona-star-empty',
-					'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/woocommerce-featured-products-slider-element/',
+					'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/woocommerce-featured-products-slider-element/',
 					'params'    => [
 						[
 							'type'        => 'radio_button_set',

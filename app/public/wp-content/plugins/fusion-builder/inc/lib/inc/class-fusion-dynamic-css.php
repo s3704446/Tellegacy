@@ -108,7 +108,7 @@ class Fusion_Dynamic_CSS {
 	 * @since 2.2
 	 * @var array
 	 */
-	protected $preserve_vars = [
+	public static $preserve_vars = [
 		'--minFontSize',
 		'--minViewportSize',
 		'--multiplier',
@@ -153,7 +153,7 @@ class Fusion_Dynamic_CSS {
 	protected function __construct() {
 		self::$helpers = $this->get_helpers();
 
-		add_action( 'wp_enqueue_scripts', [ $this, 'init' ], 100 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'init' ], 110 );
 
 		// When a post is saved, reset its caches to force-regenerate the CSS.
 		add_action( 'save_post', [ $this, 'reset_post_transient' ] );
@@ -163,7 +163,6 @@ class Fusion_Dynamic_CSS {
 		add_filter( 'fusion_dynamic_css', [ $this, 'add_extra_files' ] );
 		add_filter( 'fusion_dynamic_css', [ $this, 'icomoon_css' ] );
 		add_filter( 'fusion_dynamic_css_array', [ $this, 'add_css_vars_to_css' ], PHP_INT_MAX );
-		add_filter( 'fusion_dynamic_css_final', [ $this, 'maybe_replace_css_vars_in_styles' ], PHP_INT_MAX );
 
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_extra_files' ], 11 );
 	}
@@ -310,7 +309,6 @@ class Fusion_Dynamic_CSS {
 
 		// Strip protocols. This helps avoid any issues with https sites.
 		self::$final_css = str_replace( [ 'https://', 'http://' ], '//', self::$final_css );
-		self::$final_css = $this->maybe_replace_css_vars_in_styles( self::$final_css );
 
 		self::$final_css = apply_filters( 'fusion_dynamic_css_final', self::$final_css );
 
@@ -619,6 +617,15 @@ class Fusion_Dynamic_CSS {
 	 * @return void
 	 */
 	public static function add_css_var( $args ) {
+
+		// Don't add var if it's value is empty.
+		if ( isset( $args['value'] ) && '' === $args['value'] ) {
+			return;
+		}
+
+		if ( isset( $args['preserve'] ) && $args['preserve'] && isset( $args['name'] ) ) {
+			self::$preserve_vars[] = $args['name'];
+		}
 		self::$css_vars[ $args['name'] ] = $args;
 	}
 
@@ -670,85 +677,6 @@ class Fusion_Dynamic_CSS {
 				$css['global'][ $args['element'] ][ $key ] = $args['value'];
 			}
 		}
-		return $css;
-	}
-
-	/**
-	 * Replaces all CSS-Variables in the CSS string with their values.
-	 *
-	 * @access public
-	 * @since 2.0
-	 * @param string $css The CSS.
-	 * @return string
-	 */
-	public function maybe_replace_css_vars_in_styles( $css ) {
-		$replace_vars = apply_filters( 'fusion_replace_css_var_values', true );
-
-		if ( $replace_vars ) {
-
-			$keys = array_map( 'strlen', array_keys( self::$css_vars ) );
-			array_multisort( $keys, SORT_DESC, self::$css_vars );
-
-			foreach ( self::$css_vars as $key => $args ) {
-				if ( is_string( $key ) && ! is_array( $args['value'] ) ) {
-					$css = $this->replace_css_var_in_styles( $key, $args['value'], $css );
-				}
-			}
-		}
-		return $css;
-	}
-
-	/**
-	 * Replaces a single CSS-Variable in the CSS string with their values.
-	 *
-	 * @access private
-	 * @since 2.0
-	 * @param string $var_name The variable's name.
-	 * @param string $value    The variable's value.
-	 * @param string $css      The CSS.
-	 * @return string          The modified CSS.
-	 */
-	private function replace_css_var_in_styles( $var_name, $value, $css ) {
-
-		// Early exit if this css-variable should not be processed.
-		if ( in_array( $var_name, $this->preserve_vars, true ) ) {
-			return $css;
-		}
-
-		$css = str_replace( "var($var_name)", $value, $css );
-
-		// Check if we have var(--foo,fallback) and replace them accordingly.
-		$match_counter = preg_match_all( "/var\($var_name.*\)/U", $css, $matches );
-
-		// Make sure we have matches.
-		if ( $match_counter ) {
-
-			// Make sure to only go through different fallback values.
-			$matches = array_unique( $matches[0] );
-
-			// Loop through all different fallback value instances.
-			foreach ( $matches as $match ) {
-				$replacement = $value;
-
-				// When fallbacks are vars themselves we need to add a closing ) because of the regex.
-				if ( 1 < substr_count( $match, 'var(' ) ) {
-					$match .= ')';
-				}
-
-				// If value is empty, extract the fallback.
-				if ( '' === $value ) {
-					$fallback = explode( "var($var_name,", $match );
-
-					// Remove the last trailing ) that is there because of the regex.
-					$fallback = substr( $fallback[1], 0, -1 );
-
-					$replacement = $fallback;
-				}
-
-				$css = str_replace( $match, $replacement, $css );
-			}
-		}
-
 		return $css;
 	}
 }

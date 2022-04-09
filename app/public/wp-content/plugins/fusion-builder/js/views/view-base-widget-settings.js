@@ -334,8 +334,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						wp.mediaWidgets.handleWidgetAdded( event, $el );
 					}
 
-					this.$el.find( '.widget-inside' ).show();
-
+					this.$el.find( '.widget-inside' ).css( 'display', 'block' );
 					if ( this.$el.find( '.wp-editor-area' ).length ) {
 						setTimeout( function() {
 							wp.textWidgets.widgetControls[ 'text-' + self.cid ].initializeEditor();
@@ -365,7 +364,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					this.setFormValues( widgetClassName );
 					setTimeout( function() {
-						$el.find( '.widget-inside' ).show();
+						$el.find( '.widget-inside' ).css( 'display', 'block' );
 					}, 100 );
 				}
 			},

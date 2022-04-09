@@ -270,7 +270,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.background_image_front ) {
 					flipBoxShortcodeFrontBox.style += 'background-image: url(\'' + values.background_image_front + '\');';
 					if ( values.background_color_front ) {
-						alpha = jQuery.Color( values.background_color_front ).alpha();
+						alpha = jQuery.AWB_Color( values.background_color_front ).alpha();
 						if ( 1 > alpha && 0 !== alpha ) {
 							flipBoxShortcodeFrontBox.style += 'background-blend-mode: overlay;';
 						}
@@ -310,7 +310,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.background_image_back ) {
 					flipBoxShortcodeBackBox.style += 'background-image: url(\'' + values.background_image_back + '\');';
 					if ( values.background_color_back ) {
-						alpha = jQuery.Color( values.background_color_back ).alpha();
+						alpha = jQuery.AWB_Color( values.background_color_back ).alpha();
 						if ( 1 > alpha && 0 !== alpha ) {
 							flipBoxShortcodeBackBox.style += 'background-blend-mode: overlay;';
 						}

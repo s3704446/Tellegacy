@@ -448,7 +448,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 						$featured_image_width  = fusion_get_option( 'fimg[width]' );
 						$featured_image_height = fusion_get_option( 'fimg[height]' );
 
-						$video = fusion_get_page_option( 'video', $id );
+						$video = apply_filters( 'privacy_iframe_embed', fusion_get_page_option( 'video', $id ) );
 
 						if ( has_post_thumbnail() ) {
 							$thumbnail = true;
@@ -1204,7 +1204,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 				$masonry_column_spacing = ( (int) $this->args['blog_grid_column_spacing'] ) . 'px';
 
 				// Calculate the correct size of the image wrapper container, based on orientation and column spacing.
-				if ( class_exists( 'Fusion_Sanitize' ) && class_exists( 'Fusion_Color' ) && ! fusion_is_color_transparent( $this->args['grid_element_color'] ) ) {
+				if ( class_exists( 'Fusion_Sanitize' ) && class_exists( 'Fusion_Color' ) && ! Fusion_Color::new_color( $this->args['grid_element_color'] )->is_color_transparent() ) {
 
 					$masonry_column_offset = ' - ' . ( (int) $this->args['blog_grid_column_spacing'] / 2 ) . 'px';
 					if ( false !== strpos( $element_orientation_class, 'fusion-element-portrait' ) ) {
@@ -1509,7 +1509,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 					$attr['style'] = 'background-color:' . $color_css . ';';
 
 					$element_color = Fusion_Color::new_color( $this->args['grid_element_color'] );
-					if ( fusion_is_color_transparent( $this->args['grid_element_color'] ) ) {
+					if ( Fusion_Color::new_color( $this->args['grid_element_color'] )->is_color_transparent() ) {
 						$attr['class'] .= ' fusion-masonary-is-transparent ';
 						$attr['style'] .= 'border:none;';
 					} else {
@@ -1521,7 +1521,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 					$attr['style'] = 'background-color:' . $color_css . ';';
 
 					$element_color = Fusion_Color::new_color( $this->args['grid_element_color'] );
-					if ( fusion_is_color_transparent( $this->args['grid_element_color'] ) ) {
+					if ( Fusion_Color::new_color( $this->args['grid_element_color'] )->is_color_transparent() ) {
 						$attr['style'] .= 'border:none;';
 					} else {
 						$attr['style'] .= 'border:1px solid ' . $this->args['grid_element_color'] . ';border-bottom-width:3px;';
@@ -1899,7 +1899,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 								'label'       => esc_attr__( 'Load More Posts Button Background Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the background color of the load more button for ajax post loading for blog elements.', 'fusion-core' ),
 								'id'          => 'blog_element_load_more_posts_button_bg_color',
-								'default'     => 'rgba(242,243,245,0.7)',
+								'default'     => 'var(--awb-color7)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1913,7 +1913,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 								'label'       => esc_attr__( 'Load More Posts Button Text Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the text color of the load more button for ajax post loading for blog elements.', 'fusion-core' ),
 								'id'          => 'blog_element_load_more_posts_button_text_color',
-								'default'     => '#212934',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1927,7 +1927,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 								'label'       => esc_attr__( 'Load More Posts Button Hover Background Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the hover background color of the load more button for ajax post loading for blog elements.', 'fusion-core' ),
 								'id'          => 'blog_element_load_more_posts_hover_button_bg_color',
-								'default'     => '#f2f3f5',
+								'default'     => 'var(--awb-color5)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -1941,7 +1941,7 @@ if ( fusion_is_element_enabled( 'fusion_blog' ) ) {
 								'label'       => esc_attr__( 'Load More Posts Hover Button Text Color', 'fusion-core' ),
 								'description' => esc_attr__( 'Controls the hover text color of the load more button for ajax post loading for blog elements.', 'fusion-core' ),
 								'id'          => 'blog_element_load_more_posts_hover_button_text_color',
-								'default'     => '#212934',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -2034,7 +2034,7 @@ function fusion_element_blog() {
 				'icon'       => 'fusiona-blog',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-blog-preview.php',
 				'preview_id' => 'fusion-builder-block-module-blog-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/blog-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/blog-element/',
 				'params'     => [
 					[
 						'type'        => 'select',

@@ -125,7 +125,7 @@ function avada_options_section_privacy( $sections ) {
 				'description' => esc_html__( 'Controls the background color for the privacy placeholders.', 'Avada' ),
 				'id'          => 'privacy_bg_color',
 				'type'        => 'color-alpha',
-				'default'     => 'rgba(0,0,0,0.1)',
+				'default'     => 'hsla(var(--awb-color8-h),var(--awb-color8-s),var(--awb-color8-l),calc(var(--awb-color8-a) - 90%))',
 				'required'    => [
 					[
 						'setting'  => 'privacy_embeds',
@@ -145,7 +145,7 @@ function avada_options_section_privacy( $sections ) {
 				'description' => esc_html__( 'Controls the text color for the embed placeholders.', 'Avada' ),
 				'id'          => 'privacy_color',
 				'type'        => 'color-alpha',
-				'default'     => 'rgba(0,0,0,0.3)',
+				'default'     => 'hsla(var(--awb-color8-h),var(--awb-color8-s),var(--awb-color8-l),calc(var(--awb-color8-a) - 70%))',
 				'required'    => [
 					[
 						'setting'  => 'privacy_embeds',
@@ -215,7 +215,7 @@ function avada_options_section_privacy( $sections ) {
 				'description' => esc_html__( 'Controls the background color for the privacy bar.', 'Avada' ),
 				'id'          => 'privacy_bar_bg_color',
 				'type'        => 'color-alpha',
-				'default'     => '#363839',
+				'default'     => 'var(--awb-color8)',
 				'required'    => [
 					[
 						'setting'  => 'privacy_bar',
@@ -257,7 +257,7 @@ function avada_options_section_privacy( $sections ) {
 				'description' => esc_html__( 'Controls the text color for the privacy bar content.', 'Avada' ),
 				'id'          => 'privacy_bar_color',
 				'type'        => 'color-alpha',
-				'default'     => '#8c8989',
+				'default'     => 'var(--awb-color6)',
 				'required'    => [
 					[
 						'setting'  => 'privacy_bar',
@@ -277,7 +277,7 @@ function avada_options_section_privacy( $sections ) {
 				'description' => esc_html__( 'Controls the link color for the privacy bar.', 'Avada' ),
 				'id'          => 'privacy_bar_link_color',
 				'type'        => 'color-alpha',
-				'default'     => '#bfbfbf',
+				'default'     => 'var(--awb-color2)',
 				'required'    => [
 					[
 						'setting'  => 'privacy_bar',
@@ -297,7 +297,7 @@ function avada_options_section_privacy( $sections ) {
 				'description' => esc_html__( 'Controls the link hover color for the privacy bar.', 'Avada' ),
 				'id'          => 'privacy_bar_link_hover_color',
 				'type'        => 'color-alpha',
-				'default'     => '#65bc7b',
+				'default'     => 'var(--awb-color4)',
 				'required'    => [
 					[
 						'setting'  => 'privacy_bar',
@@ -503,7 +503,7 @@ function avada_options_section_privacy( $sections ) {
 				'label'       => esc_html__( 'Privacy Bar Headings Color', 'Avada' ),
 				'description' => esc_html__( 'Controls the text color of the privacy bar heading font.', 'Avada' ),
 				'id'          => 'privacy_bar_headings_color',
-				'default'     => '#dddddd',
+				'default'     => 'var(--awb-color1)',
 				'type'        => 'color-alpha',
 				'required'    => [
 					[

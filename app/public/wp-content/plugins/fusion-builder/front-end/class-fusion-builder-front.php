@@ -166,9 +166,14 @@ if ( ! class_exists( 'Fusion_Builder_Front' ) ) {
 				add_action( 'wp_footer', [ $this, 'enqueue_wp_editor_scripts' ] );
 			}
 
-			// Deregister WP admin forms.css.
 			if ( fusion_is_preview_frame() || fusion_is_builder_frame() ) {
+				// Deregister WP admin forms.css.
 				wp_deregister_style( 'forms' );
+
+				// Disable All In One SEO head output.
+				if ( defined( 'AIOSEO_PHP_VERSION_DIR' ) ) {
+					add_filter( 'aioseo_meta_views', '__return_false' );
+				}
 			}
 
 			add_action( 'wp_ajax_nopriv_get_shortcode_render', [ $this, 'get_shortcode_render' ] );
@@ -508,6 +513,11 @@ if ( ! class_exists( 'Fusion_Builder_Front' ) ) {
 			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-woo-product-slider.php';
 			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-woo-featured-products-slider.php';
 			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-gallery.php';
+			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-facebook-page.php';
+			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-twitter-timeline.php';
+			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-flickr.php';
+			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-tagcloud.php';
+
 			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-woo-product-grid.php';
 			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-woo-cart-table.php';
 			include FUSION_BUILDER_PLUGIN_DIR . '/front-end/templates/fusion-woo-cart-totals.php';
@@ -780,6 +790,8 @@ if ( ! class_exists( 'Fusion_Builder_Front' ) ) {
 
 				wp_enqueue_script( 'fusion_builder_form_styles', FUSION_BUILDER_PLUGIN_URL . 'front-end/models/model-form-styles.js', [], FUSION_BUILDER_VERSION, true );
 
+				wp_enqueue_script( 'fusion_builder_off_canvas_styles', FUSION_BUILDER_PLUGIN_URL . 'front-end/models/model-off-canvas-styles.js', [], FUSION_BUILDER_VERSION, true );
+
 				wp_enqueue_script( 'fusion_builder_bulk_add', FUSION_BUILDER_PLUGIN_URL . 'js/views/view-bulk-add.js', [], FUSION_BUILDER_VERSION, true );
 
 				// Wireframe.
@@ -1002,6 +1014,11 @@ if ( ! class_exists( 'Fusion_Builder_Front' ) ) {
 				wp_enqueue_script( 'fusion_builder_form_submit', FUSION_BUILDER_PLUGIN_URL . 'front-end/views/form/view-submit.js', [], FUSION_BUILDER_VERSION, true );
 
 				wp_enqueue_script( 'fusion_builder_post_cards', FUSION_BUILDER_PLUGIN_URL . 'front-end/views/elements/view-post-cards.js', [], FUSION_BUILDER_VERSION, true );
+
+				wp_enqueue_script( 'fusion_builder_facebook_page', FUSION_BUILDER_PLUGIN_URL . 'front-end/views/elements/view-facebook-page.js', [], FUSION_BUILDER_VERSION, true );
+				wp_enqueue_script( 'fusion_builder_twitter_timeline', FUSION_BUILDER_PLUGIN_URL . 'front-end/views/elements/view-twitter-timeline.js', [], FUSION_BUILDER_VERSION, true );
+				wp_enqueue_script( 'fusion_builder_flickr', FUSION_BUILDER_PLUGIN_URL . 'front-end/views/elements/view-flickr.js', [], FUSION_BUILDER_VERSION, true );
+				wp_enqueue_script( 'fusion_builder_tagcloud', FUSION_BUILDER_PLUGIN_URL . 'front-end/views/elements/view-tagcloud.js', [], FUSION_BUILDER_VERSION, true );
 
 				// Woo elements.
 				wp_enqueue_script( 'fusion_builder_tb_woo_products_element', FUSION_BUILDER_PLUGIN_URL . 'front-end/views/components/view-woo-products.js', [], FUSION_BUILDER_VERSION, true ); // Base Product class (Related, Upsells).
@@ -1309,6 +1326,7 @@ function fusion_element_front_options_loop( $params ) {
 			supportsDynamic,
 			escape_html,
 			hasResponsive,
+			supportsGlobal,
 			responsiveIcons = {
 				'large': 'desktop',
 				'medium': 'tablet',
@@ -1364,6 +1382,7 @@ function fusion_element_front_options_loop( $params ) {
 		hasDynamic      = 'object' === typeof atts.dynamic_params && 'undefined' !== typeof atts.dynamic_params[ param.param_name ] && supportsDynamic;
 		hasResponsive   = 'undefined' !== typeof param.responsive ? true : false;
 		responsiveState = 'undefined' !== typeof param.responsive ? 'responsive-state-' + param.responsive.state : '';
+		supportsGlobal  = 'undefined' !== typeof param.global;
 		#>
 		<li data-option-id="{{ param.param_name }}" data-option-type="{{ param.type }}" class="fusion-builder-option {{ param.type }}{{ hidden }}{{ childDependency }}{{tabGroup}} {{responsiveState}} {{optionMap}}{{escape_html}}" data-dynamic="{{ hasDynamic }}" data-dynamic-selection="false">
 
@@ -1384,6 +1403,10 @@ function fusion_element_front_options_loop( $params ) {
 								<li><a href="JavaScript:void(0);"><span class="fusion-panel-shortcut" data-fusion-option="{{ param.to_link }}"><i class="fusiona-cog" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-global-settings"><?php esc_html_e( 'Global Options', 'fusion-builder' ); ?></span></li>
 							<# } #>
 							<# if ( 'undefined' !== typeof param.description && 'undefined' !== typeof param.default && -1 !== param.description.indexOf( 'fusion-builder-default-reset' ) ) { #>
+								<li class="fusion-builder-default-reset"> <a href="JavaScript:void(0);" class="fusion-range-default" data-default="{{ param.default }}"><i class="fusiona-undo" aria-hidden="true"></i></a> <span class="fusion-elements-option-tooltip fusion-tooltip-reset-defaults"><?php esc_html_e( 'Reset To Default', 'fusion-builder' ); ?></span></li>
+							<# } #>
+
+							<# if ( 'undefined' !== typeof param.description && -1 === param.description.indexOf( 'fusion-builder-default-reset' ) && 'image_focus_point' === param.type ) { #>
 								<li class="fusion-builder-default-reset"> <a href="JavaScript:void(0);" class="fusion-range-default" data-default="{{ param.default }}"><i class="fusiona-undo" aria-hidden="true"></i></a> <span class="fusion-elements-option-tooltip fusion-tooltip-reset-defaults"><?php esc_html_e( 'Reset To Default', 'fusion-builder' ); ?></span></li>
 							<# } #>
 							<# if ( 'undefined' !== typeof param.preview ) { #>
@@ -1408,6 +1431,10 @@ function fusion_element_front_options_loop( $params ) {
 
 							<# if ( supportsDynamic ) { #>
 								<li><a class="option-dynamic-content" href="JavaScript:void(0);" aria-label="<?php esc_attr_e( 'Dynamic Content', 'fusion-builder' ); ?>"><i class="fusiona-dynamic-data" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-preview"><?php esc_html_e( 'Dynamic Content', 'fusion-builder' ); ?></span></li>
+							<# } #>
+
+							<# if ( supportsGlobal ) { #>
+								<li><a class="option-global-typography awb-quick-set" href="JavaScript:void(0);" aria-label="<?php esc_attr_e( 'Global Typography', 'fusion-builder' ); ?>"><i class="fusiona-globe" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-preview"><?php esc_html_e( 'Global Typography', 'fusion-builder' ); ?></span></li>
 							<# } #>
 						</ul>
 					<# }; #>
@@ -1451,10 +1478,10 @@ function fusion_element_front_options_loop( $params ) {
 					'sortable_text',
 					'connected_sortable',
 					'info',
-					'font_family',
 					'form_options',
 					'fusion_logics',
 					'ajax_select',
+					'image_focus_point',
 				];
 				?>
 				<?php

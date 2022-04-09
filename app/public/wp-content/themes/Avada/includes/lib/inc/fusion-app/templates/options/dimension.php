@@ -8,11 +8,12 @@
 
 ?>
 <#
-var valueCheck   = 'undefined' === typeof param.param_name ? option_value : param.value,
+var param_name 	 = param.param_name || param.id,
+	valueCheck   = 'undefined' === typeof param.param_name ? option_value : param.value,
 	isFrontEnd   = jQuery( 'body' ).hasClass( 'fusion-builder-live' ),
-	borderRadius = ( 'undefined' !== typeof param.param_name && param.param_name.includes( 'border_radius' ) ) ? true : false,
-	isBoxShadow  = ( 'undefined' !== typeof param.param_name && param.param_name.includes( 'box_shadow' ) ) ? true : false,
-	isTextShadow  = ( 'undefined' !== typeof param.param_name && param.param_name.includes( 'text_shadow' ) ) ? true : false,
+	borderRadius = ( 'undefined' !== typeof param_name && param_name.includes( 'border_radius' ) ) ? true : false,
+	isBoxShadow  = ( 'undefined' !== typeof param_name && param_name.includes( 'box_shadow' ) ) ? true : false,
+	isTextShadow = ( 'undefined' !== typeof param_name && param_name.includes( 'text_shadow' ) ) ? true : false,
 	topLabel, rightLabel, bottomLabel, leftLabel, numberOfDimensions,
 	paramOptions = {};
 
@@ -50,9 +51,9 @@ if ( borderRadius ) {
 
 if ( 'object' == typeof valueCheck ) { #>
 	<# if ( 'undefined' !== typeof valueCheck.width && 'undefined' !== typeof valueCheck.height ) { #>
-		<div class="multi-builder-dimension dimension-width-height" id="{{ param.param_name }}">
+		<div class="multi-builder-dimension dimension-width-height" id="{{ param_name }}">
 	<# } else { #>
-		<div class="multi-builder-dimension" id="{{ param.param_name }}">
+		<div class="multi-builder-dimension" id="{{ param_name }}">
 	<# } #>
 	<# numberOfDimensions = Object.keys( paramOptions ).length; #>
 	<# _.each( paramOptions, function( sub_value, sub_param ) { #>
@@ -72,7 +73,7 @@ if ( 'object' == typeof valueCheck ) { #>
 				content_text = fusionBuilderText.fusion_dimension_height_label;
 				if ( isBoxShadow || isTextShadow ) {
 					content_text = fusionBuilderText.fusion_dimension_horizontal;
-				} 
+				}
 			} else {
 				content_text = 'fusiona-expand fusion-rotate-315';
 			}
@@ -81,7 +82,7 @@ if ( 'object' == typeof valueCheck ) { #>
 				content_text = fusionBuilderText.fusion_dimension_width_label;
 				if ( isBoxShadow || isTextShadow ) {
 					content_text = fusionBuilderText.fusion_dimension_vertical;
-				} 
+				}
 			} else {
 				content_text = 'fusiona-expand fusion-rotate-45';
 			}
@@ -162,7 +163,7 @@ if ( 'object' == typeof valueCheck ) { #>
 			<# } else { #>
 				<span class="add-on"><i class="dashicons dashicons-arrow-up" aria-hidden="true"></i></span>
 			<# } #>
-			<input type="text" name="{{ param.param_name }}_top" id="{{ param.param_name }}_top" value="{{ dimension_top }}" />
+			<input type="text" name="{{ param_name }}_top" id="{{ param_name }}_top" value="{{ dimension_top }}" />
 		</div>
 		<div class="fusion-builder-dimension">
 			<# if ( isFrontEnd ) { #>
@@ -170,7 +171,7 @@ if ( 'object' == typeof valueCheck ) { #>
 			<# } else { #>
 				<span class="add-on"><i class="dashicons dashicons-arrow-right" aria-hidden="true"></i></span>
 			<# } #>
-			<input type="text" name="{{ param.param_name }}_right" id="{{ param.param_name }}_right" value="{{ dimension_right }}" />
+			<input type="text" name="{{ param_name }}_right" id="{{ param_name }}_right" value="{{ dimension_right }}" />
 		</div>
 		<div class="fusion-builder-dimension">
 			<# if ( isFrontEnd ) { #>
@@ -178,7 +179,7 @@ if ( 'object' == typeof valueCheck ) { #>
 			<# } else { #>
 				<span class="add-on"><i class="dashicons dashicons-arrow-down" aria-hidden="true"></i></span>
 			<# } #>
-			<input type="text" name="{{ param.param_name }}_bottom" id="{{ param.param_name }}_bottom" value="{{ dimension_bottom }}" />
+			<input type="text" name="{{ param_name }}_bottom" id="{{ param_name }}_bottom" value="{{ dimension_bottom }}" />
 		</div>
 		<div class="fusion-builder-dimension">
 			<# if ( isFrontEnd ) { #>
@@ -186,8 +187,8 @@ if ( 'object' == typeof valueCheck ) { #>
 			<# } else { #>
 				<span class="add-on"><i class="dashicons dashicons-arrow-left" aria-hidden="true"></i></span>
 			<# } #>
-			<input type="text" name="{{ param.param_name }}_left" id="{{ param.param_name }}_left" value="{{ dimension_left }}" />
+			<input type="text" name="{{ param_name }}_left" id="{{ param_name }}_left" value="{{ dimension_left }}" />
 		</div>
-		<input type="hidden" name="{{ param.param_name }}" id="{{ param.param_name }}" value="{{ option_value }}" />
+		<input type="hidden" name="{{ param_name }}" id="{{ param_name }}" value="{{ option_value }}" />
 	</div>
 <# } #>

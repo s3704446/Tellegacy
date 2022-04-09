@@ -412,6 +412,9 @@
 .isMobile .ilightbox-toolbar.dark a.ilightbox-pause {
   background-image: url(../../assets/images/iLightbox/dark-skin/pause-icon-64.png);
 }
+.admin-bar:not(.isMobile) .ilightbox-toolbar.dark {
+  top: 43px;
+}
 .ilightbox-holder.dark .ilightbox-inner-toolbar .ilightbox-title {
   font-size: 18px;
   padding: 10px 8px;
@@ -616,6 +619,9 @@
 }
 .isMobile .ilightbox-toolbar.light a.ilightbox-pause {
   background-image: url(../../assets/images/iLightbox/light-skin/pause-icon-64.png);
+}
+.admin-bar:not(.isMobile) .ilightbox-toolbar.light {
+  top: 40px;
 }
 /* Style thumbnails */
 .ilightbox-thumbnails.light .ilightbox-thumbnails-grid .ilightbox-thumbnail img {
@@ -822,6 +828,9 @@
   background-image: url(../../assets/images/iLightbox/mac-skin/pause-50.png);
   background-size: 80%;
 }
+.admin-bar:not(.isMobile) .ilightbox-toolbar.mac {
+  top: 47px;
+}
 .ilightbox-holder.mac .ilightbox-inner-toolbar .ilightbox-title {
   font-size: 18px;
   padding: 10px 8px;
@@ -1015,6 +1024,9 @@
 }
 .isMobile .ilightbox-toolbar.metro-black a.ilightbox-pause {
   background-image: url(../../assets/images/iLightbox/metro-black-skin/pause-icon-64.png);
+}
+.admin-bar:not(.isMobile) .ilightbox-toolbar.metro-black {
+  top: 40px;
 }
 .ilightbox-holder.metro-black .ilightbox-inner-toolbar .ilightbox-title {
   font-size: 18px;
@@ -1233,6 +1245,9 @@
 .isMobile .ilightbox-toolbar.metro-white a.ilightbox-pause:hover {
   background-image: url(../../assets/images/iLightbox/metro-white-skin/pause-hover-icon-64.png);
 }
+.admin-bar:not(.isMobile) .ilightbox-toolbar.metro-white {
+  top: 40px;
+}
 /* Style thumbnails */
 .ilightbox-thumbnails.metro-white.ilightbox-horizontal {
   height: 104px;
@@ -1349,6 +1364,9 @@
   padding: 3px;
   background: #333;
   background: rgba(0, 0, 0, 0.25);
+}
+.admin-bar:not(.isMobile) .ilightbox-toolbar.parade {
+  top: 43px;
 }
 .ilightbox-toolbar.parade a {
   width: 29px;
@@ -1503,6 +1521,9 @@
 }
 .isMobile .ilightbox-toolbar.smooth a.ilightbox-pause {
   background-image: url(../../assets/images/iLightbox/smooth-skin/pause-icon-64.png);
+}
+.admin-bar:not(.isMobile) .ilightbox-toolbar.smooth {
+  top: 40px;
 }
 .ilightbox-holder.smooth .ilightbox-inner-toolbar .ilightbox-title {
   font-size: 18px;

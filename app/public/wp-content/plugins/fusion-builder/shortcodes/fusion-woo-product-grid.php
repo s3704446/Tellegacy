@@ -934,7 +934,7 @@ function fusion_element_woo_product_grid() {
 					'name'      => esc_attr__( 'Woo Product Grid', 'fusion-builder' ),
 					'shortcode' => 'fusion_woo_product_grid',
 					'icon'      => 'fusiona-product-grid-and-archives',
-					'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/woocommerce-product-carousel-element/',
+					'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/woocommerce-product-carousel-element/',
 					'params'    => [
 						[
 							'type'        => 'radio_button_set',

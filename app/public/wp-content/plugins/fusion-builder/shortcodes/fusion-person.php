@@ -83,71 +83,103 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 					$social_icon_order = implode( '|', $social_media_icons['icon'] );
 				}
 				return [
-					'hide_on_mobile'           => fusion_builder_default_visibility( 'string' ),
-					'class'                    => '',
-					'id'                       => '',
-					'lightbox'                 => 'no',
-					'linktarget'               => '_self',
-					'name'                     => '',
-					'social_icon_boxed'        => ( 1 == $fusion_settings->get( 'social_links_boxed' ) ) ? 'yes' : $fusion_settings->get( 'social_links_boxed' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-					'social_icon_boxed_colors' => strtolower( $fusion_settings->get( 'social_links_box_color' ) ),
-					'social_icon_boxed_radius' => fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_boxed_radius' ) ),
-					'social_icon_color_type'   => $fusion_settings->get( 'social_links_color_type' ),
-					'social_icon_colors'       => strtolower( $fusion_settings->get( 'social_links_icon_color' ) ),
-					'social_icon_font_size'    => fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_font_size' ) ),
-					'social_icon_order'        => $social_icon_order,
-					'social_icon_padding'      => fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_boxed_padding' ) ),
-					'social_icon_tooltip'      => strtolower( $fusion_settings->get( 'social_links_tooltip_placement' ) ),
-					'pic_bordercolor'          => strtolower( $fusion_settings->get( 'person_border_color' ) ),
-					'pic_borderradius'         => intval( $fusion_settings->get( 'person_border_radius' ) ) . 'px',
-					'pic_bordersize'           => $fusion_settings->get( 'person_border_size' ),
-					'pic_link'                 => '',
-					'pic_style'                => $fusion_settings->get( 'person_pic_style' ),
-					'pic_style_blur'           => $fusion_settings->get( 'person_pic_style_blur' ),
-					'pic_style_color'          => strtolower( $fusion_settings->get( 'person_style_color' ) ),
-					'show_custom'              => 'no',
-					'picture'                  => '',
-					'picture_id'               => '',
-					'title'                    => '',
-					'hover_type'               => 'none',
-					'background_color'         => strtolower( $fusion_settings->get( 'person_background_color' ) ),
-					'content_alignment'        => strtolower( $fusion_settings->get( 'person_alignment' ) ),
-					'icon_position'            => strtolower( $fusion_settings->get( 'person_icon_position' ) ),
-					'facebook'                 => '',
-					'tiktok'                   => '',
-					'twitch'                   => '',
-					'twitter'                  => '',
-					'instagram'                => '',
-					'linkedin'                 => '',
-					'dribbble'                 => '',
-					'rss'                      => '',
-					'youtube'                  => '',
-					'pinterest'                => '',
-					'flickr'                   => '',
-					'vimeo'                    => '',
-					'tumblr'                   => '',
-					'discord'                  => '',
-					'digg'                     => '',
-					'blogger'                  => '',
-					'skype'                    => '',
-					'myspace'                  => '',
-					'deviantart'               => '',
-					'yahoo'                    => '',
-					'reddit'                   => '',
-					'forrst'                   => '',
-					'paypal'                   => '',
-					'dropbox'                  => '',
-					'soundcloud'               => '',
-					'vk'                       => '',
-					'wechat'                   => '',
-					'whatsapp'                 => '',
-					'teams'                    => '',
-					'telegram'                 => '',
-					'xing'                     => '',
-					'yelp'                     => '',
-					'spotify'                  => '',
-					'email'                    => '',
-					'phone'                    => '',
+					'hide_on_mobile'                => fusion_builder_default_visibility( 'string' ),
+					'class'                         => '',
+					'id'                            => '',
+					'lightbox'                      => 'no',
+					'linktarget'                    => '_self',
+					'name'                          => '',
+					'pic_bordercolor'               => strtolower( $fusion_settings->get( 'person_border_color' ) ),
+					'pic_borderradius'              => intval( $fusion_settings->get( 'person_border_radius' ) ) . 'px',
+					'pic_bordersize'                => $fusion_settings->get( 'person_border_size' ),
+					'pic_link'                      => '',
+					'pic_style'                     => $fusion_settings->get( 'person_pic_style' ),
+					'pic_style_blur'                => $fusion_settings->get( 'person_pic_style_blur' ),
+					'pic_style_color'               => strtolower( $fusion_settings->get( 'person_style_color' ) ),
+					'show_custom'                   => 'no',
+					'picture'                       => '',
+					'picture_id'                    => '',
+					'title'                         => '',
+					'hover_type'                    => 'none',
+					'background_color'              => strtolower( $fusion_settings->get( 'person_background_color' ) ),
+					'content_alignment'             => strtolower( $fusion_settings->get( 'person_alignment' ) ),
+					'icon_position'                 => strtolower( $fusion_settings->get( 'person_icon_position' ) ),
+
+					// Social Icons.
+					'social_icon_font_size'         => fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_font_size' ) ),
+					'social_icon_order'             => $social_icon_order,
+					'social_icon_padding'           => fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_boxed_padding' ) ),
+					'social_icon_tooltip'           => strtolower( $fusion_settings->get( 'social_links_tooltip_placement' ) ),
+					'social_icon_boxed'             => ( 1 == $fusion_settings->get( 'social_links_boxed' ) ) ? 'yes' : $fusion_settings->get( 'social_links_boxed' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+					'social_icon_boxed_radius'      => fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_boxed_radius' ) ),
+					'social_icon_color_type'        => $fusion_settings->get( 'social_links_color_type' ),
+					'social_icon_colors'            => strtolower( $fusion_settings->get( 'social_links_icon_color' ) ),
+					'social_icon_boxed_colors'      => strtolower( $fusion_settings->get( 'social_links_box_color' ) ),
+					'social_icon_colors_hover'      => $fusion_settings->get( 'social_links_icon_color_hover' ),
+					'social_box_colors_hover'       => $fusion_settings->get( 'social_links_box_color_hover' ),
+					'social_box_border_top'         => ( '' !== $fusion_settings->get( 'social_links_border', 'top' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_border', 'top' ) ) : '0px',
+					'social_box_border_right'       => ( '' !== $fusion_settings->get( 'social_links_border', 'right' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_border', 'right' ) ) : '0px',
+					'social_box_border_bottom'      => ( '' !== $fusion_settings->get( 'social_links_border', 'bottom' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_border', 'bottom' ) ) : '0px',
+					'social_box_border_left'        => ( '' !== $fusion_settings->get( 'social_links_border', 'left' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'social_links_border', 'left' ) ) : '0px',
+					'social_box_border_color'       => $fusion_settings->get( 'social_links_border_color' ),
+					'social_box_border_color_hover' => $fusion_settings->get( 'social_links_border_color_hover' ),
+
+					'facebook'                      => '',
+					'tiktok'                        => '',
+					'twitch'                        => '',
+					'twitter'                       => '',
+					'instagram'                     => '',
+					'linkedin'                      => '',
+					'dribbble'                      => '',
+					'rss'                           => '',
+					'youtube'                       => '',
+					'pinterest'                     => '',
+					'flickr'                        => '',
+					'vimeo'                         => '',
+					'tumblr'                        => '',
+					'discord'                       => '',
+					'digg'                          => '',
+					'blogger'                       => '',
+					'skype'                         => '',
+					'myspace'                       => '',
+					'deviantart'                    => '',
+					'yahoo'                         => '',
+					'reddit'                        => '',
+					'forrst'                        => '',
+					'paypal'                        => '',
+					'dropbox'                       => '',
+					'soundcloud'                    => '',
+					'vk'                            => '',
+					'wechat'                        => '',
+					'whatsapp'                      => '',
+					'teams'                         => '',
+					'telegram'                      => '',
+					'xing'                          => '',
+					'yelp'                          => '',
+					'spotify'                       => '',
+					'email'                         => '',
+					'phone'                         => '',
+
+					// margin.
+					'margin_top'                    => ( '' !== $fusion_settings->get( 'person_margin', 'top' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'person_margin', 'top' ) ) : '0px',
+					'margin_right'                  => ( '' !== $fusion_settings->get( 'person_margin', 'right' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'person_margin', 'right' ) ) : '0px',
+					'margin_bottom'                 => ( '' !== $fusion_settings->get( 'person_margin', 'bottom' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'person_margin', 'bottom' ) ) : '0px',
+					'margin_left'                   => ( '' !== $fusion_settings->get( 'person_margin', 'left' ) ) ? fusion_library()->sanitize->size( $fusion_settings->get( 'person_margin', 'left' ) ) : '0px',
+					'margin_top_medium'             => '',
+					'margin_right_medium'           => '',
+					'margin_bottom_medium'          => '',
+					'margin_left_medium'            => '',
+					'margin_top_small'              => '',
+					'margin_right_small'            => '',
+					'margin_bottom_small'           => '',
+					'margin_left_small'             => '',
+
+					// animation.
+					'animation_direction'           => 'left',
+					'animation_offset'              => $fusion_settings->get( 'animation_offset' ),
+					'animation_speed'               => '',
+					'animation_type'                => '',
+
 				];
 			}
 
@@ -161,14 +193,6 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 			 */
 			public static function settings_to_params() {
 				return [
-					'social_links_boxed'             => 'social_icon_boxed',
-					'social_links_box_color'         => 'social_icon_boxed_colors',
-					'social_links_boxed_radius'      => 'social_icon_boxed_radius',
-					'social_links_color_type'        => 'social_icon_color_type',
-					'social_links_icon_color'        => 'social_icon_colors',
-					'social_links_font_size'         => 'social_icon_font_size',
-					'social_links_boxed_padding'     => 'social_icon_padding',
-					'social_links_tooltip_placement' => 'social_icon_tooltip',
 					'person_border_color'            => 'pic_bordercolor',
 					'person_border_radius'           => 'pic_borderradius',
 					'person_border_size'             => 'pic_bordersize',
@@ -184,6 +208,29 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 						'param'    => 'icon_position',
 						'callback' => 'toLowerCase',
 					],
+					'person_margin[top]'             => 'margin_top',
+					'person_margin[right]'           => 'margin_right',
+					'person_margin[bottom]'          => 'margin_bottom',
+					'person_margin[left]'            => 'margin_left',                  // social icons.
+					'social_links_boxed'             => 'social_icon_boxed',
+					'social_links_boxed_radius'      => 'social_icon_boxed_radius',
+					'social_links_color_type'        => 'social_icon_color_type',
+					'social_links_font_size'         => 'social_icon_font_size',
+					'social_links_boxed_padding'     => 'social_icon_padding',
+					'social_links_tooltip_placement' => [
+						'param'    => 'tooltip_placement',
+						'callback' => 'toLowerCase',
+					],
+					'social_links_box_color'         => 'social_icon_boxed_colors',
+					'social_links_icon_color'        => 'social_icon_colors',
+					'social_links_icon_color_hover'  => 'social_icon_colors_hover',
+					'social_links_box_color_hover'   => 'social_box_colors_hover',
+					'social_links_border[top]'       => 'social_box_border_top',
+					'social_links_border[right]'     => 'social_box_border_right',
+					'social_links_border[bottom]'    => 'social_box_border_bottom',
+					'social_links_border[left]'      => 'social_box_border_left',
+					'social_links_border_color'      => 'social_box_border_color',
+
 				];
 			}
 
@@ -198,11 +245,11 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 			public static function get_element_extras() {
 				$fusion_settings = awb_get_fusion_settings();
 				return [
-					'linktarget'              => $fusion_settings->get( 'social_icons_new' ),
-					'social_links_box_color'  => $fusion_settings->get( 'social_links_box_color' ),
-					'social_links_icon_color' => $fusion_settings->get( 'social_links_icon_color' ),
-					'social_media_icons'      => $fusion_settings->get( 'social_media_icons' ),
-					'boxed_padding'           => $fusion_settings->get( 'social_links_boxed_padding' ),
+					'linktarget'               => $fusion_settings->get( 'social_icons_new' ),
+					'social_icon_boxed_colors' => $fusion_settings->get( 'social_links_box_color' ),
+					'social_icon_colors'       => $fusion_settings->get( 'social_links_icon_color' ),
+					'social_media_icons'       => $fusion_settings->get( 'social_media_icons' ),
+					'boxed_padding'            => $fusion_settings->get( 'social_links_boxed_padding' ),
 				];
 			}
 
@@ -217,10 +264,10 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 			public static function settings_to_extras() {
 
 				return [
-					'social_icons_new'        => 'linktarget',
-					'social_links_box_color'  => 'social_links_box_color',
-					'social_links_icon_color' => 'social_links_icon_color',
-					'social_media_icons'      => 'social_media_icons',
+					'social_icons_new'         => 'linktarget',
+					'social_icon_boxed_colors' => 'social_links_box_color',
+					'social_icon_colors'       => 'social_links_icon_color',
+					'social_media_icons'       => 'social_media_icons',
 				];
 			}
 
@@ -355,7 +402,8 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 
 				}
 
-				$html = '<div ' . FusionBuilder::attributes( 'person-shortcode' ) . '>' . $styles . $picture . $inner_content . '</div>';
+				$html  = '<div ' . FusionBuilder::attributes( 'person-shortcode' ) . '>' . $styles . $picture . $inner_content . '</div>';
+				$html .= $this->get_styles();
 
 				$this->person_counter++;
 
@@ -386,6 +434,10 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 
 				if ( $this->args['id'] ) {
 					$attr['id'] = $this->args['id'];
+				}
+
+				if ( $this->args['animation_type'] ) {
+					$attr = Fusion_Builder_Animation_Helper::add_animation_attributes( $this->args, $attr );
 				}
 
 				return $attr;
@@ -547,7 +599,7 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 					'class' => 'person-desc',
 				];
 
-				if ( $this->args['background_color'] && ! fusion_is_color_transparent( $this->args['background_color'] ) ) {
+				if ( $this->args['background_color'] && ! Fusion_Color::new_color( $this->args['background_color'] )->is_color_transparent() ) {
 					$attr['style'] = 'background-color:' . $this->args['background_color'] . ';padding:40px;margin-top:0;';
 				}
 
@@ -668,6 +720,99 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 			}
 
 			/**
+			 * Get the styles.
+			 *
+			 * @access protected
+			 * @return string
+			 * @since 3.3
+			 */
+			private function get_styles() {
+				$fusion_settings = awb_get_fusion_settings();
+
+				$this->base_selector = '.fusion-person-' . $this->person_counter;
+				$this->dynamic_css   = [];
+
+				// Icon styles.
+				if ( 'brand' !== $this->args['social_icon_color_type'] ) {
+					$icon_selector = [ $this->base_selector . ' .boxed-icons .fusion-social-network-icon' ];
+					if ( '' !== $this->args['social_box_border_top'] ) {
+						$this->add_css_property( $icon_selector, 'border-top-width', fusion_library()->sanitize->get_value_with_unit( $this->args['social_box_border_top'] ), true );
+					}
+					if ( '' !== $this->args['social_box_border_right'] ) {
+						$this->add_css_property( $icon_selector, 'border-right-width', fusion_library()->sanitize->get_value_with_unit( $this->args['social_box_border_right'] ), true );
+					}
+					if ( '' !== $this->args['social_box_border_bottom'] ) {
+						$this->add_css_property( $icon_selector, 'border-bottom-width', fusion_library()->sanitize->get_value_with_unit( $this->args['social_box_border_bottom'] ), true );
+					}
+					if ( '' !== $this->args['social_box_border_left'] ) {
+						$this->add_css_property( $icon_selector, 'border-left-width', fusion_library()->sanitize->get_value_with_unit( $this->args['social_box_border_left'] ), true );
+					}
+					if ( '' !== $this->args['social_box_border_color'] ) {
+						$this->add_css_property( $icon_selector, 'border-color', $this->args['social_box_border_color'], true );
+					}
+
+					$icon_selector = [ $this->base_selector . ' .boxed-icons .fusion-social-network-icon:hover' ];
+					if ( '' !== $this->args['social_box_colors_hover'] ) {
+						$this->add_css_property( $icon_selector, 'background-color', $this->args['social_box_colors_hover'], true );
+					}
+					if ( '' !== $this->args['social_box_border_color_hover'] ) {
+						$this->add_css_property( $icon_selector, 'border-color', $this->args['social_box_border_color_hover'], true );
+					}
+
+					$icon_selector = [ $this->base_selector . ' .fusion-social-network-icon:hover' ];
+					if ( '' !== $this->args['social_icon_colors_hover'] ) {
+						$this->add_css_property( $icon_selector, 'color', $this->args['social_icon_colors_hover'], true );
+					}
+				}
+
+				$css = $this->parse_css();
+
+				$css .= $this->build_margin_styles();
+
+				return $css ? '<style type="text/css">' . $css . '</style>' : '';
+			}
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return string
+			 */
+			public function build_margin_styles() {
+				// Responsive Margin.
+				$fusion_settings = awb_get_fusion_settings();
+				$styles          = '';
+
+				foreach ( [ 'large', 'medium', 'small' ] as $size ) {
+					$margin_styles = '';
+					foreach ( [ 'top', 'right', 'bottom', 'left' ] as $direction ) {
+
+						$margin_key = 'large' === $size ? 'margin_' . $direction : 'margin_' . $direction . '_' . $size;
+						if ( '' !== $this->args[ $margin_key ] ) {
+							$margin_styles .= 'margin-' . $direction . ' : ' . fusion_library()->sanitize->get_value_with_unit( $this->args[ $margin_key ] ) . ';';
+						}
+					}
+
+					if ( '' === $margin_styles ) {
+						continue;
+					}
+
+					$margin_styles = '.fusion-person-' . $this->person_counter . '{ ' . $margin_styles . '}';
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === $size ) {
+						$styles .= $margin_styles;
+					} else {
+						// Medium and Small size screen styles.
+						$styles .= '@media only screen and (max-width:' . $fusion_settings->get( 'visibility_' . $size ) . 'px) {' . $margin_styles . '}';
+					}
+				}
+
+				return $styles;
+			}
+
+			/**
 			 * Adds settings to element options panel.
 			 *
 			 * @access public
@@ -690,11 +835,30 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 								'id'          => 'person_shortcode_important_note_info',
 								'type'        => 'custom',
 							],
+							'person_margin'           => [
+								'label'       => esc_html__( 'Margins', 'fusion-builder' ),
+								'description' => esc_html__( 'Controls the margin around person element.', 'fusion-builder' ),
+								'id'          => 'person_margin',
+								'type'        => 'spacing',
+								'transport'   => 'postMessage',
+								'choices'     => [
+									'top'    => true,
+									'left'   => true,
+									'bottom' => true,
+									'right'  => true,
+								],
+								'default'     => [
+									'top'    => '0px',
+									'left'   => '0px',
+									'bottom' => '0px',
+									'right'  => '0px',
+								],
+							],
 							'person_background_color' => [
 								'label'       => esc_html__( 'Person Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the background color of the person area.', 'fusion-builder' ),
 								'id'          => 'person_background_color',
-								'default'     => 'rgba(0,0,0,0)',
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -741,7 +905,7 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 								'label'       => esc_html__( 'Person Style Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the style color for all style types except border.', 'fusion-builder' ),
 								'id'          => 'person_style_color',
-								'default'     => '#000000',
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -749,7 +913,7 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 								'label'       => esc_html__( 'Person Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the border color of the person image.', 'fusion-builder' ),
 								'id'          => 'person_border_color',
-								'default'     => '#e2e2e2',
+								'default'     => 'var(--awb-color3)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -841,13 +1005,13 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 function fusion_element_person() {
 	$fusion_settings = awb_get_fusion_settings();
 
-	$person_options         = [
+	$person_options = [
 		'name'       => esc_attr__( 'Person', 'fusion-builder' ),
 		'shortcode'  => 'fusion_person',
 		'icon'       => 'fusiona-user',
 		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-person-preview.php',
 		'preview_id' => 'fusion-builder-block-module-person-preview-template',
-		'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/person-element/',
+		'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/person-element/',
 		'params'     => [
 			[
 				'type'         => 'textfield',
@@ -927,9 +1091,36 @@ function fusion_element_person() {
 			],
 			[
 				'type'        => 'radio_button_set',
+				'heading'     => esc_attr__( 'Social Icons Position', 'fusion-builder' ),
+				'description' => esc_attr__( 'Choose the social icon position.', 'fusion-builder' ),
+				'param_name'  => 'icon_position',
+				'value'       => [
+					''       => esc_attr__( 'Default', 'fusion-builder' ),
+					'top'    => esc_attr__( 'Top', 'fusion-builder' ),
+					'bottom' => esc_attr__( 'Bottom', 'fusion-builder' ),
+				],
+				'default'     => '',
+			],
+			// Design tab.
+			'fusion_margin_placeholder'    => [
+				'param_name' => 'margin',
+				'group'      => esc_attr__( 'Design', 'fusion-builder' ),
+				'value'      => [
+					'margin_top'    => '',
+					'margin_right'  => '',
+					'margin_bottom' => '',
+					'margin_left'   => '',
+				],
+				'responsive' => [
+					'state' => 'large',
+				],
+			],
+			[
+				'type'        => 'radio_button_set',
 				'heading'     => esc_attr__( 'Picture Style Type', 'fusion-builder' ),
 				'description' => esc_attr__( 'Select the style type for the picture.', 'fusion-builder' ),
 				'param_name'  => 'pic_style',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => [
 					''             => esc_attr__( 'Default', 'fusion-builder' ),
 					'none'         => esc_attr__( 'None', 'fusion-builder' ),
@@ -951,6 +1142,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Picture Glow / Drop Shadow Blur', 'fusion-builder' ),
 				'description' => esc_attr__( 'Choose the amount of blur added to glow or drop shadow effect. In pixels.', 'fusion-builder' ),
 				'param_name'  => 'pic_style_blur',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => '',
 				'min'         => '0',
 				'max'         => '50',
@@ -984,6 +1176,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Picture Style Color', 'fusion-builder' ),
 				'description' => esc_attr__( 'For all style types except border. Controls the style color.', 'fusion-builder' ),
 				'param_name'  => 'pic_style_color',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => '',
 				'default'     => $fusion_settings->get( 'person_style_color' ),
 				'dependency'  => [
@@ -999,6 +1192,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Picture Border Size', 'fusion-builder' ),
 				'description' => esc_attr__( 'In pixels.', 'fusion-builder' ),
 				'param_name'  => 'pic_bordersize',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => '',
 				'min'         => '0',
 				'max'         => '50',
@@ -1017,6 +1211,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Picture Border Color', 'fusion-builder' ),
 				'description' => esc_attr__( "Controls the picture's border color.", 'fusion-builder' ),
 				'param_name'  => 'pic_bordercolor',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => '',
 				'default'     => $fusion_settings->get( 'person_border_color' ),
 				'dependency'  => [
@@ -1037,6 +1232,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Picture Border Radius', 'fusion-builder' ),
 				'description' => esc_attr__( 'Choose the border radius of the person image. In pixels (px), ex: 1px, or "round".', 'fusion-builder' ),
 				'param_name'  => 'pic_borderradius',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => '',
 				'dependency'  => [
 					[
@@ -1051,6 +1247,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Hover Type', 'fusion-builder' ),
 				'description' => esc_attr__( 'Select the hover effect type.', 'fusion-builder' ),
 				'param_name'  => 'hover_type',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => [
 					'none'    => esc_attr__( 'None', 'fusion-builder' ),
 					'zoomin'  => esc_attr__( 'Zoom In', 'fusion-builder' ),
@@ -1076,6 +1273,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Background Color', 'fusion-builder' ),
 				'description' => esc_attr__( 'Controls the background color.', 'fusion-builder' ),
 				'param_name'  => 'background_color',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => '',
 				'default'     => $fusion_settings->get( 'person_background_color' ),
 			],
@@ -1084,6 +1282,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Content Alignment', 'fusion-builder' ),
 				'description' => esc_attr__( 'Choose the alignment of content.', 'fusion-builder' ),
 				'param_name'  => 'content_alignment',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => [
 					''       => esc_attr__( 'Default', 'fusion-builder' ),
 					'left'   => esc_attr__( 'Left', 'fusion-builder' ),
@@ -1092,15 +1291,20 @@ function fusion_element_person() {
 				],
 				'default'     => '',
 			],
+			// Social Icons.
 			[
 				'type'        => 'radio_button_set',
-				'heading'     => esc_attr__( 'Social Icons Position', 'fusion-builder' ),
-				'description' => esc_attr__( 'Choose the social icon position.', 'fusion-builder' ),
-				'param_name'  => 'icon_position',
+				'heading'     => esc_attr__( 'Social Icon Tooltip Position', 'fusion-builder' ),
+				'description' => esc_attr__( 'Choose the display position for tooltips.', 'fusion-builder' ),
+				'param_name'  => 'social_icon_tooltip',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => [
 					''       => esc_attr__( 'Default', 'fusion-builder' ),
 					'top'    => esc_attr__( 'Top', 'fusion-builder' ),
 					'bottom' => esc_attr__( 'Bottom', 'fusion-builder' ),
+					'left'   => esc_attr__( 'Left', 'fusion-builder' ),
+					'Right'  => esc_attr__( 'Right', 'fusion-builder' ),
+					'none'   => esc_attr__( 'None', 'fusion-builder' ),
 				],
 				'default'     => '',
 			],
@@ -1109,6 +1313,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Boxed Social Icons', 'fusion-builder' ),
 				'description' => esc_attr__( 'Choose to get boxed icons.', 'fusion-builder' ),
 				'param_name'  => 'social_icon_boxed',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => [
 					''    => esc_attr__( 'Default', 'fusion-builder' ),
 					'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
@@ -1117,10 +1322,37 @@ function fusion_element_person() {
 				'default'     => '',
 			],
 			[
+				'type'             => 'dimension',
+				'remove_from_atts' => true,
+				'heading'          => esc_attr__( 'Box Border Size', 'fusion-builder' ),
+				'description'      => esc_attr__( 'Controls the border size. In pixels or percentage, ex: 10px or 10%.', 'fusion-builder' ),
+				'param_name'       => 'social_box_border',
+				'value'            => [
+					'social_box_border_top'    => '',
+					'social_box_border_right'  => '',
+					'social_box_border_bottom' => '',
+					'social_box_border_left'   => '',
+				],
+				'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+				'dependency'       => [
+					[
+						'element'  => 'social_icon_boxed',
+						'value'    => 'no',
+						'operator' => '!=',
+					],
+					[
+						'element'  => 'social_icon_color_type',
+						'value'    => 'brand',
+						'operator' => '!=',
+					],
+				],
+			],
+			[
 				'type'        => 'textfield',
 				'heading'     => esc_attr__( 'Social Icon Box Radius', 'fusion-builder' ),
 				'description' => esc_attr__( 'Choose the border radius of the boxed icons. In pixels (px), ex: 1px, or "round".', 'fusion-builder' ),
 				'param_name'  => 'social_icon_boxed_radius',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => '',
 				'dependency'  => [
 					[
@@ -1135,6 +1367,7 @@ function fusion_element_person() {
 				'heading'     => esc_attr__( 'Social Icon Color Type', 'fusion-builder' ),
 				'description' => esc_attr__( 'Controls the color type of the social icons.', 'fusion-builder' ),
 				'param_name'  => 'social_icon_color_type',
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 				'value'       => [
 					''       => esc_attr__( 'Default', 'fusion-builder' ),
 					'custom' => esc_attr__( 'Custom Colors', 'fusion-builder' ),
@@ -1142,13 +1375,25 @@ function fusion_element_person() {
 				],
 				'default'     => '',
 			],
+
+			// colors group.
 			[
-				'type'        => 'textarea',
-				'heading'     => esc_attr__( 'Social Icon Custom Colors', 'fusion-builder' ),
-				'description' => esc_attr__( 'Specify the color of social icons. Use one for all or separate by | symbol. ex: #AA0000|#00AA00|#0000AA.', 'fusion-builder' ),
-				'param_name'  => 'social_icon_colors',
-				'value'       => '',
-				'dependency'  => [
+				'type'             => 'subgroup',
+				'heading'          => esc_attr__( 'Social Icons Custom Colors', 'fusion-builder' ),
+				'description'      => esc_attr__( 'Customize social icons appearance.', 'fusion-builder' ),
+				'param_name'       => 'custom_colors',
+				'default'          => 'regular',
+				'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+				'remove_from_atts' => true,
+				'value'            => [
+					'regular' => esc_attr__( 'Regular', 'fusion-builder' ),
+					'hover'   => esc_attr__( 'Hover', 'fusion-builder' ),
+				],
+				'icons'            => [
+					'regular' => '<span class="fusiona-regular-state" style="font-size:18px;"></span>',
+					'hover'   => '<span class="fusiona-hover-state" style="font-size:18px;"></span>',
+				],
+				'dependency'       => [
 					[
 						'element'  => 'social_icon_color_type',
 						'value'    => 'brand',
@@ -1157,11 +1402,53 @@ function fusion_element_person() {
 				],
 			],
 			[
-				'type'        => 'textarea',
-				'heading'     => esc_attr__( 'Social Icon Custom Box Colors', 'fusion-builder' ),
-				'description' => esc_attr__( 'Specify the box color of social icons. Use one for all or separate by | symbol. ex: #AA0000|#00AA00|#0000AA.', 'fusion-builder' ),
+				'type'        => 'colorpickeralpha',
+				'heading'     => esc_attr__( 'Icon Color', 'fusion-builder' ),
+				'description' => esc_attr__( 'Specify the color of social icons.', 'fusion-builder' ),
+				'param_name'  => 'social_icon_colors',
+				'default'     => $fusion_settings->get( 'social_links_icon_color' ),
+				'subgroup'    => [
+					'name' => 'custom_colors',
+					'tab'  => 'regular',
+				],
+				'dependency'  => [
+					[
+						'element'  => 'social_icon_color_type',
+						'value'    => 'brand',
+						'operator' => '!=',
+					],
+				],
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+			],
+			[
+				'type'        => 'colorpickeralpha',
+				'heading'     => esc_attr__( 'Icon Color', 'fusion-builder' ),
+				'description' => esc_attr__( 'Specify the color of social icons on hover.', 'fusion-builder' ),
+				'param_name'  => 'social_icon_colors_hover',
+				'default'     => $fusion_settings->get( 'social_links_icon_color_hover' ),
+				'subgroup'    => [
+					'name' => 'custom_colors',
+					'tab'  => 'hover',
+				],
+				'dependency'  => [
+					[
+						'element'  => 'social_icon_color_type',
+						'value'    => 'brand',
+						'operator' => '!=',
+					],
+				],
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+			],
+			[
+				'type'        => 'colorpickeralpha',
+				'heading'     => esc_attr__( 'Background Color', 'fusion-builder' ),
+				'description' => esc_attr__( 'Specify the box background color of social icons.', 'fusion-builder' ),
 				'param_name'  => 'social_icon_boxed_colors',
-				'value'       => '',
+				'default'     => $fusion_settings->get( 'social_links_box_color' ),
+				'subgroup'    => [
+					'name' => 'custom_colors',
+					'tab'  => 'regular',
+				],
 				'dependency'  => [
 					[
 						'element'  => 'social_icon_boxed',
@@ -1174,22 +1461,82 @@ function fusion_element_person() {
 						'operator' => '!=',
 					],
 				],
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 			],
 			[
-				'type'        => 'radio_button_set',
-				'heading'     => esc_attr__( 'Social Icon Tooltip Position', 'fusion-builder' ),
-				'description' => esc_attr__( 'Choose the display position for tooltips.', 'fusion-builder' ),
-				'param_name'  => 'social_icon_tooltip',
-				'value'       => [
-					''       => esc_attr__( 'Default', 'fusion-builder' ),
-					'top'    => esc_attr__( 'Top', 'fusion-builder' ),
-					'bottom' => esc_attr__( 'Bottom', 'fusion-builder' ),
-					'left'   => esc_attr__( 'Left', 'fusion-builder' ),
-					'Right'  => esc_attr__( 'Right', 'fusion-builder' ),
-					'none'   => esc_attr__( 'None', 'fusion-builder' ),
+				'type'        => 'colorpickeralpha',
+				'heading'     => esc_attr__( 'Background Color', 'fusion-builder' ),
+				'description' => esc_attr__( 'Specify the box background color of social icons on hover.', 'fusion-builder' ),
+				'param_name'  => 'social_box_colors_hover',
+				'default'     => $fusion_settings->get( 'social_links_box_color_hover' ),
+				'subgroup'    => [
+					'name' => 'custom_colors',
+					'tab'  => 'hover',
 				],
-				'default'     => '',
+				'dependency'  => [
+					[
+						'element'  => 'social_icon_boxed',
+						'value'    => 'no',
+						'operator' => '!=',
+					],
+					[
+						'element'  => 'social_icon_color_type',
+						'value'    => 'brand',
+						'operator' => '!=',
+					],
+				],
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 			],
+			[
+				'type'        => 'colorpickeralpha',
+				'heading'     => esc_attr__( 'Border Color', 'fusion-builder' ),
+				'description' => esc_attr__( 'Specify the border color of social icons.', 'fusion-builder' ),
+				'param_name'  => 'social_box_border_color',
+				'default'     => $fusion_settings->get( 'social_links_border_color' ),
+				'subgroup'    => [
+					'name' => 'custom_colors',
+					'tab'  => 'regular',
+				],
+				'dependency'  => [
+					[
+						'element'  => 'social_icon_boxed',
+						'value'    => 'no',
+						'operator' => '!=',
+					],
+					[
+						'element'  => 'social_icon_color_type',
+						'value'    => 'brand',
+						'operator' => '!=',
+					],
+				],
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+			],
+			[
+				'type'        => 'colorpickeralpha',
+				'heading'     => esc_attr__( 'Border color', 'fusion-builder' ),
+				'description' => esc_attr__( 'Specify the border color of social icons on hover.', 'fusion-builder' ),
+				'param_name'  => 'social_box_border_color_hover',
+				'default'     => $fusion_settings->get( 'social_links_border_color_hover' ),
+				'subgroup'    => [
+					'name' => 'custom_colors',
+					'tab'  => 'hover',
+				],
+				'dependency'  => [
+					[
+						'element'  => 'social_icon_boxed',
+						'value'    => 'no',
+						'operator' => '!=',
+					],
+					[
+						'element'  => 'social_icon_color_type',
+						'value'    => 'brand',
+						'operator' => '!=',
+					],
+				],
+				'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+			],
+
+			// Social Links.
 			[
 				'type'         => 'textfield',
 				'heading'      => esc_attr__( 'Blogger Link', 'fusion-builder' ),
@@ -1480,6 +1827,9 @@ function fusion_element_person() {
 					'no'  => esc_attr__( 'No', 'fusion-builder' ),
 				],
 				'default'     => 'no',
+			],
+			'fusion_animation_placeholder' => [
+				'preview_selector' => '.fusion-person',
 			],
 		],
 	];

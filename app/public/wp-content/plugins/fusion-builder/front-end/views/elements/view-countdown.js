@@ -161,7 +161,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				},
 				bgColor;
 
-				if ( values.heading_text && values.subheading_text ) {
+				if ( values.heading_text || values.subheading_text ) {
 					wrapperAttributes[ 'class' ] += ' fusion-countdown-has-heading';
 				}
 
@@ -171,7 +171,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				wrapperAttributes = _.fusionVisibilityAtts( values.hide_on_mobile, wrapperAttributes );
 
-				bgColor = jQuery.Color( values.background_color );
+				bgColor = jQuery.AWB_Color( values.background_color );
 				if ( ! values.background_image && ( ! values.background_color || 0 === bgColor.alpha() || 'transparent' === values.background_color ) ) {
 					wrapperAttributes[ 'class' ] += ' fusion-no-bg';
 				}
@@ -203,6 +203,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					s,
 					date,
 					month;
+
+				if ( ! values.subheading_text && ! values.heading_text && ! values.link_url ) {
+					counterAttributes.style = 'flex-grow: 1;';
+				}
 
 				if ( 'site_time' === values.timezone ) {
 					counterAttributes[ 'data-gmt-offset' ] = extras.gmt_offset;
@@ -295,7 +299,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					values.dash_titles = 'long';
 				}
 
-				counterBoxColor = jQuery.Color( values.counter_box_color );
+				counterBoxColor = jQuery.AWB_Color( values.counter_box_color );
 				if ( ! values.counter_box_color || 0 === counterBoxColor.alpha() || 'transparent' === values.counter_box_color ) {
 					dashClass = ' fusion-no-bg';
 				}
@@ -352,7 +356,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( values.counter_box_spacing ) {
 					counterBoxSpacing = parseFloat( values.counter_box_spacing );
-					styles += '.fusion-countdown-cid' + cid + ' .fusion-dash-wrapper  {padding:' + ( counterBoxSpacing / 2 ) + values.counter_box_spacing.replace( counterBoxSpacing, '' ) + ';}';
+					styles += '.fusion-countdown-cid' + cid + ' .fusion-dash-wrapper {padding:' + ( counterBoxSpacing / 2 ) + values.counter_box_spacing.replace( counterBoxSpacing, '' ) + ';}';
+					styles += '.fusion-countdown-cid' + cid + ' .fusion-countdown-counter-wrapper {margin: 0 calc(7.5px - ' + ( counterBoxSpacing / 2 ) + values.counter_box_spacing.replace( counterBoxSpacing, '' ) + ');}';
 				}
 
 				if ( values.counter_box_color ) {

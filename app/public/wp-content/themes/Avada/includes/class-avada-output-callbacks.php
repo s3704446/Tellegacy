@@ -30,7 +30,7 @@ class Avada_Output_Callbacks {
 	 * @return string
 	 */
 	public static function menu_sub_sep_color( $value ) {
-		return fusion_is_color_transparent( $value ) ? '0' : '';
+		return Fusion_Color::new_color( $value )->is_color_transparent() ? '0' : '';
 	}
 
 	/**
@@ -44,7 +44,7 @@ class Avada_Output_Callbacks {
 	 */
 	public static function page_title_border_color( $value ) {
 		$po_ptb_border_color = fusion_get_page_option( 'page_title_border_color', Avada()->fusion_library->get_page_id() );
-		return ( ( fusion_is_color_transparent( Avada()->settings->get( 'page_title_border_color' ) ) && empty( $po_ptb_border_color ) ) || fusion_is_color_transparent( $po_ptb_border_color ) ) ? 'none' : '';
+		return ( ( Fusion_Color::new_color( Avada()->settings->get( 'page_title_border_color' ) )->is_color_transparent() && empty( $po_ptb_border_color ) ) || Fusion_Color::new_color( $po_ptb_border_color )->is_color_transparent() ) ? 'none' : '';
 	}
 
 	/**

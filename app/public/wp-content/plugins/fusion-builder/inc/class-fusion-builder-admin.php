@@ -107,29 +107,39 @@ class Fusion_Builder_Admin {
 	 */
 	public function admin_menu() {
 
-		$capability      = apply_filters( 'fusion_builder_dashboard_menu_capability', 'manage_options' );
-		$layouts         = add_submenu_page( 'avada', esc_html__( 'Avada Layouts', 'fusion-builder' ), esc_html__( 'Layouts', 'fusion-builder' ), $capability, 'avada-layouts', [ $this, 'layouts' ], 3 );
-		$icons           = add_submenu_page( 'avada', esc_html__( 'Avada Icons', 'fusion-builder' ), esc_html__( 'Icons', 'fusion-builder' ), $capability, 'avada-icons', [ $this, 'icons' ], 4 );
-		$library         = add_submenu_page( 'avada', esc_html__( 'Avada Library', 'fusion-builder' ), esc_html__( 'Library', 'fusion-builder' ), $capability, 'avada-library', [ $this, 'library' ], 6 );
-		$options         = add_submenu_page( 'avada', esc_html__( 'Avada Builder Options', 'fusion-builder' ), esc_html__( 'Builder Options', 'fusion-builder' ), $capability, 'avada-builder-options', [ $this, 'options' ], 5 );
-		$layout_sections = add_submenu_page( 'avada', esc_html__( 'Avada Layout Sections', 'fusion-builder' ), esc_html__( 'Layout Sections', 'fusion-builder' ), $capability, 'avada-layout-sections', [ $this, 'layout_sections' ], 20 );
+		$capability = apply_filters( 'fusion_builder_dashboard_menu_capability', 'manage_options' );
 
+		$layouts = add_submenu_page( 'avada', esc_html__( 'Avada Layouts', 'fusion-builder' ), esc_html__( 'Layouts', 'fusion-builder' ), $capability, 'avada-layouts', [ $this, 'layouts' ], 5 );
 		add_action( 'admin_print_scripts-' . $layouts, [ $this, 'scripts_advanced' ] );
 		add_action( 'admin_print_scripts-' . $layouts, [ $this, 'layout_builder' ] );
+
+		if ( false !== AWB_Off_Canvas::is_enabled() ) {
+			$off_canvas = add_submenu_page( 'avada', esc_html__( 'Off Canvas', 'fusion-builder' ), esc_html__( 'Off Canvas', 'fusion-builder' ), $capability, 'avada-off-canvas', [ $this, 'off_canvas' ], 6 );
+			add_action( 'admin_print_scripts-' . $off_canvas, [ $this, 'scripts_advanced' ] );
+		}
+
+		$icons = add_submenu_page( 'avada', esc_html__( 'Avada Icons', 'fusion-builder' ), esc_html__( 'Icons', 'fusion-builder' ), $capability, 'avada-icons', [ $this, 'icons' ], 7 );
 		add_action( 'admin_print_scripts-' . $icons, [ $this, 'scripts_advanced' ] );
-		add_action( 'admin_print_scripts-' . $library, [ $this, 'scripts_advanced' ] );
-		add_action( 'admin_print_scripts-' . $options, [ $this, 'scripts_advanced' ] );
-		add_action( 'admin_print_scripts-' . $layout_sections, [ $this, 'scripts_advanced' ] );
-		add_action( 'admin_footer', 'fusion_the_admin_font_async' );
 
 		if ( false !== Fusion_Form_Builder::is_enabled() ) {
-			$forms         = add_submenu_page( 'avada', esc_html__( 'Avada Forms', 'fusion-builder' ), esc_html__( 'Forms', 'fusion-builder' ), $capability, 'avada-forms', [ $this, 'forms' ], 5 );
-			$forms_entries = add_submenu_page( 'avada', esc_html__( 'Avada Form Entries', 'fusion-builder' ), esc_html__( 'Form Entries', 'fusion-builder' ), $capability, 'avada-form-entries', [ $this, 'forms_entries' ], 20 );
+			$forms         = add_submenu_page( 'avada', esc_html__( 'Avada Forms', 'fusion-builder' ), esc_html__( 'Forms', 'fusion-builder' ), $capability, 'avada-forms', [ $this, 'forms' ], 8 );
+			$forms_entries = add_submenu_page( 'avada', esc_html__( 'Avada Form Entries', 'fusion-builder' ), esc_html__( 'Form Entries', 'fusion-builder' ), $capability, 'avada-form-entries', [ $this, 'forms_entries' ], 21 );
 			add_action( 'admin_print_scripts-' . $forms, [ $this, 'form_builder' ] );
 			add_action( 'admin_print_scripts-' . $forms, [ $this, 'scripts_advanced' ] );
 			add_action( 'admin_print_scripts-' . $forms_entries, [ $this, 'form_builder' ] );
 			add_action( 'admin_print_scripts-' . $forms_entries, [ $this, 'scripts_advanced' ] );
 		}
+
+		$library = add_submenu_page( 'avada', esc_html__( 'Avada Library', 'fusion-builder' ), esc_html__( 'Library', 'fusion-builder' ), $capability, 'avada-library', [ $this, 'library' ], 10 );
+		add_action( 'admin_print_scripts-' . $library, [ $this, 'scripts_advanced' ] );
+
+		$options = add_submenu_page( 'avada', esc_html__( 'Avada Builder Options', 'fusion-builder' ), esc_html__( 'Builder Options', 'fusion-builder' ), $capability, 'avada-builder-options', [ $this, 'options' ], 19 );
+		add_action( 'admin_print_scripts-' . $options, [ $this, 'scripts_advanced' ] );
+
+		$layout_sections = add_submenu_page( 'avada', esc_html__( 'Avada Layout Sections', 'fusion-builder' ), esc_html__( 'Layout Sections', 'fusion-builder' ), $capability, 'avada-layout-sections', [ $this, 'layout_sections' ], 20 );
+		add_action( 'admin_print_scripts-' . $layout_sections, [ $this, 'scripts_advanced' ] );
+
+		add_action( 'admin_footer', 'fusion_the_admin_font_async' );
 	}
 
 	/**
@@ -186,6 +196,13 @@ class Fusion_Builder_Admin {
 				</li>
 			</ul>
 		</li>
+		<?php
+		if ( false !== AWB_Off_Canvas::is_enabled() ) {
+			?>
+		<li class="avada-db-menu-item avada-db-menu-item-icons"><a class="avada-db-menu-item-link<?php echo ( 'off-canvas' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'off-canvas' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-off-canvas' ) ); ?>" ><i class="fusiona-off-canvas"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Off Canvas', 'fusion-builder' ); ?></span></a></li>
+			<?php
+		}
+		?>
 		<li class="avada-db-menu-item avada-db-menu-item-icons"><a class="avada-db-menu-item-link<?php echo ( 'icons' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'icons' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-icons' ) ); ?>" ><i class="fusiona-icons"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Icons', 'fusion-builder' ); ?></span></a></li>
 		<?php
 	}
@@ -330,6 +347,16 @@ class Fusion_Builder_Admin {
 	 */
 	public function icons() {
 		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/admin-screens/icons.php';
+	}
+
+	/**
+	 * Loads the template file.
+	 *
+	 * @since  2.2
+	 * @access public
+	 */
+	public function off_canvas() {
+		require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/admin-screens/off-canvas.php';
 	}
 
 	/**

@@ -114,19 +114,28 @@ function fusion_element_convert_plus() {
 	$convertplus_modules        = [];
 
 	foreach ( $convertplus_active_modules as $module ) {
+
+		// Don't add stuff which gets saved as module by mistake.
+		if ( 'security_nonce' === $module || '_wp_http_referer' === $module ) {
+			continue;
+		}
+
 		$module                         = strtolower( str_replace( '_Popup', '', $module ) );
 		$convertplus_modules[ $module ] = ucwords( str_replace( '_', ' ', $module ) );
 	}
 
 	// Get all Modals.
-	$convertplus_modals       = get_option( 'smile_modal_styles', [] );
 	$convertplus_modals_array = [];
 
-	if ( ! empty( $convertplus_modals ) ) {
-		foreach ( $convertplus_modals as $value ) {
-			$settings = unserialize( $value['style_settings'] );
-			if ( isset( $settings['live'] ) && $settings['live'] ) {
-				$convertplus_modals_array[ $value['style_id'] ] = urldecode( $value['style_name'] );
+	// If Modals are enabled.
+	if ( isset( $convertplus_modules['modal'] ) ) {
+		$convertplus_modals = get_option( 'smile_modal_styles', [] );
+		if ( ! empty( $convertplus_modals ) ) {
+			foreach ( $convertplus_modals as $value ) {
+				$settings = maybe_unserialize( $value['style_settings'] );
+				if ( isset( $settings['live'] ) && $settings['live'] ) {
+					$convertplus_modals_array[ $value['style_id'] ] = urldecode( $value['style_name'] );
+				}
 			}
 		}
 	}
@@ -136,14 +145,16 @@ function fusion_element_convert_plus() {
 	}
 
 	// Get all SlideIns.
-	$convertplus_slideins       = get_option( 'smile_slide_in_styles', [] );
 	$convertplus_slideins_array = [];
 
-	if ( ! empty( $convertplus_slideins ) ) {
-		foreach ( $convertplus_slideins as $value ) {
-			$settings = unserialize( $value['style_settings'] );
-			if ( isset( $settings['live'] ) && $settings['live'] ) {
-				$convertplus_slideins_array[ $value['style_id'] ] = urldecode( $value['style_name'] );
+	if ( isset( $convertplus_modules['slide_in'] ) ) {
+		$convertplus_slideins = get_option( 'smile_slide_in_styles', [] );
+		if ( ! empty( $convertplus_slideins ) ) {
+			foreach ( $convertplus_slideins as $value ) {
+				$settings = maybe_unserialize( $value['style_settings'] );
+				if ( isset( $settings['live'] ) && $settings['live'] ) {
+					$convertplus_slideins_array[ $value['style_id'] ] = urldecode( $value['style_name'] );
+				}
 			}
 		}
 	}
@@ -153,14 +164,16 @@ function fusion_element_convert_plus() {
 	}
 
 	// Get all Info Bars.
-	$convertplus_info_bars       = get_option( 'smile_info_bar_styles', [] );
 	$convertplus_info_bars_array = [];
 
-	if ( ! empty( $convertplus_info_bars ) ) {
-		foreach ( $convertplus_info_bars as $value ) {
-			$settings = unserialize( $value['style_settings'] );
-			if ( isset( $settings['live'] ) && $settings['live'] ) {
-				$convertplus_info_bars_array[ $value['style_id'] ] = urldecode( $value['style_name'] );
+	if ( isset( $convertplus_modules['info_bar'] ) ) {
+		$convertplus_info_bars = get_option( 'smile_info_bar_styles', [] );
+		if ( ! empty( $convertplus_info_bars ) ) {
+			foreach ( $convertplus_info_bars as $value ) {
+				$settings = maybe_unserialize( $value['style_settings'] );
+				if ( isset( $settings['live'] ) && $settings['live'] ) {
+					$convertplus_info_bars_array[ $value['style_id'] ] = urldecode( $value['style_name'] );
+				}
 			}
 		}
 	}

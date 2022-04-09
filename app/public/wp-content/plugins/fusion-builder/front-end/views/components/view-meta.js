@@ -21,6 +21,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				// Validate values.
 				this.validateValues( atts.values );
 				this.values = atts.values;
+				this.extras = atts.extras;
 
 				// Any extras that need passed on.
 				attributes.cid         = this.model.get( 'cid' );
@@ -88,10 +89,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					attr.style += 'margin-left:' + values.margin_left + ';';
 				}
 
-				if ( '' !== values.alignment && 'stacked' !== values.layout ) {
-					attr.style += 'justify-content:' + values.alignment + ';';
-				}
-
 				if ( '' !== values.stacked_vertical_align && 'floated' !== values.layout ) {
 					attr.style += 'justify-content:' + values.stacked_vertical_align + ';';
 				}
@@ -156,7 +153,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @return {String}
 			 */
 			buildStyleBlock: function() {
-				var selectors, css;
+				var selectors, css, media;
 				this.baseSelector = '.fusion-meta-tb.fusion-meta-tb-' +  this.model.get( 'cid' );
 				this.dynamic_css  = {};
 
@@ -167,6 +164,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( !this.isDefault( 'link_color' ) ) {
 				  this.addCssProperty( [ this.baseSelector + ' span a' ], 'color',  this.values.link_color );
+				}
+
+				// Alignment.
+				if ( '' !== this.values.alignment && 'stacked' !== this.values.layout ) {
+					this.addCssProperty( [ this.baseSelector ], 'justify-content', this.values.alignment );
 				}
 
 				selectors = [ this.baseSelector + ' a:hover', this.baseSelector + ' span a:hover' ];
@@ -253,6 +255,22 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				css = this.parseCSS();
+
+				// Responsive Alignment.
+				if ( 'stacked' !== this.values.layout ) {
+					_.each( [ 'medium', 'small' ], function( size ) {
+						var key = 'alignment_' + size;
+						media = '@media only screen and (max-width:' + this.extras[ 'visibility_' + size ] + 'px)';
+
+						if ( '' === this.values[ key ] ) {
+							return;
+						}
+
+						this.dynamic_css = {};
+						this.addCssProperty( [ this.baseSelector ], 'justify-content', this.values[ key ] );
+						css += media + '{' + this.parseCSS() + '}';
+					}, this );
+				}
 				return ( css ) ? '<style type="text/css">' + css + '</style>' : '';
 			}
 		} );
