@@ -80,7 +80,7 @@
 				<div class="fusion-tabs">
 					<div id="default-columns" class="fusion-tab-content">
 						<form class="form-create">
-							<label for="new-template-name-{{ id }}"><?php esc_html_e( 'Section name', 'fusion-builder' ); ?></label>
+							<label for="new-template-name-{{ id }}"><?php esc_html_e( 'Section Name', 'fusion-builder' ); ?></label>
 							<input type="text" name="name" id="new-template-name-{{ id }}" required>
 							<button type="submit"><?php esc_html_e( 'Create New Section', 'fusion-builder' ); ?></div>
 						</form>

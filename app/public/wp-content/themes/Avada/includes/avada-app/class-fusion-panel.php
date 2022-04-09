@@ -169,7 +169,6 @@ class Fusion_Panel {
 			add_filter( 'body_class', [ $this, 'body_class' ], 998 );
 		}
 		$this->add_hook_wrappers();
-		add_filter( 'fusion_replace_css_var_values', '__return_false', PHP_INT_MAX );
 	}
 
 	/**
@@ -182,7 +181,7 @@ class Fusion_Panel {
 	 */
 	public function add_panel_data( $data ) {
 		$data['postMeta']               = $this->page_values;
-		$data['fusionPageOptions']      = $this->page_options;
+		$data['fusionPageOptions']      = apply_filters( 'awb_metaboxes_sections', $this->page_options );
 		$data['fusionElementsOptions']  = $this->fusion_builder_options;
 		$data['singular']               = is_singular() || ( class_exists( 'WooCommerce' ) && is_shop() ) || ( is_home() && ! is_front_page() );
 		$data['featured_image_default'] = $this->get_featured_image_object();
@@ -393,7 +392,7 @@ class Fusion_Panel {
 						foreach ( $meta_values as $key => $value ) {
 							if ( '_fusion' === $key ) {
 								foreach ( $value as $_fusion_k => $_fusion_v ) {
-									if ( '' === $_fusion_v || 'default' === $_fusion_v ) {
+									if ( ( '' === $_fusion_v || 'default' === $_fusion_v ) && 'form_type' !== $_fusion_k ) {
 										unset( $value[ $_fusion_k ] );
 									}
 								}
@@ -1483,7 +1482,7 @@ class Fusion_Panel {
 			}
 		}
 
-		$demo_options = apply_filters( 'avada_builder_theme_options', [] );
+		$demo_options = apply_filters( 'awb_global_options', [] );
 
 		$sections['import_export'] = [
 			'label'    => esc_html__( 'Import/Export', 'Avada' ),
@@ -1494,7 +1493,7 @@ class Fusion_Panel {
 			'fields'   => [
 				'import_to' => [
 					'label'       => esc_html__( 'Import Global Options', 'Avada' ),
-					'description' => esc_html__( 'Import Global Options.  You can import via file, copy and paste or select an Avada demo.' ),
+					'description' => esc_html__( 'Import Global Options. You can import via file, copy and paste or select an Avada prebuilt website.' ),
 					'id'          => 'import_to',
 					'type'        => 'import',
 					'demos'       => $demo_options,
@@ -1502,7 +1501,7 @@ class Fusion_Panel {
 				],
 				'export_to' => [
 					'label'       => esc_html__( 'Export Global Options', 'Avada' ),
-					'description' => esc_html__( 'Export your Global Options.  You can either export as a file or copy the data.' ),
+					'description' => esc_html__( 'Export your Global Options. You can either export as a file or copy the data.' ),
 					'id'          => 'export_to',
 					'type'        => 'export',
 					'context'     => 'TO',

@@ -412,7 +412,7 @@ class Fusion_Hubspot {
 	 * @return string
 	 */
 	public function maybe_render_button() {
-		$auth_url = 'https://app.hubspot.com/oauth/authorize?client_id=999cc7c3-e358-4a3b-9984-a37dfbd319fa&redirect_uri=' . FUSION_UPDATES_URL . '/hubspot-api&scope=contacts%20actions%20timeline%20forms&state=' . rawurlencode( admin_url( 'admin.php?page=avada' ) );
+		$auth_url = 'https://app.hubspot.com/oauth/authorize?client_id=999cc7c3-e358-4a3b-9984-a37dfbd319fa&redirect_uri=' . FUSION_UPDATES_URL . '/hubspot-api&scope=actions%20timeline%20oauth%20forms%20crm.objects.contacts.write%20crm.schemas.contacts.read%20crm.schemas.companies.read%20crm.schemas.deals.read&state=' . rawurlencode( admin_url( 'admin.php?page=avada' ) );
 
 		$type = 'connected';
 		if ( isset( $_GET['error'] ) && ! empty( $_GET['error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput

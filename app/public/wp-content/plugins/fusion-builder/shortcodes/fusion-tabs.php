@@ -732,7 +732,7 @@ if ( fusion_is_element_enabled( 'fusion_tabs' ) ) {
 								'label'       => esc_html__( 'Tabs Background Color + Hover Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the active tab, tab hover and content background.', 'fusion-builder' ),
 								'id'          => 'tabs_bg_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -746,7 +746,7 @@ if ( fusion_is_element_enabled( 'fusion_tabs' ) ) {
 								'label'       => esc_html__( 'Tabs Inactive Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the inactive tabs as well as the post date box layout for the Avada Tab Widget.', 'fusion-builder' ),
 								'id'          => 'tabs_inactive_color',
-								'default'     => '#f9f9fb',
+								'default'     => 'var(--awb-color2)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -760,7 +760,7 @@ if ( fusion_is_element_enabled( 'fusion_tabs' ) ) {
 								'label'       => esc_html__( 'Tabs Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the tab border.', 'fusion-builder' ),
 								'id'          => 'tabs_border_color',
-								'default'     => '#e2e2e2',
+								'default'     => 'var(--awb-color3)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -865,7 +865,7 @@ function fusion_element_tabs() {
 				'preview'       => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-tabs-preview.php',
 				'preview_id'    => 'fusion-builder-block-module-tabs-preview-template',
 				'child_ui'      => true,
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/tabs-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/tabs-element/',
 				'sortable'      => false,
 				'params'        => [
 					[

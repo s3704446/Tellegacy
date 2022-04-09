@@ -78,6 +78,9 @@
 .fusionredux-container .fusionredux-main .form-table tr {
   border-bottom: 1px solid #dfdfdf;
 }
+.fusionredux-container .fusionredux-main .form-table tr.hidden {
+  display: none !important;
+}
 .fusionredux-container #fusionredux-form-wrapper {
   background-color: $color_back_2;
 }
@@ -463,30 +466,6 @@
   width: 68px;
   padding-top: 3px;
   padding-bottom: 3px;
-}
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-typography-container .select_wrapper {
-  max-width: calc(50% - 10px) !important;
-  min-width: 160px !important;
-  height: 67px;
-}
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-typography-container .select_wrapper .fusionredux-typography {
-  height: 31px;
-}
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-typography-container .input_wrapper {
-  height: 67px;
-}
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-typography-container .input_wrapper.margin-top {
-  margin-left: 0;
-}
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-typography-container .fusionredux-typography-color {
-  padding: 3px 5px !important;
-}
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-typography-container input.wp-picker-default {
-  margin-left: 0 !important;
-  padding: 0 10px !important;
-}
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-typography-container .typography-preview {
-  border-radius: 4px;
 }
 .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-repeater .fusionredux-repeater-accordion-repeater .ui-accordion-content,
 .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-repeater .fusionredux-repeater-accordion-repeater h3.ui-accordion-header {
@@ -982,7 +961,7 @@
 .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .select3-drop,
 .fusionredux-container #fusionredux-form-wrapper .fusionredux-main input:not(.button-primary):not(.button),
 .fusionredux-container #fusionredux-form-wrapper .fusionredux-main textarea {
-  background: #ffffff !important;
+  background: #ffffff;
   box-shadow: none !important;
   transition: all 200ms ease-in-out;
   border: 1px solid #dfdfdf;
@@ -1122,7 +1101,6 @@
   padding: 0.4em 0.6em;
   min-width: 60px;
   border: none !important;
-  border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
   background-color: #f2f3f5 !important;
   background-image: none !important;
   color: #93999f !important;
@@ -1132,16 +1110,35 @@
   text-align: center;
   transition: color 0.2s cubic-bezier(0.21, 0.6, 0.35, 1), background-color 0.2s cubic-bezier(0.21, 0.6, 0.35, 1);
 }
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button:first-of-type,
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button:first-of-type {
+.ltr .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button,
+.ltr .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button {
+  border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+.rtl .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button,
+.rtl .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button {
+  border-left: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+.ltr .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button:first-of-type,
+.ltr .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button:first-of-type {
   border-top-left-radius: 4px !important;
   border-bottom-left-radius: 4px !important;
 }
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button:last-of-type,
-.fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button:last-of-type {
+.rtl .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button:first-of-type,
+.rtl .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button:first-of-type {
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+}
+.ltr .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button:last-of-type,
+.ltr .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button:last-of-type {
   border-top-right-radius: 4px !important;
   border-bottom-right-radius: 4px !important;
   border-right: none !important;
+}
+.rtl .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .ui-buttonset .ui-button:last-of-type,
+.rtl .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .ui-buttonset .ui-button:last-of-type {
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  border-left: none !important;
 }
 .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-container-switch .cb-enable.selected,
 .fusionredux-container #fusionredux-form-wrapper .fusionredux-main .fusionredux-field-container .cb-enable.selected,

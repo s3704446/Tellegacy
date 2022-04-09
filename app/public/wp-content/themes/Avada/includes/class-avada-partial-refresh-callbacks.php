@@ -88,7 +88,7 @@ class Avada_Partial_Refresh_Callbacks {
 		}
 		$archive           = false !== strpos( $slider_page_id, 'archive' );
 		$slider_page_id    = str_replace( '-archive', '', $slider_page_id );
-		$visibility_values = Avada_Helper::get_slider_visibility( $slider_page_id, $is_archive );
+		$visibility_values = Avada_Helper::get_slider_visibility( $slider_page_id, $archive );
 		$visibility_values = empty( $visibility_values ) ? $visibility_options : $visibility_values;
 		$visibility_values = ! is_array( $visibility_values ) ? explode( ',', $visibility_values ) : $visibility_values;
 

@@ -43,7 +43,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			buildTickerAttr: function( values ) {
 				var attr = {
 					'class': 'awb-news-ticker awb-news-ticker-' + this.model.get( 'cid' ),
-					'aria-role': 'marquee'
+					'role': 'marquee'
 				};
 
 				if ( 'marquee' === values.ticker_type ) {

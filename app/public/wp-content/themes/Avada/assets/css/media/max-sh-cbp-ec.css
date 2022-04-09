@@ -10,6 +10,10 @@
   padding-left: 10px;
   padding-right: 0;
 }
+.single-tribe_events .fusion-events-featured-image .fusion-events-single-title-content {
+  position: relative;
+  background-color: var(--primary_color);
+}
 .single-tribe_events #tribe-events-content .tribe_events .fusion-content-widget-area.fusion-event-meta-columns .fusion-event-meta-wrapper,
 .single-tribe_events #tribe-events-content .tribe_events .fusion-content-widget-area.fusion-event-meta-columns .tribe-events-event-meta.primary,
 .single-tribe_events #tribe-events-content .tribe_events .fusion-content-widget-area.fusion-event-meta-columns .tribe-events-event-meta.secondary {

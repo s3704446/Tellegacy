@@ -135,7 +135,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			if ( '' !== this.formData.form_placeholder_color ) {
 				placeholderColor = this.formData.form_placeholder_color;
 			} else if ( ! this.isDefault( 'form_text_color' ) ) {
-				placeholderColor = jQuery.Color( this.formData.form_text_color ).alpha( 0.5 ).toRgbaString();
+				placeholderColor = jQuery.AWB_Color( this.formData.form_text_color ).alpha( 0.5 ).toRgbaString();
 			}
 
 			if ( placeholderColor ) {
@@ -220,7 +220,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			if (!this.isDefault('form_focus_border_color')) {
-				hoverColor = jQuery.Color( this.formData.form_focus_border_color ).alpha( 0.5 ).toRgbaString();
+				hoverColor = jQuery.AWB_Color( this.formData.form_focus_border_color ).alpha( 0.5 ).toRgbaString();
 
 				selectors = [
 					this.baseSelector + ' input:not([type="submit"]):focus',

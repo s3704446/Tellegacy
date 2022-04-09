@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'AVADA_VERSION' ) ) {
-	define( 'AVADA_VERSION', '7.5' );
+	define( 'AVADA_VERSION', '7.6.1' );
 }
 
 if ( ! defined( 'AVADA_MIN_PHP_VER_REQUIRED' ) ) {

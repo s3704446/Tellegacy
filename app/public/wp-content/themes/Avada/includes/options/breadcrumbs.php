@@ -106,7 +106,7 @@ function avada_options_section_breadcrumbs( $sections ) {
 				'label'           => esc_html__( 'Breadcrumbs Text Color', 'Avada' ),
 				'description'     => esc_html__( 'Controls the text color of the breadcrumbs font.', 'Avada' ),
 				'id'              => 'breadcrumbs_text_color',
-				'default'         => '#4a4e57',
+				'default'         => 'var(--awb-color8)',
 				'type'            => 'color-alpha',
 				'soft_dependency' => true,
 				'css_vars'        => [
@@ -121,7 +121,7 @@ function avada_options_section_breadcrumbs( $sections ) {
 				'label'           => esc_html__( 'Breadcrumbs Text Hover Color', 'Avada' ),
 				'description'     => esc_html__( 'Controls the text hover color of the breadcrumbs font.', 'Avada' ),
 				'id'              => 'breadcrumbs_text_hover_color',
-				'default'         => '#65bc7b',
+				'default'         => 'var(--awb-color4)',
 				'type'            => 'color-alpha',
 				'soft_dependency' => true,
 				'css_vars'        => [

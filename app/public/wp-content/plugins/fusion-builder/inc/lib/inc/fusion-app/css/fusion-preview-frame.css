@@ -89,6 +89,10 @@
   border: 2px dashed #e6e6e6;
   margin-bottom: 2em;
 }
+.fusion-builder-blank-page.fusion-post-awb_off_canvas {
+  margin-bottom: 0;
+  border: none;
+}
 .fusion-builder-blank-page .fusion-builder-blank-page-content {
   flex: 1 1 100%;
   margin: 5em 0;
@@ -223,19 +227,19 @@
 .fusion-builder-blank-page .fusion-builder-blank-page-info .fusion-builder-submit-button:hover span {
   padding-left: 15px;
 }
-.fusion-builder-blank-page.fusion-builder-scheme-dark {
+.fusion-builder-blank-page.fusion-builder-scheme-dark:not(.fusion-post-awb_off_canvas) {
   border-color: rgba(255, 255, 255, 0.3);
 }
-.fusion-builder-blank-page.fusion-builder-scheme-dark h1.title {
+.fusion-builder-blank-page.fusion-builder-scheme-dark:not(.fusion-post-awb_off_canvas) h1.title {
   color: #fff;
 }
-.fusion-builder-blank-page.fusion-builder-scheme-dark .fusion-builder-blank-page-info {
+.fusion-builder-blank-page.fusion-builder-scheme-dark:not(.fusion-post-awb_off_canvas) .fusion-builder-blank-page-info {
   border-color: rgba(255, 255, 255, 0.3);
 }
-.fusion-builder-blank-page.fusion-builder-scheme-dark .fusion-builder-blank-page-info h3 {
+.fusion-builder-blank-page.fusion-builder-scheme-dark:not(.fusion-post-awb_off_canvas) .fusion-builder-blank-page-info h3 {
   color: #fff;
 }
-.fusion-builder-blank-page.fusion-builder-scheme-dark .fusion-builder-blank-page-info .info-icon {
+.fusion-builder-blank-page.fusion-builder-scheme-dark:not(.fusion-post-awb_off_canvas) .fusion-builder-blank-page-info .info-icon {
   background: transparent;
 }
 #side-header .fusion-builder-live-editor {
@@ -1235,7 +1239,6 @@
 .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-clear {
   position: absolute;
   top: 50%;
-  right: 6px;
   font-size: 11px !important;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1255,39 +1258,42 @@
 .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-clear:hover {
   color: #2a3035;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker {
-  min-height: 210px;
+.ltr .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-link-selector .wp-picker-clear,
+.ltr .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-clear {
+  right: 6px;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-holder {
-  clear: both;
+.rtl .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-link-selector .wp-picker-clear,
+.rtl .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-clear {
+  left: 10px;
+}
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .awb-picker-wrap .iris-picker,
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .awb-picker-global {
+  box-shadow: none !important;
+  border: none !important;
+}
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .awb-picker-outer {
+  min-width: 252px;
 }
 .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-square,
 .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-strip {
   height: 140px !important;
-  padding-bottom: 10px;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container {
-  clear: both;
-}
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container .iris-picker {
-  border-radius: 0 0 4px 4px;
-  border-left: none;
-  border-right: none;
-  border-bottom: none;
-  border-top: 1px solid #f2f3f5;
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-picker {
+  padding-bottom: 2px !important;
+  margin-top: 0 !important;
   width: 250px !important;
   height: 170px !important;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container .iris-picker .iris-strip {
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-picker .iris-strip {
   margin-left: 8px !important;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container .iris-picker .iris-strip .ui-slider-handle {
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-picker .iris-strip .ui-slider-handle {
   top: auto;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container .iris-picker .iris-strip .ui-slider-handle:after {
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-picker .iris-strip .ui-slider-handle:after {
   display: none;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container .iris-picker .iris-strip .ui-slider-handle:before {
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-picker .iris-strip .ui-slider-handle:before {
   content: "";
   position: absolute;
   left: -2px;
@@ -1300,44 +1306,25 @@
   width: auto;
   background-color: transparent;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container.wp-picker-alpha-container .wp-picker-input-wrap label {
-  padding: 8px;
-  width: 100%;
-}
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container.wp-picker-alpha-container .wp-picker-input-wrap label input {
-  width: 100% !important;
-  border: 1px solid #e0e3e7;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #2a3035;
-}
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container.wp-picker-alpha-container .wp-picker-input-wrap input.wp-picker-clear {
-  right: 14px;
-  width: 29px;
-  background: transparent !important;
-}
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-container.wp-picker-alpha-container .wp-picker-input-wrap .wp-picker-clear-button {
-  right: 14px;
-}
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-color-result,
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .iris-palette-container {
-  display: none;
-}
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-input-wrap {
-  display: block !important;
-  width: calc(100% - 48px);
-  float: left;
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .awb-picker-container {
+  width: calc(100% - 50px);
   position: relative;
+  padding: 8px;
 }
-.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .wp-picker-input-wrap .medium-editor-toolbar-input {
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .awb-picker-container .awb-color-result {
+  min-width: 40px;
+  cursor: pointer;
+}
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .awb-picker-container .awb-global-label,
+.fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .awb-picker-container .medium-editor-toolbar-input {
   height: 40px;
   background: #fff;
   color: #93999f;
   border: none;
-  width: 100%;
+  width: 100% !important;
   border-radius: 4px 0 0 0;
   font-family: "Noto Sans", Roboto, "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-  padding: 0 16px;
+  padding: 0 30px 0 0 !important;
   font-size: 13px;
 }
 .fusion-builder-live .medium-editor-extensions .medium-editor-toolbar-form.fusion-inline-color-picker .fusion-inline-editor-close {

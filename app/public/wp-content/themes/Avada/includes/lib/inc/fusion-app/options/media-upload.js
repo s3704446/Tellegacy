@@ -30,7 +30,7 @@ FusionPageBuilder.options.fusionOptionUpload = {
 		if ( jQuery( event.currentTarget ).closest( '.fusion-builder-option-container' ).find( '.fusion-url-only-input' ).length ) {
 			jQuery( event.currentTarget ).closest( '.fusion-builder-option-container' ).find( '.fusion-url-only-input' ).val( '' );
 		}
-
+		FusionEvents.trigger( 'awb-image-upload-url-' + $upload.data( 'param' ), '' );
 	},
 
 	optionUpload: function( $element ) {
@@ -556,6 +556,10 @@ FusionPageBuilder.options.fusionOptionUpload = {
 			// Image was already changed, so we have URL set as data attribute.
 			imageURL = $uploadField.data( 'url' );
 		}
+
+		// Trigger event with Image URL.
+		FusionEvents.trigger( 'awb-image-upload-url-' + $uploadButton.data( 'param' ), imageURL );
+
 
 		if ( 0 <= imageURL.indexOf( '<img' ) ) {
 			imagePreview = imageURL;

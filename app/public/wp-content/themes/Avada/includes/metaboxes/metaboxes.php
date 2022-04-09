@@ -49,6 +49,8 @@ class PyreThemeFrameworkMetaboxes {
 		add_action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ], 11 );
 		add_action( 'save_post', [ $this, 'save_meta_boxes' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_script_loader' ], 99 );
+		add_filter( 'awb_metaboxes_sections', [ $this, 'filter_sections' ] );
+		add_filter( 'awb_responsive_params', [ $this, 'add_responsive_params' ], 10, 3 );
 	}
 
 	/**
@@ -173,17 +175,17 @@ class PyreThemeFrameworkMetaboxes {
 			true
 		);
 
-		// Color fields.
-		wp_enqueue_script( 'wp-color-picker' );
-		wp_enqueue_style( 'wp-color-picker' );
-
 		wp_enqueue_script(
-			'wp-color-picker-alpha',
-			Avada::$template_dir_url . '/assets/admin/js/wp-color-picker-alpha.js',
-			[ 'wp-color-picker' ],
+			'icon-picker',
+			Avada::$template_dir_url . '/assets/admin/js/icon-picker.js',
+			[ 'jquery' ],
 			$theme_info->get( 'Version' ),
-			false
+			true
 		);
+		// Color fields.
+		if ( function_exists( 'AWB_Global_Colors' ) ) {
+			AWB_Global_Colors()->enqueue();
+		}
 
 		// General JS for fields.
 		wp_enqueue_script(
@@ -214,6 +216,7 @@ class PyreThemeFrameworkMetaboxes {
 			'tribe_events'      => [ 'page', 'header', 'sliders', 'pagetitlebar', 'content', 'sidebars', 'footer' ],
 			'fusion_tb_section' => [ 'template', 'content', 'sidebars' ],
 			'fusion_form'       => [ 'form_appearance', 'form_submission', 'form_confirmation', 'form_privacy' ],
+			'awb_off_canvas'    => [ 'template', 'off_canvas_general', 'off_canvas_design', 'off_canvas_overlay', 'off_canvas_close_button', 'off_canvas_animation', 'off_canvas_conditions', 'off_canvas_triggers', 'off_canvas_rules' ],
 			'fusion_element'    => [],
 			'post_card'         => [ 'template' ],
 		];
@@ -260,7 +263,7 @@ class PyreThemeFrameworkMetaboxes {
 			}
 		}
 
-		return $sections;
+		return apply_filters( 'awb_metaboxes_sections', $sections );
 	}
 
 	/**
@@ -279,7 +282,7 @@ class PyreThemeFrameworkMetaboxes {
 		$post_types[] = 'fusion_element';
 		$post_types   = apply_filters( 'awb_page_options_post_types', $post_types );
 
-		$disallowed = [ 'page', 'post', 'attachment', 'avada_portfolio', 'themefusion_elastic', 'product', 'wpsc-product', 'slide', 'tribe_events', 'fusion_tb_section', 'fusion_form', 'fusion_element', 'fusion_template' ];
+		$disallowed = [ 'page', 'post', 'attachment', 'avada_portfolio', 'themefusion_elastic', 'product', 'wpsc-product', 'slide', 'tribe_events', 'fusion_tb_section', 'fusion_form', 'fusion_element', 'fusion_template', 'awb_off_canvas' ];
 		$disallowed = array_merge( $disallowed, apply_filters( 'avada_hide_page_options', [] ) );
 		foreach ( $post_types as $post_type ) {
 			if ( in_array( $post_type, $disallowed, true ) ) {
@@ -302,6 +305,7 @@ class PyreThemeFrameworkMetaboxes {
 		$this->add_meta_box( 'events_calendar_options', esc_html__( 'Events Calendar Options', 'Avada' ), 'tribe_events' );
 		$this->add_meta_box( 'fusion_tb_section', esc_html__( 'Layout Section Options', 'Avada' ), 'fusion_tb_section' );
 		$this->add_meta_box( 'fusion_form', esc_html__( 'Form Options', 'Avada' ), 'fusion_form' );
+		$this->add_meta_box( 'awb_off_canvas', esc_html__( 'Off Canvas Options', 'Avada' ), 'awb_off_canvas' );
 		$this->add_meta_box( 'fusion_element', esc_html__( 'Avada Page Options', 'Avada' ), 'fusion_element' );
 
 		if ( class_exists( 'Avada_Studio' ) ) {
@@ -459,6 +463,15 @@ class PyreThemeFrameworkMetaboxes {
 	}
 
 	/**
+	 * Handle rendering options for events.
+	 *
+	 * @access public
+	 */
+	public function awb_off_canvas() {
+		$this->render_option_tabs( $this::get_pagetype_tab( 'awb_off_canvas' ) );
+	}
+
+	/**
 	 * Render fields within tab.
 	 *
 	 * @access public
@@ -483,64 +496,73 @@ class PyreThemeFrameworkMetaboxes {
 			$field['ajax_params'] = isset( $field['ajax_params'] ) ? $field['ajax_params'] : false;
 			$field['max_input']   = isset( $field['max_input'] ) ? $field['max_input'] : 1000;
 			$field['placeholder'] = isset( $field['placeholder'] ) ? $field['placeholder'] : 1000;
+			$field['responsive']  = isset( $field['responsive'] ) ? $field['responsive']['state'] : false;
+			$field['icons']       = isset( $field['icons'] ) ? $field['icons'] : [];
 
 			switch ( $field['type'] ) {
 				case 'radio-buttonset':
-					$this->radio_buttonset( $field['id'], $field['label'], $field['choices'], $field['description'], $field['default'], $field['dependency'] );
+					$this->radio_buttonset( $field['id'], $field['label'], $field['choices'], $field['description'], $field['default'], $field['dependency'], null, $field['responsive'], $field['icons'] );
 					break;
 				case 'checkbox-buttonset':
-					$this->checkbox_buttonset( $field['id'], $field['label'], $field['value'], $field['description'], $field['default'], $field['dependency'] );
+					$this->checkbox_buttonset( $field['id'], $field['label'], $field['value'], $field['description'], $field['default'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'color-alpha':
-					$this->color( $field['id'], $field['label'], $field['description'], true, $field['dependency'], $field['default'] );
+					$this->color( $field['id'], $field['label'], $field['description'], true, $field['dependency'], $field['default'], $field['responsive'] );
 					break;
 				case 'color':
-					$this->color( $field['id'], $field['label'], $field['description'], false, $field['dependency'], $field['default'] );
+					$this->color( $field['id'], $field['label'], $field['description'], false, $field['dependency'], $field['default'], $field['responsive'] );
 					break;
 				case 'media':
 				case 'media_url':
-					$this->upload( $field['id'], $field['label'], $field['description'], $field['dependency'] );
+				case 'upload':
+					$this->upload( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'ajax_select':
 				case 'multiple_select':
-					$this->multiple( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['ajax'], $field['ajax_params'], $field['max_input'], $field['placeholder'], $repeater );
+					$this->multiple( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['ajax'], $field['ajax_params'], $field['max_input'], $field['placeholder'], $repeater, null, $field['responsive'] );
 					break;
 				case 'select':
-					$this->select( $field['id'], $field['label'], $field['choices'], $field['description'], $field['default'], $field['dependency'], $repeater );
+					$this->select( $field['id'], $field['label'], $field['choices'], $field['description'], $field['default'], $field['dependency'], $repeater, $field['responsive'] );
 					break;
 				case 'dimensions':
-					$this->dimension( $field['id'], $field['value'], $field['label'], $field['description'], $field['dependency'] );
+					$this->dimension( $field['id'], $field['value'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'text':
-					$this->text( $field['id'], $field['label'], $field['description'], $field['dependency'] );
+					$this->text( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'textarea':
-					$this->textarea( $field['id'], $field['label'], $field['description'], $field['default'], $field['dependency'] );
+					$this->textarea( $field['id'], $field['label'], $field['description'], $field['default'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'custom':
-					$this->raw( $field['id'], $field['label'], $field['description'], $field['dependency'] );
+					$this->raw( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'hidden':
 					$this->hidden( $field['id'], $field['default'] );
 					break;
 				case 'slider':
-					$this->range( $field['id'], $field['label'], $field['description'], $field['choices']['min'], $field['choices']['max'], $field['choices']['step'], $field['default'], '', $field['dependency'] );
+					$this->range( $field['id'], $field['label'], $field['description'], $field['choices']['min'], $field['choices']['max'], $field['choices']['step'], $field['default'], '', $field['dependency'], null, $field['responsive'] );
 					break;
 				case 'sortable':
-					$this->sortable( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'] );
+					$this->sortable( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'], $field['responsive'] );
+					break;
+				case 'layout_conditions':
+					$this->layout_conditions( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'hubspot_map':
-					$this->hubspot_map( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'] );
+					$this->hubspot_map( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'], $field['responsive'] );
 					break;
 				case 'mailchimp_map':
-					$this->mailchimp_map( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'] );
+					$this->mailchimp_map( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'], $field['responsive'] );
 					break;
 				case 'repeater':
 					$labels = [
 						'row_add'   => $field['row_add'],
 						'row_title' => $field['row_title'],
 					];
-					$this->repeater( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['fields'], $field['bind_title'], $labels );
+					$this->repeater( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['fields'], $field['bind_title'], $labels, $field['responsive'] );
+					break;
+				case 'iconpicker':
+					$this->iconpicker( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
 			}
 		}
@@ -556,23 +578,32 @@ class PyreThemeFrameworkMetaboxes {
 	public function render_option_tabs( $requested_tabs, $post_type = 'default' ) {
 		$screen = get_current_screen();
 
-		$tabs_names = [
-			'sliders'           => esc_html__( 'Sliders', 'Avada' ),
-			'page'              => esc_html__( 'Layout', 'Avada' ),
-			'post'              => 'avada_faq' === $screen->post_type ? esc_html__( 'FAQ', 'Avada' ) : esc_html__( 'Post', 'Avada' ),
-			'header'            => esc_html__( 'Header', 'Avada' ),
-			'content'           => esc_html__( 'Content', 'Avada' ),
-			'sidebars'          => esc_html__( 'Sidebars', 'Avada' ),
-			'pagetitlebar'      => esc_html__( 'Page Title Bar', 'Avada' ),
-			'portfolio_post'    => esc_html__( 'Portfolio', 'Avada' ),
-			'product'           => esc_html__( 'Product', 'Avada' ),
-			'template'          => 'fusion_element' === $screen->post_type ? esc_html__( 'Post Card', 'Avada' ) : esc_html__( 'Layout Section', 'Avada' ),
-			'form_submission'   => esc_html__( 'Submission', 'Avada' ),
-			'form_confirmation' => esc_html__( 'Confirmation', 'Avada' ),
-			'form_appearance'   => esc_html__( 'Appearance', 'Avada' ),
-			'form_privacy'      => esc_html__( 'Privacy', 'Avada' ),
-			'footer'            => esc_html__( 'Footer', 'Avada' ),
-			'studio'            => esc_html__( 'Studio', 'Avada' ),
+		$preview_types = [ 'fusion_element', 'awb_off_canvas' ];
+		$tabs_names    = [
+			'sliders'                 => esc_html__( 'Sliders', 'Avada' ),
+			'page'                    => esc_html__( 'Layout', 'Avada' ),
+			'post'                    => 'avada_faq' === $screen->post_type ? esc_html__( 'FAQ', 'Avada' ) : esc_html__( 'Post', 'Avada' ),
+			'header'                  => esc_html__( 'Header', 'Avada' ),
+			'content'                 => esc_html__( 'Content', 'Avada' ),
+			'sidebars'                => esc_html__( 'Sidebars', 'Avada' ),
+			'pagetitlebar'            => esc_html__( 'Page Title Bar', 'Avada' ),
+			'portfolio_post'          => esc_html__( 'Portfolio', 'Avada' ),
+			'product'                 => esc_html__( 'Product', 'Avada' ),
+			'template'                => in_array( $screen->post_type, $preview_types, true ) ? esc_html__( 'Preview', 'Avada' ) : esc_html__( 'Layout Section', 'Avada' ),
+			'form_submission'         => esc_html__( 'Submission', 'Avada' ),
+			'form_confirmation'       => esc_html__( 'Confirmation', 'Avada' ),
+			'form_appearance'         => esc_html__( 'Appearance', 'Avada' ),
+			'form_privacy'            => esc_html__( 'Privacy', 'Avada' ),
+			'footer'                  => esc_html__( 'Footer', 'Avada' ),
+			'studio'                  => esc_html__( 'Studio', 'Avada' ),
+			'off_canvas_general'      => esc_html__( 'General', 'Avada' ),
+			'off_canvas_design'       => esc_html__( 'Design', 'Avada' ),
+			'off_canvas_overlay'      => esc_html__( 'Overlay', 'Avada' ),
+			'off_canvas_close_button' => esc_html__( 'Close Button', 'Avada' ),
+			'off_canvas_animation'    => esc_html__( 'Animation', 'Avada' ),
+			'off_canvas_conditions'   => esc_html__( 'Conditions', 'Avada' ),
+			'off_canvas_triggers'     => esc_html__( 'Triggers', 'Avada' ),
+			'off_canvas_rules'        => esc_html__( 'Rules', 'Avada' ),
 		];
 
 		$tabs = [
@@ -608,6 +639,33 @@ class PyreThemeFrameworkMetaboxes {
 				}
 				if ( function_exists( 'avada_page_options_tab_' . $tab_name ) ) {
 					$tab_data = call_user_func( 'avada_page_options_tab_' . $tab_name, [] );
+					$tab_data = apply_filters( 'awb_metaboxes_sections', $tab_data );
+
+					if ( isset( $tab_data[ $tab_name ]['responsive'] ) && true === $tab_data[ $tab_name ]['responsive'] ) {
+						?>
+						<ul class="fusion-viewport-indicator">
+							<li class="fusion-viewport-text">
+								<?php esc_html_e( 'responsive', 'fusion-builder' ); ?>
+							</li>
+							<li data-viewport="fusion-small">
+								<a  href="JavaScript:void(0);">
+									<i class="fusiona-mobile"></i>
+								</a>
+							</li>
+							<li data-viewport="fusion-medium">
+								<a href="JavaScript:void(0);">
+									<i class="fusiona-tablet"></i>
+								</a>
+							</li>
+							<li data-viewport="fusion-large" class="active">
+								<a href="JavaScript:void(0);">
+									<i class="fusiona-desktop"></i>
+								</a>
+							</li>
+						</ul>
+						<?php
+					}
+
 					$this->render_tab_fields( $tab_data[ $tab_name ], false );
 				}
 				?>
@@ -628,12 +686,13 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $label      The label.
 	 * @param string $desc       The description.
 	 * @param array  $dependency The dependencies array.
+	 * @param mixed  $responsive The responsive param data.
 	 */
-	public function text( $id, $label, $desc = '', $dependency = [] ) {
+	public function text( $id, $label, $desc = '', $dependency = [], $responsive = false ) {
 		global $post;
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -651,6 +710,63 @@ class PyreThemeFrameworkMetaboxes {
 	}
 
 	/**
+	 * Layout Conditions.
+	 *
+	 * @access public
+	 * @param string $id         The ID.
+	 * @param string $label      The label.
+	 * @param string $desc       The description.
+	 * @param array  $dependency The dependencies array.
+	 * @param mixed  $responsive The responsive param data.
+	 */
+	public function layout_conditions( $id, $label, $desc = '', $dependency = [], $responsive = false ) {
+		$value          = $this->get_value( $id );
+		$conditions     = json_decode( $value );
+		$has_conditions = is_object( $conditions ) && count( (array) $conditions ) ? true : false;
+		?>
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
+			<?php // No need to sanitize this, we already know what's in here. ?>
+			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+			<div class="pyre_desc">
+				<label for="pyre_<?php echo esc_attr( $id ); ?>"><?php echo esc_textarea( $label ); ?></label>
+				<?php if ( $desc ) : ?>
+					<p><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
+				<?php endif; ?>
+			</div>
+			<div class="pyre_field">
+				<span class="awb-off-canvas-conditions-constoller <?php echo $has_conditions ? 'has-conditions' : ''; ?>">
+					<span class="awb-conditions">
+						<ul>
+							<li class="no-condition-select"><?php echo __( 'Display on Entire Site', 'fusion-builder' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+						<?php
+						if ( $has_conditions ) {
+							foreach ( $conditions as $condition ) {
+								?>
+								<li class="<?php echo $condition->mode; // phpcs:ignore WordPress.Security.EscapeOutput ?>"><?php echo $condition->label; // phpcs:ignore WordPress.Security.EscapeOutput ?></li>
+								<?php
+							}
+						}
+						?>
+					</ul>
+				</span>
+			</span>
+			<div class="awb-manage-conditions-wrapper">
+				<a href="#" id="awb-manage-conditions" class="button button-primary awb-manage-conditions"><i class="fusiona-cog"></i> <?php echo __( 'Manage Conditions', 'fusion-builder' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+			</div>
+				<?php
+				if ( is_array( $value ) ) {
+					$value = wp_json_encode( $value );
+				}
+				?>
+				<input type="hidden" id="pyre_<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $this->format_option_name( $id ) ); ?>" value="<?php echo esc_attr( $value ); ?>" class="awb-conditions-value">
+				<input type="hidden" id="layout-conditions-nonce" value="<?php echo wp_create_nonce( 'fusion_tb_new_layout' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>">
+			</div>
+		</div>
+		<?php
+
+	}
+
+	/**
 	 * Select controls.
 	 *
 	 * @access public
@@ -661,8 +777,9 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $default    The default value..
 	 * @param array  $dependency The dependencies array.
 	 * @param string $repeater   Used for repeater fields.
+	 * @param mixed  $responsive The responsive param data.
 	 */
-	public function select( $id, $label, $options, $desc = '', $default = '', $dependency = [], $repeater = false ) {
+	public function select( $id, $label, $options, $desc = '', $default = '', $dependency = [], $repeater = false, $responsive = false ) {
 		global $post;
 		$repeater = $repeater ? 'repeater' : '';
 		$db_value = $this->get_value( $id );
@@ -671,7 +788,7 @@ class PyreThemeFrameworkMetaboxes {
 
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -703,8 +820,9 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param boolean $alpha      Whether or not to show alpha.
 	 * @param array   $dependency The dependencies array.
 	 * @param string  $default    Default value from TO.
+	 * @param mixed   $responsive The responsive param data.
 	 */
-	public function color( $id, $label, $desc = '', $alpha = false, $dependency = [], $default = '' ) {
+	public function color( $id, $label, $desc = '', $alpha = false, $dependency = [], $default = '', $responsive = false ) {
 		global $post;
 		$styling_class = ( $alpha ) ? 'colorpickeralpha' : 'colorpicker';
 
@@ -716,7 +834,7 @@ class PyreThemeFrameworkMetaboxes {
 		}
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -747,15 +865,16 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string|int|float $value      The value.
 	 * @param array            $dependency The dependencies array.
 	 * @param mixed            $recommendation The recommended value.
+	 * @param mixed            $responsive The responsive param data.
 	 */
-	public function range( $id, $label, $desc = '', $min = 0, $max = 0, $step = 1, $default = 0, $value = '', $dependency = [], $recommendation = null ) {
+	public function range( $id, $label, $desc = '', $min = 0, $max = 0, $step = 1, $default = 0, $value = '', $dependency = [], $recommendation = null, $responsive = false ) {
 		global $post;
 		if ( isset( $default ) && '' !== $default ) {
 			$desc .= '  <span class="pyre-default-reset"><a href="#" id="default-' . $id . '" class="fusion-range-default fusion-hide-from-atts" type="radio" name="' . $id . '" value="" data-default="' . $default . '">' . esc_attr__( 'Reset to default.', 'Avada' ) . '</a><span>' . esc_attr__( 'Using default value.', 'Avada' ) . '</span></span>';
 		}
 		?>
 
-		<div class="pyre_metabox_field"<?php echo ( null === $recommendation ? '' : ' data-recommendation="' . esc_attr( $recommendation ) . '"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>"<?php echo ( null === $recommendation ? '' : ' data-recommendation="' . esc_attr( $recommendation ) . '"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -803,15 +922,17 @@ class PyreThemeFrameworkMetaboxes {
 	 * Radio button set field.
 	 *
 	 * @since 5.0.0
-	 * @param string           $id         ID of input field.
-	 * @param string           $label      Label of field.
-	 * @param array            $options    Options to select from.
-	 * @param string           $desc       Description of field.
-	 * @param string|int|float $default    The default value.
-	 * @param array            $dependency The dependencies array.
+	 * @param string           $id             ID of input field.
+	 * @param string           $label          Label of field.
+	 * @param array            $options        Options to select from.
+	 * @param string           $desc           Description of field.
+	 * @param string|int|float $default        The default value.
+	 * @param array            $dependency     The dependencies array.
 	 * @param mixed            $recommendation The recommended value.
+	 * @param mixed            $responsive     The responsive param data.
+	 * @param array            $icons          List of icons.
 	 */
-	public function radio_buttonset( $id, $label, $options, $desc = '', $default = '', $dependency = [], $recommendation = null ) {
+	public function radio_buttonset( $id, $label, $options, $desc = '', $default = '', $dependency = [], $recommendation = null, $responsive = false, $icons = [] ) {
 		global $post;
 		$options_reset = $options;
 
@@ -824,7 +945,7 @@ class PyreThemeFrameworkMetaboxes {
 		$value = ( '' == $this->get_value( $id ) ) ? $default : $this->get_value( $id ); // phpcs:ignore WordPress.PHP.StrictComparisons
 		?>
 
-		<div class="pyre_metabox_field"<?php echo ( null === $recommendation ? '' : ' data-recommendation="' . esc_attr( $recommendation ) . '"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>"<?php echo ( null === $recommendation ? '' : ' data-recommendation="' . esc_attr( $recommendation ) . '"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -836,9 +957,16 @@ class PyreThemeFrameworkMetaboxes {
 			<div class="pyre_field avada-buttonset radio">
 				<div class="fusion-form-radio-button-set ui-buttonset">
 					<input type="hidden" id="pyre_<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $this->format_option_name( $id ) ); ?>" value="<?php echo esc_attr( $value ); ?>" class="button-set-value" />
-					<?php foreach ( $options as $key => $option ) : ?>
-						<?php $selected = ( $key == $value ) ? ' ui-state-active' : ''; // phpcs:ignore WordPress.PHP.StrictComparisons ?>
-						<a href="#" class="ui-button buttonset-item<?php echo esc_attr( $selected ); ?>" data-value="<?php echo esc_attr( $key ); ?>"><?php echo esc_attr( $option ); ?></a>
+					<?php
+					foreach ( $options as $key => $option ) :
+						$classes  = '';
+						$classes .= ( $key == $value ) ? ' ui-state-active' : ''; // phpcs:ignore WordPress.PHP.StrictComparisons
+						$content  = isset( $icons[ $key ] ) && ! empty( $icons[ $key ] ) ? $icons[ $key ] : esc_attr( $option );
+						$tooltip  = isset( $icons[ $key ] ) && ! empty( $icons[ $key ] ) ? $option : '';
+						$classes .= '' !== $tooltip ? ' has-tooltip' : '';
+
+						?>
+						<a href="#" class="ui-button buttonset-item<?php echo esc_attr( $classes ); ?>" aria-label="<?php echo esc_attr( $tooltip ); ?>" data-value="<?php echo esc_attr( $key ); ?>"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 					<?php endforeach; ?>
 				</div>
 			</div>
@@ -857,8 +985,9 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string           $desc       Description of field.
 	 * @param string|int|float $default    The default value.
 	 * @param array            $dependency The dependencies array.
+	 * @param mixed            $responsive The responsive param data.
 	 */
-	public function checkbox_buttonset( $id, $label, $options, $desc = '', $default = '', $dependency = [] ) {
+	public function checkbox_buttonset( $id, $label, $options, $desc = '', $default = '', $dependency = [], $responsive = false ) {
 		global $post;
 		$options_reset = $options;
 
@@ -872,7 +1001,7 @@ class PyreThemeFrameworkMetaboxes {
 		$value = ! is_array( $value ) ? explode( ',', $value ) : $value;
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -904,12 +1033,13 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $label      Label of field.
 	 * @param string $desc       Description of field.
 	 * @param array  $dependency The dependencies array.
+	 * @param mixed  $responsive The responsive param data.
 	 */
-	public function dimension( $main_id, $ids, $label, $desc = '', $dependency = [] ) {
+	public function dimension( $main_id, $ids, $label, $desc = '', $dependency = [], $responsive = false ) {
 		global $post;
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -924,7 +1054,7 @@ class PyreThemeFrameworkMetaboxes {
 					$display_value = $this->get_value( "{$main_id}[{$field_id}]" );
 					$display_value = ( ( '' == $display_value ) ? $default : $display_value ); // phpcs:ignore WordPress.PHP.StrictComparisons
 					$icon_class    = 'fusiona-expand width';
-					if ( false !== strpos( $field_id, 'height' ) ) {
+					if ( false !== strpos( $field_id, 'height' ) || false !== strpos( $field_id, 'vertical' ) ) {
 						$icon_class = 'fusiona-expand  height';
 					}
 					if ( false !== strpos( $field_id, 'top' ) ) {
@@ -939,6 +1069,10 @@ class PyreThemeFrameworkMetaboxes {
 					if ( false !== strpos( $field_id, 'left' ) ) {
 						$icon_class = 'dashicons dashicons-arrow-left-alt';
 					}
+					if ( false !== strpos( $field_id, 'top_left' ) ) {
+						$icon_class = 'dashicons dashicons-arrow-up-alt';
+					}
+
 					?>
 					<div class="fusion-builder-dimension">
 						<span class="add-on"><i class="<?php echo esc_attr( $icon_class ); ?>" aria-hidden="true"></i></span>
@@ -965,13 +1099,14 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $placeholder The placeholder for our select field.
 	 * @param string $repeater    Used for repeater fields.
 	 * @param mixed  $recommendation The recommended value.
+	 * @param mixed  $responsive     The responsive param data.
 	 */
-	public function multiple( $id, $label, $options, $desc = '', $dependency = [], $ajax = false, $ajax_params = [], $max_input = 1000, $placeholder = '', $repeater = false, $recommendation = null ) {
+	public function multiple( $id, $label, $options, $desc = '', $dependency = [], $ajax = false, $ajax_params = [], $max_input = 1000, $placeholder = '', $repeater = false, $recommendation = null, $responsive = false ) {
 		global $post;
 		$repeater = $repeater ? 'repeater' : '';
 		?>
 
-		<div class="pyre_metabox_field"<?php echo ( null === $recommendation ? '' : ' data-recommendation="' . esc_attr( $recommendation ) . '"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>"<?php echo ( null === $recommendation ? '' : ' data-recommendation="' . esc_attr( $recommendation ) . '"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -1008,8 +1143,9 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $desc       Description of field.
 	 * @param string $default    The default value.
 	 * @param array  $dependency The dependencies array.
+	 * @param mixed  $responsive The responsive param data.
 	 */
-	public function textarea( $id, $label, $desc = '', $default = '', $dependency = [] ) {
+	public function textarea( $id, $label, $desc = '', $default = '', $dependency = [], $responsive = false ) {
 		global $post;
 
 		$db_value = $this->get_value( $id );
@@ -1023,7 +1159,7 @@ class PyreThemeFrameworkMetaboxes {
 		}
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -1047,12 +1183,13 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $label      Label of field.
 	 * @param string $desc       Description of field.
 	 * @param array  $dependency The dependencies array.
+	 * @param mixed  $responsive The responsive param data.
 	 */
-	public function upload( $id, $label, $desc = '', $dependency = [] ) {
+	public function upload( $id, $label, $desc = '', $dependency = [], $responsive = false ) {
 		global $post;
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -1111,8 +1248,9 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string       $desc       The description.
 	 * @param array        $dependency The dependencies array.
 	 * @param string|array $default    The default value.
+	 * @param mixed        $responsive The responsive param data.
 	 */
-	public function sortable( $id, $label, $options, $desc = '', $dependency = [], $default = '' ) {
+	public function sortable( $id, $label, $options, $desc = '', $dependency = [], $default = '', $responsive = false ) {
 		global $post;
 		$sort_order_saved = $this->get_value( $id );
 		$sort_order_saved = ( ! $sort_order_saved ) ? '' : $sort_order_saved;
@@ -1120,7 +1258,7 @@ class PyreThemeFrameworkMetaboxes {
 		$sort_order       = ( is_array( $sort_order ) ) ? $sort_order : explode( ',', $sort_order );
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -1159,18 +1297,19 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param array  $fields     An array of fields.
 	 * @param string $bind_title What should be used for the title.
 	 * @param array  $labels     An array of our labels.
+	 * @param mixed  $responsive The responsive param data.
 	 */
-	public function repeater( $id, $label, $desc = '', $dependency = [], $fields = [], $bind_title = '', $labels = [] ) {
+	public function repeater( $id, $label, $desc = '', $dependency = [], $fields = [], $bind_title = '', $labels = [], $responsive = false ) {
 		global $post;
 		$add_label   = isset( $labels['row_add'] ) ? $labels['row_add'] : __( 'Add New', 'Avada' );
 		$title_label = isset( $labels['row_title'] ) ? $labels['row_title'] : __( 'Repeater Row', 'Avada' );
-		$value       = fusion_data()->post_meta( $post->ID )->get( $id );
+		$value       = 'awb_pages' === $id ? '' : fusion_data()->post_meta( $post->ID )->get( $id );
 		if ( is_array( $value ) ) {
 			$value = wp_json_encode( $value );
 		}
 		?>
 
-		<div class="pyre_metabox_field fusion-repeater-wrapper">
+		<div class="pyre_metabox_field fusion-repeater-wrapper<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -1210,15 +1349,16 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string       $desc       The description.
 	 * @param array        $dependency The dependencies array.
 	 * @param string|array $default    The default value.
+	 * @param mixed        $responsive The responsive param data.
 	 */
-	public function hubspot_map( $id, $label, $options, $desc = '', $dependency = [], $default = '' ) {
+	public function hubspot_map( $id, $label, $options, $desc = '', $dependency = [], $default = '', $responsive = false ) {
 		$value = $this->get_value( $id );
 		if ( is_array( $value ) ) {
 			$value = wp_json_encode( $value );
 		}
 		?>
 
-		<div class="pyre_metabox_field fusion-hubspot-option">
+		<div class="pyre_metabox_field fusion-hubspot-option<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -1251,15 +1391,16 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string       $desc       The description.
 	 * @param array        $dependency The dependencies array.
 	 * @param string|array $default    The default value.
+	 * @param mixed        $responsive The responsive param data.
 	 */
-	public function mailchimp_map( $id, $label, $options, $desc = '', $dependency = [], $default = '' ) {
+	public function mailchimp_map( $id, $label, $options, $desc = '', $dependency = [], $default = '', $responsive = false ) {
 		$value = $this->get_value( $id );
 		if ( is_array( $value ) ) {
 			$value = wp_json_encode( $value );
 		}
 		?>
 
-		<div class="pyre_metabox_field fusion-mailchimp-option">
+		<div class="pyre_metabox_field fusion-mailchimp-option<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc">
@@ -1280,6 +1421,42 @@ class PyreThemeFrameworkMetaboxes {
 		<?php
 
 	}
+		/**
+		 * Icon field.
+		 *
+		 * @access public
+		 * @since 6.0.0
+		 * @param string $id         ID of input field.
+		 * @param string $label      Label of field.
+		 * @param string $desc       Description of field.
+		 * @param array  $dependency The dependencies array.
+		 * @param mixed  $responsive The responsive param data.
+		 */
+	public function iconpicker( $id, $label, $desc = '', $dependency = [], $responsive = false ) {
+		?>
+			<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> iconpicker fusion-builder-option field-<?php echo esc_attr( $id ); ?>">
+				<div class="pyre_desc">
+				<label for="pyre_<?php echo esc_attr( $id ); ?>"><?php echo esc_textarea( $label ); ?></label>
+				<?php if ( $desc ) : ?>
+						<p><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
+					<?php endif; ?>
+				</div>
+				<div class="pyre_field fusion-iconpicker">
+						<input class="fusion-iconpicker-input" type="hidden" id="pyre_<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $this->format_option_name( $id ) ); ?>" value="<?php echo esc_attr( $this->get_value( $id ) ); ?>" />
+						<div class="fusion-iconpicker-preview">
+							<input type="text" class="fusion-icon-search fusion-hide-from-atts fusion-dont-update" placeholder="<?php echo esc_attr__( 'Search Icons', 'Avada' ); ?>" />
+							<span class="input-icon fusiona-search"></span>
+							<span class="add-custom-icons">
+								<a href="<?php echo esc_url( admin_url( '/post-new.php?post_type=fusion_icons' ) ); ?>" target="_blank" class="fusiona-plus"></a>
+							</span>
+						</div>
+						<div class="fusion-iconselect-wrapper">
+							<div class="icon_select_container"></div>
+						</div>
+				</div>
+			</div>
+			<?php
+	}
 
 	/**
 	 * Dependency markup.
@@ -1296,7 +1473,7 @@ class PyreThemeFrameworkMetaboxes {
 		}
 
 		$data_dependency = '';
-		if ( 0 < count( $dependency ) ) {
+		if ( is_array( $dependency ) && 0 < count( $dependency ) ) {
 			$data_dependency .= '<div class="avada-dependency">';
 			foreach ( $dependency as $dependence ) {
 				$data_dependency .= '<span class="hidden" data-value="' . $dependence['value'] . '" data-field="' . $dependence['field'] . '" data-comparison="' . $dependence['comparison'] . '"></span>';
@@ -1314,12 +1491,13 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $label      Label of field.
 	 * @param string $desc       Description of field.
 	 * @param array  $dependency The dependencies array.
+	 * @param mixed  $responsive The responsive param data.
 	 */
-	public function raw( $id, $label, $desc = '', $dependency = [] ) {
+	public function raw( $id, $label, $desc = '', $dependency = [], $responsive = false ) {
 		global $post;
 		?>
 
-		<div class="pyre_metabox_field">
+		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<?php // No need to sanitize this, we already know what's in here. ?>
 			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<div class="pyre_desc_raw">
@@ -1346,6 +1524,124 @@ class PyreThemeFrameworkMetaboxes {
 			return false;
 		}
 		return ! empty( fusion_data()->post_meta( $post->ID )->get_all_meta() );
+	}
+
+	/**
+	 * Filters sections to add responsive params.
+	 *
+	 * @access public
+	 * @since 7.6.0
+	 * @param array $sections The existing sections.
+	 * @return array
+	 */
+	public function filter_sections( $sections ) {
+		$responsive_atts = [];
+
+		// Check if responsive params exists.
+		foreach ( $sections as $key => $section ) {
+			if ( isset( $section['fields'] ) && is_array( $section['fields'] ) ) {
+				foreach ( $section['fields'] as $field ) {
+					if ( isset( $field['responsive'] ) ) {
+						$responsive_atts[ $key ][] = [
+							'id'          => $field['id'],
+							'description' => $field['description'],
+							'args'        => $field['responsive'],
+						];
+					}
+				}
+			}
+		}
+
+		// Add responsive.
+		if ( 0 < count( $responsive_atts ) ) {
+			$sections = apply_filters( 'awb_responsive_params', $responsive_atts, $sections );
+		}
+
+		return $sections;
+	}
+
+	/**
+	 * Adds responsive params.
+	 *
+	 * @access public
+	 * @since 7.6.0
+	 * @param array $responsive_sections The responsive section.
+	 * @param array $sections            The params.
+	 * @return array
+	 */
+	public function add_responsive_params( $responsive_sections, $sections ) {
+
+		foreach ( $responsive_sections as $key => $fields ) {
+			foreach ( $fields as $att ) {
+				$position          = array_search( $att['id'], array_keys( $sections[ $key ]['fields'] ), true );
+				$states            = isset( $att['args']['additional_states'] ) ? $att['args']['additional_states'] : [ 'medium', 'small' ];
+				$responsive_params = [];
+
+				foreach ( $states as $state ) {
+					$param                        = $sections[ $key ]['fields'][ $att['id'] ];
+					$param['id']                  = $att['id'] . '_' . $state;
+					$param['description']         = $att['description'];
+					$param['responsive']['state'] = $state;
+					$param                        = self::add_responsive_values_data( $param, $state );
+
+					if ( isset( $att['args']['default_value'] ) && true === $att['args']['default_value'] ) {
+						$param['value']   = [ '' => 'Default' ] + $param['value'];
+						$param['default'] = '';
+					}
+
+					if ( isset( $att['args']['defaults'][ $state ] ) ) {
+						$param['default'] = $att['args']['defaults'][ $state ];
+					}
+
+					if ( isset( $att['args']['values'][ $state ] ) ) {
+						$param['value'] = $att['args']['values'][ $state ];
+					}
+
+					if ( isset( $att['args']['descriptions'][ $state ] ) ) {
+						$param['description'] = $att['args']['descriptions'][ $state ];
+					}
+
+					$responsive_params[ $param['id'] ] = $param;
+				}
+
+				$position_2 = $position;
+
+				if ( isset( $att['args']['exclude_main_state'] ) && true === $att['args']['exclude_main_state'] ) {
+					$position_2 = $position + 1;
+				}
+
+				// Insert responsive params.
+				$sections[ $key ]['responsive'] = true;
+				$sections[ $key ]['fields']     = array_merge( array_slice( $sections[ $key ]['fields'], 0, $position ), $responsive_params, array_slice( $sections[ $key ]['fields'], $position_2 ) );
+			}
+		}
+
+		return $sections;
+	}
+
+	/**
+	 * Adds responsive values data.
+	 *
+	 * @since 7.6
+	 * @access public
+	 * @param array  $param Element params.
+	 * @param string $state Responsive state.
+	 * @return array
+	 */
+	public function add_responsive_values_data( $param, $state ) {
+
+		if ( isset( $param['type'] ) && isset( $param['value'] ) ) {
+			switch ( $param['type'] ) {
+				case 'dimensions':
+					foreach ( $param['value'] as $key => $value ) {
+						$param['value'][ $key . '_' . $state ] = $value;
+						unset( $param['value'][ $key ] );
+					}
+					break;
+			}
+		}
+
+		return $param;
 	}
 }
 

@@ -388,10 +388,21 @@ function fusion_component_woo_checkout_order_review() {
 		fusion_builder_frontend_data(
 			'FusionTB_Woo_Checkout_Order_Review',
 			[
-				'name'      => esc_attr__( 'Woo Checkout Order Review', 'fusion-builder' ),
-				'shortcode' => 'fusion_tb_woo_checkout_order_review',
-				'icon'      => 'fusiona-checkout-order-review',
-				'params'    => [
+				'name'         => esc_attr__( 'Woo Checkout Order Review', 'fusion-builder' ),
+				'shortcode'    => 'fusion_tb_woo_checkout_order_review',
+				'icon'         => 'fusiona-checkout-order-review',
+				'subparam_map' => [
+					'header_font_size'                => 'header_fonts',
+					'fusion_font_family_header_font'  => 'header_fonts',
+					'fusion_font_variant_header_font' => 'header_fonts',
+					'text_font_size'                  => 'text_fonts',
+					'fusion_font_family_text_font'    => 'text_fonts',
+					'fusion_font_variant_text_font'   => 'text_fonts',
+					'footer_font_size'                => 'footer_fonts',
+					'fusion_font_family_footer_font'  => 'footer_fonts',
+					'fusion_font_variant_footer_font' => 'footer_fonts',
+				],
+				'params'       => [
 					[
 						'type'             => 'dimension',
 						'remove_from_atts' => true,
@@ -498,15 +509,23 @@ function fusion_component_woo_checkout_order_review() {
 						],
 					],
 					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Header Cell Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the header.', 'fusion-builder' ),
-						'param_name'       => 'header_font',
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Header Cell Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the header text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'header_fonts',
+						'choices'          => [
+							'font-family'    => 'header_font',
+							'font-size'      => 'header_font_size',
+							'text-transform' => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
 						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 						'dependency'       => [
 							[
@@ -516,24 +535,6 @@ function fusion_component_woo_checkout_order_review() {
 							],
 						],
 						'callback'         => [
-							'function' => 'fusion_style_block',
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Header Cell Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'header_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'table_header',
-								'value'    => 'show',
-								'operator' => '==',
-							],
-						],
-						'callback'    => [
 							'function' => 'fusion_style_block',
 						],
 					],
@@ -560,28 +561,25 @@ function fusion_component_woo_checkout_order_review() {
 						],
 					],
 					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Table Cell Text Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the text.', 'fusion-builder' ),
-						'param_name'       => 'text_font',
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Table Cell Text Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'text_fonts',
+						'choices'          => [
+							'font-family'    => 'text_font',
+							'font-size'      => 'text_font_size',
+							'text-transform' => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
 						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'         => [
-							'function' => 'fusion_style_block',
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Table Cell Text Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'text_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'    => [
 							'function' => 'fusion_style_block',
 						],
 					],
@@ -608,28 +606,25 @@ function fusion_component_woo_checkout_order_review() {
 						],
 					],
 					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Footer Cell Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the footer cells.', 'fusion-builder' ),
-						'param_name'       => 'footer_font',
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Footer Cell Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the footer text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'footer_fonts',
+						'choices'          => [
+							'font-family'    => 'footer_font',
+							'font-size'      => 'footer_font_size',
+							'text-transform' => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
 						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'         => [
-							'function' => 'fusion_style_block',
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Footer Cell Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'footer_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'    => [
 							'function' => 'fusion_style_block',
 						],
 					],
@@ -659,7 +654,7 @@ function fusion_component_woo_checkout_order_review() {
 						'preview_selector' => '.fusion-woo-checkout-order-review-tb',
 					],
 				],
-				'callback'  => [
+				'callback'     => [
 					'function' => 'fusion_ajax',
 					'action'   => 'get_fusion_tb_woo_checkout_order_review',
 					'ajax'     => true,

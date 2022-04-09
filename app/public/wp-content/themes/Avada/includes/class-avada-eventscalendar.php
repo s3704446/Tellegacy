@@ -15,6 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'Direct script access denied.' );
 }
 
+use Tribe\Events\Views\V2\Template_Bootstrap;
+
 /**
  * Handles the Events-Calendar implementation.
  */
@@ -233,7 +235,7 @@ class Avada_EventsCalendar {
 			[
 				'label'       => __( 'NOTE', 'Avada' ),
 				/* translators: EC Customizer notice. */
-				'description' => sprintf( __( 'You can control the post title color from Avada\`s Global Options panel through the <a href="%1$s" target="_blank">Events Primary Color Overlay Text Color</a> setting. Avada has additional <a href="%2$s" target="_blank">Event Calendar settings</a> in Global Options.', 'Avada' ), Avada()->settings->get_setting_link( 'primary_overlay_text_color' ), Avada()->settings->get_setting_link( 'primary_overlay_text_color' ) ),
+				'description' => sprintf( __( 'You can control the post title color from the Avada Global Options panel through the <a href="%1$s" target="_blank">Events Primary Color Overlay Text Color</a> setting. Avada has additional <a href="%2$s" target="_blank">Event Calendar settings</a> in Global Options.', 'Avada' ), Avada()->settings->get_setting_link( 'primary_overlay_text_color' ), Avada()->settings->get_setting_link( 'primary_overlay_text_color' ) ),
 				'section'     => $section->id,
 				'settings'    => $customizer->get_setting_name( 'avada_ec_notice_post_title_color', $section ),
 				'type'        => 'hidden',
@@ -397,7 +399,7 @@ class Avada_EventsCalendar {
 	}
 
 	/**
-	 * Change headings from h2 to h3.
+	 * Change headings from h2 to h4.
 	 *
 	 * @access public
 	 * @since 5.6
@@ -424,7 +426,7 @@ class Avada_EventsCalendar {
 	 * @return string The altered contents.
 	 */
 	public function single_events_blocks_sharing_box( $content ) {
-		if ( Fusion_Helper::tribe_is_event() && has_blocks() ) {
+		if ( tribe( Template_Bootstrap::class )->is_single_event() && has_blocks() && tribe( 'editor' )->is_events_using_blocks() ) {
 			ob_start();
 			avada_render_social_sharing( 'events' );
 			$sharing_box = ob_get_clean();
@@ -465,5 +467,5 @@ class Avada_EventsCalendar {
 	 */
 	public function enable_layout_builder( $event_id, $event, $template ) {
 		add_filter( 'the_content', 'do_shortcode', 999 );
-	}   
+	}
 }

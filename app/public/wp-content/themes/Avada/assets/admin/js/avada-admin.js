@@ -75,7 +75,6 @@ jQuery( document ).ready( function() {
 		try {
 			jQuery( '.debug-report' ).slideDown();
 			jQuery( '.debug-report textarea' ).val( report ).focus().select();
-			jQuery( this ).parent().fadeOut();
 			return false;
 		} catch ( e ) {} // eslint-disable-line no-empty
 

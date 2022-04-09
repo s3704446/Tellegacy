@@ -5,7 +5,7 @@
  * Plugin Name: Fusion Library
  *
  * @package Fusion-Library
- * @version 3.4.1
+ * @version 3.6.1
  */
 
 // Do not allow directly accessing this file.
@@ -21,7 +21,7 @@ if ( ! defined( 'FUSION_UPDATES_URL' ) ) {
 	define( 'FUSION_UPDATES_URL', 'https://updates.theme-fusion.com' );
 }
 // Don't use a constant, we need this as a simple var.
-$current_version = '3.4.1';
+$current_version = '3.6.1';
 global $fusion_library_latest_version;
 if ( ! $fusion_library_latest_version ) {
 	$fusion_library_latest_version = $current_version;

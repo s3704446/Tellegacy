@@ -446,6 +446,21 @@ class Fusion_Settings {
 					$setting_value = implode( '|', $setting_value );
 				}
 			}
+
+			// If we have a color global variable.
+			if ( function_exists( 'AWB_Global_Colors' ) ) {
+				$global_color_class = AWB_Global_Colors();
+				$color_slug         = is_string( $setting_value ) ? $global_color_class->get_color_slug_from_css_var( $setting_value ) : false;
+				if ( $color_slug ) {
+					$color_object = $global_color_class->get_color_by_slug( $color_slug );
+					if ( ! $color_object ) {
+						$color_object = $global_color_class->get_fallback_error_color();
+					}
+
+					$setting_value = $color_object['label'];
+				}
+			}
+
 			$setting_link = '<a href="' . $this->get_setting_link( $setting, $subset ) . '" target="_blank" rel="noopener noreferrer">' . $setting_value . '</a>';
 
 			if ( function_exists( 'fusion_is_builder_frame' ) && fusion_is_builder_frame() ) {

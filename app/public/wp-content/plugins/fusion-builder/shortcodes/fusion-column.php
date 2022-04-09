@@ -56,7 +56,7 @@ function fusion_element_column() {
 				'name'              => esc_attr__( 'Column', 'fusion-builder' ),
 				'shortcode'         => 'fusion_builder_column',
 				'hide_from_builder' => true,
-				'help_url'          => 'https://theme-fusion.com/documentation/fusion-builder/elements/column-element/',
+				'help_url'          => 'https://theme-fusion.com/documentation/avada/elements/column-element/',
 				'params'            => fusion_get_column_params(),
 				'subparam_map'      => fusion_get_column_subparam_map(),
 			]

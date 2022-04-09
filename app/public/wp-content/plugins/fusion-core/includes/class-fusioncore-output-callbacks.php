@@ -43,6 +43,6 @@ class FusionCore_Output_Callbacks {
 	 * @return string
 	 */
 	public static function portfolio_load_more_posts_button_bg_color_readable( $value ) {
-		return ( 140 < fusion_calc_color_brightness( $value ) ) ? '#333' : '#fff';
+		return ( 140 < Fusion_Color::new_color( $value )->brightness['level'] ) ? '#333' : '#fff';
 	}
 }

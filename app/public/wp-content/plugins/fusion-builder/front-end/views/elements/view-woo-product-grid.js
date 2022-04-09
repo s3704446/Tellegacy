@@ -268,7 +268,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					if ( 'shadow' !== values.grid_separator_style_type ) {
 						this.addCssProperty( selectors, 'border-color', values.grid_separator_color );
 					} else {
-						colors = jQuery.Color( values.grid_separator_color );
+						colors = jQuery.AWB_Color( values.grid_separator_color );
 						gradient = 'linear-gradient(to left, rgba({1}, {2}, {3}, 0) 0%, rgba({1}, {2}, {3}, 0) 15%, rgba({1}, {2}, {3}, 0.65) 50%, rgba({1}, {2}, {3}, 0) 85%, rgba({1}, {2}, {3}, 0) 100%)';
 						gradient = gradient.replace( /\{1\}/g, colors.red() ).replace( /\{2\}/g, colors.green() ).replace( /\{3\}/g, colors.blue() );
 						gradient_after = 'radial-gradient(ellipse at 50% -50%, rgba({1}, {2}, {3}, 0.5) 0, rgba(255, 255, 255, 0) 65%)';

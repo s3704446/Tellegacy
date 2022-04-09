@@ -419,8 +419,7 @@ if ( fusion_is_element_enabled( 'fusion_syntax_highlighter' ) ) {
 								'label'       => esc_attr__( 'Line Numbers Background Color', 'fusion-builder' ),
 								'description' => esc_attr__( 'Controls the background color for the line numbers. If left empty, color from selected theme will be used.', 'fusion-builder' ),
 								'id'          => 'syntax_highlighter_line_number_background_color',
-								'value'       => '',
-								'default'     => '',
+								'default'     => 'var(--awb-color2)',
 								'transport'   => 'postMessage',
 								'required'    => [
 									[
@@ -435,8 +434,7 @@ if ( fusion_is_element_enabled( 'fusion_syntax_highlighter' ) ) {
 								'label'       => esc_attr__( 'Line Numbers Text Color', 'fusion-builder' ),
 								'description' => esc_attr__( 'Controls the color for line number text. If left empty, color from selected theme will be used.', 'fusion-builder' ),
 								'id'          => 'syntax_highlighter_line_number_text_color',
-								'value'       => '',
-								'default'     => '',
+								'default'     => 'var(--awb-color8)',
 								'transport'   => 'postMessage',
 								'required'    => [
 									[
@@ -504,8 +502,7 @@ if ( fusion_is_element_enabled( 'fusion_syntax_highlighter' ) ) {
 								'description' => esc_attr__( 'Controls the background color for code highlight area.', 'fusion-builder' ),
 								'id'          => 'syntax_highlighter_background_color',
 								'transport'   => 'postMessage',
-								'value'       => '',
-								'default'     => '',
+								'default'     => 'var(--awb-color1)',
 							],
 							'syntax_highlighter_border_size' => [
 								'type'        => 'slider',
@@ -525,7 +522,7 @@ if ( fusion_is_element_enabled( 'fusion_syntax_highlighter' ) ) {
 								'label'       => esc_attr__( 'Border Color', 'fusion-builder' ),
 								'description' => esc_attr__( 'Controls the border color.', 'fusion-builder' ),
 								'id'          => 'syntax_highlighter_border_color',
-								'default'     => $fusion_settings->get( 'sep_color' ),
+								'default'     => 'var(--awb-color3)',
 								'transport'   => 'postMessage',
 								'required'    => [
 									[
@@ -612,7 +609,7 @@ function fusion_element_syntax_highlighter() {
 				'shortcode'   => 'fusion_syntax_highlighter',
 				'icon'        => 'fusiona-code',
 				'escape_html' => true,
-				'help_url'    => 'https://theme-fusion.com/documentation/fusion-builder/elements/syntax-highlighter-element/',
+				'help_url'    => 'https://theme-fusion.com/documentation/avada/elements/syntax-highlighter-element/',
 				'params'      => [
 					[
 						'type'        => 'code',

@@ -173,7 +173,7 @@ var fusionSanitize = {
 	 * @return {string} - RBGA color, ready to be used in CSS.
 	 */
 	color_alpha_set: function( value, adjustment ) {
-		var color  = jQuery.Color( value ),
+		var color  = jQuery.AWB_Color( value ),
 			adjust = Math.abs( adjustment );
 
 		if ( 1 < adjust ) {
@@ -222,6 +222,13 @@ var fusionSanitize = {
 						if ( arg[ 0 ].split( '[' )[ 1 ] && 'undefined' !== typeof settingVal[ arg[ 0 ].split( '[' )[ 1 ].replace( ']', '' ) ] ) {
 							settingVal = settingVal[ arg[ 0 ].split( '[' )[ 1 ].replace( ']', '' ) ];
 						}
+					}
+				}
+
+				if ( window.awbTypographySelect && window.awbTypographySelect.isTypographyCssVar( settingVal ) ) {
+					settingVal = window.awbTypographySelect.getRealValue( settingVal );
+					if ( ! settingVal ) {
+						settingVal = '';
 					}
 				}
 
@@ -441,45 +448,13 @@ var fusionSanitize = {
 		if ( 'transparent' === value ) {
 			return args.transparent;
 		}
-		color = jQuery.Color( value );
+		color = jQuery.AWB_Color( value );
 
 		if ( 1 === color.alpha() ) {
 			return args.opaque;
 		}
 
 		return args.transparent;
-	},
-
-	/**
-	 * Gets a readable text color depending on the background color and the defined args.
-	 *
-	 * @param {string}       value - The background color.
-	 * @param {Object}       args - An object with the arguments for the readable color.
-	 * @param {string|number} args.threshold - The threshold. Value between 0 and 1.
-	 * @param {string}       args.light - The color to return if background is light.
-	 * @param {string}       args.dark - The color to return if background is dark.
-	 * @return {string} - HEX color value.
-	 */
-	get_readable_color: function( value, args ) {
-		var color     = jQuery.Color( value ),
-			threshold = parseFloat( args.threshold );
-
-		if ( 'object' !== typeof args ) {
-			args = {};
-		}
-		if ( 'undefined' === typeof args.threshold ) {
-			args.threshold = 0.547;
-		}
-		if ( 'undefined' === typeof args.light ) {
-			args.light = '#333';
-		}
-		if ( 'undefined' === typeof args.dark ) {
-			args.dark = '#fff';
-		}
-		if ( 1 < threshold ) {
-			threshold = threshold / 100;
-		}
-		return ( color.lightness() < threshold ) ? args.dark : args.light;
 	},
 
 	/**
@@ -493,7 +468,7 @@ var fusionSanitize = {
 	 * @return {string} - RBGA color, ready to be used in CSS.
 	 */
 	lightness_adjust: function( value, adjustment ) {
-		var color  = jQuery.Color( value ),
+		var color  = jQuery.AWB_Color( value ),
 			adjust = Math.abs( adjustment ),
 			neg    = ( 0 > adjust );
 
@@ -536,7 +511,7 @@ var fusionSanitize = {
 		if ( 'transparent' === value ) {
 			return ( '$' === args.transparent ) ? value : args.transparent;
 		}
-		color = jQuery.Color( value );
+		color = jQuery.AWB_Color( value );
 
 		if ( 0 === color.alpha() ) {
 			return ( '$' === args.transparent ) ? value : args.transparent;
@@ -552,7 +527,7 @@ var fusionSanitize = {
 	 * @return {string} - RGBA/HEX color, ready to be used in CSS.
 	 */
 	get_non_transparent_color: function( value ) {
-		var color = jQuery.Color( value );
+		var color = jQuery.AWB_Color( value );
 
 		if ( 0 === color.alpha() ) {
 			return color.alpha( 1 ).toHexString();
@@ -574,7 +549,7 @@ var fusionSanitize = {
 			'v6' !== this.getSettings().header_layout &&
 			'left' === this.getSettings().header_position &&
 			this.getSettings().header_border_color &&
-			0 === jQuery.Color( this.getSettings().header_border_color ).alpha()
+			0 === jQuery.AWB_Color( this.getSettings().header_border_color ).alpha()
 		) {
 			return value;
 		}
@@ -838,35 +813,35 @@ var fusionSanitize = {
 			}
 			break;
 		case 'opaque':
-			if ( 1 === jQuery.Color( value ).alpha() ) {
+			if ( 1 === jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'not-opaque':
-			if ( 1 > jQuery.Color( value ).alpha() ) {
+			if ( 1 > jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'header-not-opaque':
-			if ( 1 > jQuery.Color( value ).alpha() && 'undefined' !== typeof FusionApp && 'off' !== FusionApp.preferencesData.transparent_header ) {
+			if ( 1 > jQuery.AWB_Color( value ).alpha() && 'undefined' !== typeof FusionApp && 'off' !== FusionApp.preferencesData.transparent_header ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'full-transparent':
-			if ( 'transparent' === value || 0 === jQuery.Color( value ).alpha() ) {
+			if ( 'transparent' === value || 0 === jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'not-full-transparent':
-			if ( 'transparent' !== value && 0 < jQuery.Color( value ).alpha() ) {
+			if ( 'transparent' !== value && 0 < jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
@@ -931,12 +906,21 @@ var fusionSanitize = {
 	 * @return {string} - The changed font size.
 	 */
 	convert_font_size_to_px: function( value, baseFontSize ) {
-		var fontSizeUnit       = 'string' === typeof value ? value.replace( /\d+([,.]\d+)?/g, '' ) : value,
-			fontSizeNumber     = parseFloat( value ),
-			defaultFontSize    = 15, // Browser default font size. This is the average between Safari, Chrome and FF.
-			addUnits           = 'object' === typeof baseFontSize && 'undefined' !== typeof baseFontSize.addUnits && baseFontSize.addUnits,
+		var fontSizeUnit,
+			fontSizeNumber,
+			defaultFontSize,
+			addUnits,
 			baseFontSizeUnit,
 			baseFontSizeNumber;
+
+		if ( 'string' === typeof value && value.includes( '--awb' ) && window.awbTypographySelect ) {
+			value = window.awbTypographySelect.getRealValue( value );
+		}
+
+		fontSizeUnit       = 'string' === typeof value ? value.replace( /\d+([,.]\d+)?/g, '' ) : value;
+		fontSizeNumber     = parseFloat( value );
+		defaultFontSize    = 15; // Browser default font size. This is the average between Safari, Chrome and FF.
+		addUnits           = 'object' === typeof baseFontSize && 'undefined' !== typeof baseFontSize.addUnits && baseFontSize.addUnits;
 
 		if ( 'object' === typeof baseFontSize && 'undefined' !== typeof baseFontSize.setting ) {
 			baseFontSize = this.getOption( baseFontSize.setting );
@@ -1000,7 +984,7 @@ function fusionReturnStringIfTransparent( value, args ) {
 	if ( 'transparent' === value ) {
 		return ( '$' === args.transparent ) ? value : args.transparent;
 	}
-	color = jQuery.Color( value );
+	color = jQuery.AWB_Color( value );
 
 	if ( 0 === color.alpha() ) {
 		return ( '$' === args.transparent ) ? value : args.transparent;
@@ -1020,7 +1004,7 @@ function fusionReturnColorAlphaInt( value ) {
 	if ( 'transparent' === value ) {
 		return 1;
 	}
-	color = jQuery.Color( value );
+	color = jQuery.AWB_Color( value );
 
 	if ( 1 === color.alpha() ) {
 		return 0;

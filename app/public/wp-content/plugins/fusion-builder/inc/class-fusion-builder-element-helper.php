@@ -204,20 +204,26 @@ class Fusion_Builder_Element_Helper {
 		$style = [];
 
 		if ( '' !== $params[ 'fusion_font_family_' . $param ] ) {
-			if ( false !== strpos( $params[ 'fusion_font_family_' . $param ], '\'' ) || 'inherit' === $params[ 'fusion_font_family_' . $param ] || false !== strpos( $params[ 'fusion_font_family_' . $param ], ',' ) ) {
+			if ( false !== strpos( $params[ 'fusion_font_family_' . $param ], 'var(' ) ) {
+				$style['font-family'] = $params[ 'fusion_font_family_' . $param ];
+				if ( function_exists( 'AWB_Global_Typography' ) ) {
+					$style['font-weight'] = AWB_Global_Typography()->get_var_string( $style['font-family'], 'font-weight' );
+					$style['font-style']  = AWB_Global_Typography()->get_var_string( $style['font-family'], 'font-style' );
+				}
+			} elseif ( false !== strpos( $params[ 'fusion_font_family_' . $param ], '\'' ) || 'inherit' === $params[ 'fusion_font_family_' . $param ] || false !== strpos( $params[ 'fusion_font_family_' . $param ], ',' ) || false !== strpos( $params[ 'fusion_font_family_' . $param ], 'var(' ) ) {
 				$style['font-family'] = $params[ 'fusion_font_family_' . $param ];
 			} else {
 				$style['font-family'] = '"' . $params[ 'fusion_font_family_' . $param ] . '"';
 			}
-		}
 
-		if ( '' !== $params[ 'fusion_font_variant_' . $param ] ) {
-			$weight = str_replace( 'italic', '', $params[ 'fusion_font_variant_' . $param ] );
-			if ( $weight !== $params[ 'fusion_font_variant_' . $param ] ) {
-				$style['font-style'] = 'italic';
-			}
-			if ( '' !== $weight ) {
-				$style['font-weight'] = $weight;
+			if ( '' !== $params[ 'fusion_font_variant_' . $param ] && ! isset( $style['font-weight'] ) ) {
+				$weight = str_replace( 'italic', '', $params[ 'fusion_font_variant_' . $param ] );
+				if ( $weight !== $params[ 'fusion_font_variant_' . $param ] ) {
+					$style['font-style'] = 'italic';
+				}
+				if ( '' !== $weight ) {
+					$style['font-weight'] = $weight;
+				}
 			}
 		}
 

@@ -742,6 +742,9 @@ body:not(.has-sidebar) #tribe-events-bar .tribe-bar-filters {
   font-weight: inherit;
   letter-spacing: inherit;
 }
+.single-tribe_events .tribe-events-schedule .event-is-recurring {
+  visibility: visible;
+}
 .single-tribe_events .tribe-events-schedule .recurringinfo .tribe-events-divider {
   display: inline-block;
 }

@@ -125,7 +125,7 @@ class Avada_Upgrade_620 extends Avada_Upgrade_Abstract {
 		// Blog element.
 		if ( isset( $options['blog_load_more_posts_button_bg_color'] ) ) {
 			$blog_color_obj  = Fusion_Color::new_color( Fusion_Sanitize::color( $options['blog_load_more_posts_button_bg_color'] ) );
-			$blog_text_color = $this->get_readable_color( $options['blog_load_more_posts_button_bg_color'] );
+			$blog_text_color = $this->get_readable_color( $blog_color_obj );
 			$blog_color_obj  = $blog_color_obj->getNew( 'alpha', 0.8 );
 
 			$options['blog_element_load_more_posts_hover_button_text_color'] = $blog_text_color;
@@ -137,7 +137,7 @@ class Avada_Upgrade_620 extends Avada_Upgrade_Abstract {
 		if ( isset( $options['portfolio_load_more_posts_button_bg_color'] ) ) {
 			// Portfolio element.
 			$portfolio_color_obj  = Fusion_Color::new_color( Fusion_Sanitize::color( $options['portfolio_load_more_posts_button_bg_color'] ) );
-			$portfolio_text_color = $this->get_readable_color( $options['portfolio_load_more_posts_button_bg_color'] );
+			$portfolio_text_color = $this->get_readable_color( $portfolio_color_obj );
 			$portfolio_color_obj  = $portfolio_color_obj->getNew( 'alpha', 0.8 );
 
 			$options['portfolio_element_load_more_posts_hover_button_text_color'] = $portfolio_text_color;
@@ -156,7 +156,7 @@ class Avada_Upgrade_620 extends Avada_Upgrade_Abstract {
 				'dark'      => '#fff',
 				'light'     => '#333',
 			];
-			$portfolio_archive_text_color = $this->get_readable_color( $options['portfolio_archive_load_more_posts_button_bg_color'], $read_color_args );
+			$portfolio_archive_text_color = $this->get_readable_color( $portfolio_archive_color_obj, $read_color_args );
 			$portfolio_archive_color_obj  = $portfolio_archive_color_obj->getNew( 'alpha', 0.8 );
 
 			$options['portfolio_archive_load_more_posts_hover_button_text_color'] = $portfolio_archive_text_color;
@@ -167,13 +167,15 @@ class Avada_Upgrade_620 extends Avada_Upgrade_Abstract {
 		// Blog archive.
 		if ( isset( $options['blog_load_more_posts_button_bg_color'] ) ) {
 			$blog_archive_color_obj  = Fusion_Color::new_color( Fusion_Sanitize::color( $options['blog_load_more_posts_button_bg_color'] ) );
-			$blog_archive_text_color = $this->get_readable_color( $options['blog_load_more_posts_button_bg_color'] );
-			$blog_archive_color_obj  = $blog_archive_color_obj->getNew( 'alpha', 0.8 );
+			$blog_archive_text_color = $this->get_readable_color( $blog_archive_color_obj );
+
+			$blog_archive_color_obj = $blog_archive_color_obj->getNew( 'alpha', 0.8 );
 
 			$options['blog_load_more_posts_hover_button_text_color'] = $blog_archive_text_color;
 			$options['blog_load_more_posts_hover_button_bg_color']   = $blog_archive_color_obj->to_css( 'rgba' );
 			$options['blog_load_more_posts_button_text_color']       = $blog_archive_text_color;
 		}
+
 		return $options;
 	}
 
@@ -251,11 +253,11 @@ class Avada_Upgrade_620 extends Avada_Upgrade_Abstract {
 	 * @static
 	 * @access public
 	 * @since 6.2.0
-	 * @param string $value The color we'll be basing our calculations on.
-	 * @param string $args  The arguments ['threshold'=>0.5,'dark'=>'#fff','light'=>'#333'].
+	 * @param string $color_object The color object we'll be basing our calculations on.
+	 * @param string $args         The arguments ['threshold'=>0.5,'dark'=>'#fff','light'=>'#333'].
 	 * @return string
 	 */
-	private static function get_readable_color( $value, $args = [] ) {
+	private static function get_readable_color( $color_object, $args = [] ) {
 		if ( ! is_array( $args ) ) {
 			$args = [];
 		}
@@ -271,7 +273,10 @@ class Avada_Upgrade_620 extends Avada_Upgrade_Abstract {
 		if ( 1 > $args['threshold'] ) {
 			$args['threshold'] = $args['threshold'] * 256;
 		}
-		return $args['threshold'] < fusion_calc_color_brightness( $value ) ? $args['light'] : $args['dark'];
+
+		$brightness = isset( $color_object->brightness['level'] ) ? $color_object->brightness['level'] : 150;
+
+		return $args['threshold'] < $brightness ? $args['light'] : $args['dark'];
 	}
 
 	/**

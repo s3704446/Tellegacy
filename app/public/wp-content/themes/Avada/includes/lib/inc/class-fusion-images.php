@@ -64,9 +64,16 @@ class Fusion_Images {
 	 *
 	 * @static
 	 * @access public
-	 * @var int
+	 * @var bool
 	 */
-	public static $lazy_load;
+	public static $is_avada_lazy_load_images;
+
+	/**
+	 * Whether avada iframes lazy load is active or not.
+	 *
+	 * @var bool
+	 */
+	public static $is_avada_lazy_load_iframes;
 
 	/**
 	 * Constructor.
@@ -76,16 +83,27 @@ class Fusion_Images {
 	public function __construct() {
 		$fusion_settings = awb_get_fusion_settings();
 
-		self::$grid_image_meta        = [];
-		self::$grid_accepted_widths   = [ '200', '400', '600', '800', '1200' ];
-		self::$supported_grid_layouts = [ 'masonry', 'grid', 'timeline', 'large', 'portfolio_full', 'related-posts' ];
-		self::$masonry_grid_ratio     = $fusion_settings->get( 'masonry_grid_ratio' );
-		self::$masonry_width_double   = $fusion_settings->get( 'masonry_width_double' );
-		self::$lazy_load              = 'avada' === $fusion_settings->get( 'lazy_load' ) ? true : false;
+		self::$grid_image_meta            = [];
+		self::$grid_accepted_widths       = [ '200', '400', '600', '800', '1200' ];
+		self::$supported_grid_layouts     = [ 'masonry', 'grid', 'timeline', 'large', 'portfolio_full', 'related-posts' ];
+		self::$masonry_grid_ratio         = $fusion_settings->get( 'masonry_grid_ratio' );
+		self::$masonry_width_double       = $fusion_settings->get( 'masonry_width_double' );
+		self::$is_avada_lazy_load_images  = 'avada' === $fusion_settings->get( 'lazy_load' ) ? true : false;
+		self::$is_avada_lazy_load_iframes = 'avada' === $fusion_settings->get( 'lazy_load_iframes' ) ? true : false;
 
-		// Disable WP lazy loading for both, Avada method and none.
-		if ( 'WordPress' !== self::$lazy_load ) {
-			add_filter( 'wp_lazy_loading_enabled', '__return_false' );
+
+		// Disable WP lazy loading for both, "Avada" method and "None".
+		if ( 'wordpress' !== $fusion_settings->get( 'lazy_load' ) ) {
+			add_filter( 'wp_lazy_loading_enabled', [ $this, 'remove_wp_image_lazy_loading' ], 10, 2 );
+
+			// Skip lazy loading for fancy product designer plugin.
+			if ( class_exists( 'WooCommerce' ) && fusion_is_plugin_activated( 'fancy-product-designer/fancy-product-designer.php' ) ) {
+				add_filter( 'woocommerce_cart_item_thumbnail', [ $this, 'skip_lazy_loading' ], 110, 3 );
+			}
+		}
+
+		if ( 'wordpress' !== $fusion_settings->get( 'lazy_load_iframes' ) ) {
+			add_filter( 'wp_lazy_loading_enabled', [ $this, 'remove_wp_iframe_lazy_loading' ], 10, 2 );
 		}
 
 		add_filter( 'max_srcset_image_width', [ $this, 'set_max_srcset_image_width' ] );
@@ -105,6 +123,7 @@ class Fusion_Images {
 		add_filter( 'post_thumbnail_html', [ $this, 'apply_lazy_loading' ], 99, 5 );
 		add_filter( 'wp_get_attachment_image_attributes', [ $this, 'lazy_load_attributes' ], 10, 2 );
 		add_action( 'the_content', [ $this, 'apply_bulk_lazy_loading' ], 999 );
+		add_action( 'the_content', [ $this, 'apply_bulk_avada_lazy_loading_iframe' ], 999 );
 		add_filter( 'revslider_layer_content', [ $this, 'prevent_rev_lazy_loading' ], 10, 5 );
 		add_filter( 'layerslider_slider_markup', [ $this, 'prevent_ls_lazy_loading' ], 10, 3 );
 		add_filter( 'wp_get_attachment_metadata', [ $this, 'map_old_image_size_names' ], 10, 2 );
@@ -1108,6 +1127,40 @@ class Fusion_Images {
 	}
 
 	/**
+	 * Function used in filter 'wp_lazy_loading_enabled' to remove the lazy loading
+	 * for the images.
+	 *
+	 * @since 3.6
+	 * @param bool   $default The default value before filter is applied.
+	 * @param string $tag_name The HTML tag name to disable lazy-loading for.
+	 * @return bool
+	 */
+	public function remove_wp_image_lazy_loading( $default, $tag_name ) {
+		if ( 'img' === $tag_name ) {
+			return false;
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Function used in filter 'wp_lazy_loading_enabled' to remove the lazy loading
+	 * for the iframes.
+	 *
+	 * @since 3.6
+	 * @param bool   $default The default value before filter is applied.
+	 * @param string $tag_name The HTML tag name to disable lazy-loading for.
+	 * @return bool
+	 */
+	public function remove_wp_iframe_lazy_loading( $default, $tag_name ) {
+		if ( 'iframe' === $tag_name ) {
+			return false;
+		}
+
+		return $default;
+	}
+
+	/**
 	 * Filter attributes for the current gallery image tag to add a 'data-full'
 	 * data attribute.
 	 *
@@ -1357,6 +1410,33 @@ class Fusion_Images {
 	}
 
 	/**
+	 * Filter to skip lazy loading.
+	 *
+	 * @since 3.7
+	 *
+	 * @param string $thumbnail         The post thumbnail HTML.
+	 * @param array  $cart_item         The cart item.
+	 * @return string   The html markup of the image.
+	 */
+	public function skip_lazy_loading( $thumbnail, $cart_item = null ) {
+		if ( $this->is_lazy_load_enabled() && false !== strpos( $thumbnail, 'lazyload' ) ) {
+			$src = '';
+
+			// Get src from markup.
+			preg_match( '@src="([^"]+)"@', $thumbnail, $src );
+			if ( array_key_exists( 1, $src ) ) {
+				$src = $src[1];
+			}
+
+			// If src is a data image, just skip.
+			if ( false !== strpos( $src, 'data:image' ) ) {
+				return str_replace( 'lazyload', '', $thumbnail );
+			}
+		}
+		return $thumbnail;
+	}
+
+	/**
 	 * Enqueues image scripts.
 	 *
 	 * @access public
@@ -1370,6 +1450,126 @@ class Fusion_Images {
 	}
 
 	/**
+	 * For an html text that contains an iframe, apply the lazy-loading attributes needed.
+	 *
+	 * Will probably not work if html contains multiple iframes.
+	 * Lazy-loading will be added only if src, width and height attributes exist on html tag.
+	 *
+	 * @since 3.6
+	 * @param string $iframe_html The iframe html.
+	 * @return string
+	 */
+	public function apply_global_selected_lazy_loading_to_iframe( $iframe_html ) {
+		$fusion_settings = awb_get_fusion_settings();
+		$lazy_load_type  = $fusion_settings->get( 'lazy_load_iframes' );
+
+		if ( 'none' === $lazy_load_type ) {
+			return $iframe_html;
+		} elseif ( 'wordpress' === $lazy_load_type ) {
+			// When using WP method, an additional check is needed to not apply "loading" attribute 2 times.
+			if ( false === strpos( $iframe_html, ' loading=' ) ) {
+				return wp_iframe_tag_add_loading_attr( $iframe_html, 'avada_iframe' );
+			}
+		} elseif ( 'avada' === $lazy_load_type ) {
+			return $this->apply_bulk_avada_lazy_loading_iframe( $iframe_html );
+		}
+
+		return $iframe_html;
+	}
+
+	/**
+	 * Adds the avada lazy-loading to all iframes if necessary.
+	 *
+	 * Lazy-loading will be added only if src, width and height attributes exist on html tag.
+	 *
+	 * @since 3.6
+	 * @param string $content Full html string.
+	 * @return string The new markup.
+	 */
+	public function apply_bulk_avada_lazy_loading_iframe( $content ) {
+		if ( $this->is_avada_iframe_lazy_load_enabled() ) {
+			preg_match_all( '/<iframe\s+[^>]*src="([^"]*)"[^>]*>/isU', $content, $iframes );
+			if ( array_key_exists( 1, $iframes ) ) {
+				foreach ( $iframes[0] as $iframe ) {
+					$orig   = $iframe;
+					$iframe = $this->apply_avada_lazy_loading_iframe( $iframe );
+
+					// Replace image.
+					$content = str_replace( $orig, $iframe, $content );
+				}
+			}
+		}
+		return $content;
+	}
+
+	/**
+	 * Apply markup for avada lazy loading to all iframes that are missing.
+	 *
+	 * Lazy-loading will be added only if src, width and height attributes exist on html tag.
+	 *
+	 * @since 3.6
+	 * @param string       $html              The iframe HTML.
+	 * @param string|array $size              Array of width and height values (in that order).
+	 * @return string The html markup of the image.
+	 */
+	public function apply_avada_lazy_loading_iframe( $html, $size = null ) {
+		if ( $this->is_avada_iframe_lazy_load_enabled() && false === strpos( $html, 'lazyload' ) && false === strpos( $html, 'rev-slidebg' ) ) {
+			$src    = '';
+			$width  = 0;
+			$height = 0;
+
+			// Iframes with fallback content (see `wp_filter_oembed_result()`) should not be lazy-loaded because they are
+			// visually hidden initially.
+			if ( false !== strpos( $html, ' data-secret="' ) ) {
+				return $html;
+			}
+
+			// Get src from markup.
+			preg_match( '@src="([^"]+)"@', $html, $src_regex );
+			if ( array_key_exists( 1, $src_regex ) ) {
+					$src = $src_regex[1];
+			} else {
+					$src = '';
+			}
+
+			// If src is a data image, just skip.
+			if ( false !== strpos( $src, 'data:image' ) ) {
+				return $html;
+			}
+
+			// Get dimensions from markup.
+			if ( is_array( $size ) && isset( $size[0], $size[1] ) ) {
+				$width  = $size[0];
+				$height = $size[1];
+			} else {
+				preg_match( '/width="(.*?)"/', $html, $width_regex );
+				if ( array_key_exists( 1, $width_regex ) ) {
+					preg_match( '/height="(.*?)"/', $html, $height_regex );
+					if ( array_key_exists( 1, $height_regex ) ) {
+						$width  = $width_regex[1];
+						$height = $height_regex[1];
+					}
+				}
+			}
+
+			if ( ! $src || ! $width || ! $height ) {
+				return $html;
+			}
+
+			// Simplified non srcset replacement.
+			$html = str_replace( ' src=', ' src="' . self::get_lazy_placeholder( $width, $height ) . '" data-orig-src=', $html );
+
+			if ( strpos( $html, ' class=' ) ) {
+				$html = str_replace( ' class="', ' class="lazyload ', $html );
+			} else {
+				$html = str_replace( '<iframe ', '<iframe class="lazyload" ', $html );
+			}
+		}
+
+		return $html;
+	}
+
+	/**
 	 * Determine if we want to lazy-load images or not.
 	 *
 	 * @access public
@@ -1377,7 +1577,17 @@ class Fusion_Images {
 	 * @return bool
 	 */
 	public function is_lazy_load_enabled() {
-		return ( self::$lazy_load && ! Fusion_AMP::is_amp_endpoint() && ! is_admin() && ! is_feed() );
+		return ( self::$is_avada_lazy_load_images && ! Fusion_AMP::is_amp_endpoint() && ! is_admin() && ! is_feed() );
+	}
+
+	/**
+	 * Determine if avada lazy loading for iframes is enabled.
+	 *
+	 * @since 3.6
+	 * @return bool
+	 */
+	public function is_avada_iframe_lazy_load_enabled() {
+		return ( self::$is_avada_lazy_load_iframes && ! Fusion_AMP::is_amp_endpoint() && ! is_admin() && ! is_feed() );
 	}
 
 	/**

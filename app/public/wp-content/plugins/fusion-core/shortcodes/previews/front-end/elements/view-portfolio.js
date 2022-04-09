@@ -579,7 +579,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 									style: ''
 								};
 								if ( 'boxed' === values.text_layout && '' !== singlePostContent && 'masonry' !== values.layout ) {
-									color = jQuery.Color( values.grid_separator_color );
+									color = jQuery.AWB_Color( values.grid_separator_color );
 									colorCSS = color.toRgbaString();
 									if ( 0 === color.alpha() ) {
 										colorCSS = color.toHexString();
@@ -662,7 +662,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					colorCSS;
 
 				if ( 'grid' === values.layout || 'masonry' === values.layout ) {
-					elementColor = jQuery.Color( values.grid_element_color );
+					elementColor = jQuery.AWB_Color( values.grid_element_color );
 					if ( 'boxed' !== values.text_layout || 0 === elementColor.alpha() || 'transparent' === values.grid_element_color ) {
 						fusionPortfolioContentWrapper.style += 'border:none;';
 					} else {
@@ -671,7 +671,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( 'grid' === values.layout && 'boxed' === values.text_layout ) {
-					color    = jQuery.Color( values.grid_box_color );
+					color    = jQuery.AWB_Color( values.grid_box_color );
 					colorCSS = color.toRgbaString();
 					fusionPortfolioContentWrapper.style += 'background-color:' + colorCSS + ';';
 				}
@@ -699,7 +699,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						fusionPortfolioContent.style += 'right:0px;';
 					}
 
-					color    = jQuery.Color( values.grid_box_color );
+					color    = jQuery.AWB_Color( values.grid_box_color );
 					colorCSS = color.toRgbaString();
 					if ( 0 === color.alpha() ) {
 						colorCSS = color.toHexString();
@@ -710,7 +710,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					fusionPortfolioContent.style += 'margin:0;';
 
 				} else if ( 'grid' === values.layout && 'boxed' === values.text_layout ) {
-					color    = jQuery.Color( values.grid_box_color );
+					color    = jQuery.AWB_Color( values.grid_box_color );
 					colorCSS = color.toRgbaString();
 					fusionPortfolioContent.style += 'background-color:' + colorCSS + ';';
 				}

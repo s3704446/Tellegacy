@@ -31,6 +31,14 @@ class Fusion_Form_Builder_Table extends WP_List_Table {
 	public $columns = [];
 
 	/**
+	 * Number of total table items.
+	 *
+	 * @since 3.6
+	 * @var int
+	 */
+	public $total_items = -1;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 1.0
@@ -75,11 +83,9 @@ class Fusion_Form_Builder_Table extends WP_List_Table {
 		$hidden       = $this->get_hidden_columns();
 		$sortable     = $this->get_sortable_columns();
 
-		$total_items = count( $this->table_data() );
-
 		$this->set_pagination_args(
 			[
-				'total_items' => $total_items,
+				'total_items' => -1 !== $this->total_items ? $this->total_items : count( $this->table_data() ),
 				'per_page'    => $per_page,
 			]
 		);
@@ -174,6 +180,9 @@ class Fusion_Form_Builder_Table extends WP_List_Table {
 
 		// Check if there are items available.
 		if ( $library_query->have_posts() ) {
+
+			$this->total_items = $library_query->found_posts;
+
 			// The loop.
 			while ( $library_query->have_posts() ) :
 				$library_query->the_post();

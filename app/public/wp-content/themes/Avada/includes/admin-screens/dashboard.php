@@ -134,6 +134,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				} else {
 					$buy_button_text = esc_html__( 'Buy Another License', 'Avada' );
 				}
+
+				$resource_order = [ 2, 3, 4 ];
+				shuffle( $resource_order );
 				?>
 				<div class="avada-db-card-notice avada-db-welcome-resources-license<?php echo esc_attr( $notice_sale_class ); ?>" data-sale="<?php esc_attr_e( 'Sale', 'Avada' ); ?>">
 					<p class="avada-db-card-notice-heading-image">
@@ -152,7 +155,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</p>
 				</div>
 
-				<div class="avada-db-card-notice avada-db-welcome-resources-hosting avada-db-sale" data-sale="<?php esc_attr_e( 'Discount', 'Avada' ); ?>">
+				<div class="avada-db-card-notice avada-db-welcome-resources-hosting avada-db-sale" style="order:<?php echo esc_attr( $resource_order[0] ); ?>;<?php echo 4 === $resource_order[0] ? 'display:none;' : ''; ?>" data-sale="<?php esc_attr_e( 'Discount', 'Avada' ); ?>">
 					<p class="avada-db-card-notice-heading-image">
 						<a href="<?php echo esc_url( 'https://shareasale.com/r.cfm?b=1632110&u=873588&m=41388' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-wpe-large.png' ); ?>" alt="<?php esc_html_e( 'WPEngine Logo', 'Avada' ); ?>" width="800" height="315" />
@@ -170,7 +173,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</p>
 				</div>
 
-				<div class="avada-db-card-notice avada-db-welcome-resources-customization">
+				<div class="avada-db-card-notice avada-db-welcome-resources-hosting avada-db-sale" style="order:<?php echo esc_attr( $resource_order[1] ); ?>;<?php echo 4 === $resource_order[1] ? 'display:none;' : ''; ?>" data-sale="<?php esc_attr_e( 'Discount', 'Avada' ); ?>">
+					<p class="avada-db-card-notice-heading-image">
+						<a href="<?php echo esc_url( 'https://www.siteground.com/avada?afcode=452502cf59bfef470b2806e5ba67670a' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
+							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-siteground-large.png' ); ?>" alt="<?php esc_html_e( 'WPEngine Logo', 'Avada' ); ?>" width="800" height="315" />
+						</a>
+					</p>
+					<div class="avada-db-card-notice-heading">
+						<h3><?php esc_html_e( 'Avada Special Hosting', 'Avada' ); ?></h3>
+					</div>
+					<p class="avada-db-card-notice-content">
+						<?php esc_html_e( 'We have partnered with SiteGround to bring you full-service WordPress hosting. Sign up and have Avada installed and activated for you with one click.', 'Avada' ); ?><br />
+					</p>
+					<p class="avada-db-card-notice-content">
+						<a href="<?php echo esc_url( 'https://www.siteground.com/avada?afcode=452502cf59bfef470b2806e5ba67670a' ); ?>" class="button button-primary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Special Offer', 'Avada' ); ?></a>
+					</p>
+				</div>
+
+				<div class="avada-db-card-notice avada-db-welcome-resources-customization" style="order:<?php echo esc_attr( $resource_order[2] ); ?>;<?php echo 4 === $resource_order[2] ? 'display:none;' : ''; ?>">
 					<p class="avada-db-card-notice-heading-image">
 						<a href="<?php echo esc_url( 'https://codeable.io/?ref=jMHpp' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-codeable.png' ); ?>" alt="<?php esc_html_e( 'Codeable Logo', 'Avada' ); ?>" width="800" height="315" />

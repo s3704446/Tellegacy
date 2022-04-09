@@ -121,7 +121,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				jQuery( 'a.viewport-indicator > span[data-indicate-viewport="' + self.viewport + '"]' ).addClass( 'active' );
 
 				jQuery( window ).trigger( 'resize' );
-				jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ).trigger( 'resize' );
+
+				// Timing related check. Sometimes the jQuery isn't loaded yet in iframe.
+				if ( 'function' === typeof jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery ) {
+					jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ).trigger( 'resize' );
+				}
+
 				jQuery( '#fb-preview' ).attr( 'data-viewport', self.viewport );
 
 				// For responsive element options.
@@ -1026,6 +1031,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			// Invalid value if not a string.
 			if ( ! _.isString( value ) ) {
 				return false;
+			}
+
+			if ( 0 === value.indexOf( '--' ) || ( /var\(\s*--/i ).test( value ) ) {
+				return true;
 			}
 
 			if ( 'hex' === mode ) {
@@ -2090,75 +2099,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 	} );
 
 }( jQuery ) );
-;/* global ajaxurl, fusionAppConfig */
-var FusionPageBuilder = FusionPageBuilder || {};
-
-( function() {
-
-	FusionPageBuilder.Assets = Backbone.Model.extend( {
-
-		/**
-		 * Init.
-		 *
-		 * @since 2.0.0
-		 * @return {void}
-		 */
-		initialize: function() {
-			this.webfonts;
-			this.webfontsArray;
-			this.webfontsGoogleArray;
-			this.webfontsStandardArray;
-			this.webfontRequest = false;
-		},
-
-		/**
-		 * Gets the webfonts via AJAX.
-		 *
-		 * @since 2.0.0
-		 * @return {void}
-		 */
-		getWebFonts: function() {
-			var self = this;
-
-			if ( self.webfonts && self.webfontsArray ) {
-				return;
-			}
-
-			if ( 'undefined' !== typeof fusionAppConfig && 'object' === typeof fusionAppConfig.fusion_web_fonts ) {
-				self.webfonts = fusionAppConfig.fusion_web_fonts;
-				self.setFontArrays();
-				return;
-			}
-
-			if ( false !== self.webfontRequest ) {
-				return self.webfontRequest;
-			}
-
-			return self.webfontRequest = jQuery.post( ajaxurl, { action: 'fusion_get_webfonts_ajax' }, function( response ) { // eslint-disable-line no-return-assign
-				self.webfonts = JSON.parse( response );
-				self.setFontArrays();
-			} );
-		},
-
-		setFontArrays: function() {
-			var self = this;
-
-			// Create web font array.
-			self.webfontsArray = [];
-			_.each( self.webfonts.google, function( font ) {
-				self.webfontsArray.push( font.family );
-			} );
-			self.webfontsGoogleArray = self.webfontsArray;
-
-			self.webfontsStandardArray = [];
-			_.each( self.webfonts.standard, function( font ) {
-				self.webfontsArray.push( font.family );
-				self.webfontsStandardArray.push( font.family );
-			} );
-		}
-	} );
-
-}( jQuery ) );
 ;var FusionPageBuilder = FusionPageBuilder || {};
 
 ( function() {
@@ -2869,7 +2809,6 @@ var FusionEvents = _.extend( {}, Backbone.Events );
 
 				this.callback           = new FusionPageBuilder.Callback();
 				this.dialog             = new FusionPageBuilder.Dialog();
-				this.assets             = new FusionPageBuilder.Assets();
 				this.inlineEditor       = new FusionPageBuilder.inlineEditor();
 				this.validate           = new FusionPageBuilder.Validate();
 				this.hotkeys            = new FusionPageBuilder.Hotkeys();
@@ -3609,7 +3548,7 @@ var FusionEvents = _.extend( {}, Backbone.Events );
 					}
 					return this.data.examplePostDetails.post_meta;
 				}
-				if ( ( 'fusion_tb_section' === FusionApp.data.postDetails.post_type || 'post_cards' === FusionApp.data.fusion_element_type ) && 'undefined' !== typeof FusionApp.data.postMeta._fusion && 'undefined' !== typeof FusionApp.data.postMeta._fusion.dynamic_content_preview_type && 'undefined' !== typeof FusionApp.initialData.dynamicPostID ) {
+				if ( ( 'fusion_tb_section' === FusionApp.data.postDetails.post_type || 'post_cards' === FusionApp.data.fusion_element_type || 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) && 'undefined' !== typeof FusionApp.data.postMeta._fusion && 'undefined' !== typeof FusionApp.data.postMeta._fusion.dynamic_content_preview_type && 'undefined' !== typeof FusionApp.initialData.dynamicPostID ) {
 					return FusionApp.initialData.dynamicPostID;
 				}
 				if ( 'object' !== typeof this.data.examplePostDetails ) {
@@ -4876,7 +4815,7 @@ var FusionEvents = _.extend( {}, Backbone.Events );
 		}
 	} );
 }( jQuery ) );
-;/* global rangy, MediumEditor, FusionApp, fusionAllElements, fusionHistoryManager, fusionBuilderText */
+;/* global rangy, MediumEditor, FusionApp, fusionAllElements, fusionHistoryManager, fusionBuilderText, awbTypographySelect */
 /* eslint no-unused-vars: 0 */
 /* eslint no-shadow: 0 */
 /* eslint no-undef: 0 */
@@ -5315,8 +5254,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						tab.classList.add( 'active' );
 					}
 
-					if ( _.isUndefined( FusionApp.assets ) || _.isUndefined( FusionApp.assets.webfonts ) ) {
-						jQuery.when( FusionApp.assets.getWebFonts() ).done( function() {
+					if ( _.isUndefined( window.awbTypographySelect ) || _.isUndefined( window.awbTypographySelect.webfonts ) ) {
+						jQuery.when( window.awbTypographySelect.getWebFonts() ).done( function() {
 							self.insertFamilyChoices();
 							self.setFontFamilyValues();
 						} );
@@ -5460,7 +5399,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 						if ( el.hasAttribute( 'data-fusion-google-variant' ) ) {
 							values.variant = el.getAttribute( 'data-fusion-google-variant' );
-							if ( ! _.isUndefined( FusionApp.assets ) && ! _.isUndefined( FusionApp.assets.webfonts ) ) {
+							if ( ! _.isUndefined( window.awbTypographySelect ) && ! _.isUndefined( window.awbTypographySelect.webfonts ) ) {
 								variants = self.getVariants( values.family );
 								_.each( variants, function( variant ) {
 									if ( values.variant === variant.id ) {
@@ -5918,7 +5857,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						searchIcon  = doc.createElement( 'span' ),
 						searchFonts = [];
 
-					if ( familyHold.hasChildNodes() || 'undefined' === typeof FusionApp.assets.webfonts ) {
+					if ( familyHold.hasChildNodes() || 'undefined' === typeof window.awbTypographySelect.webfonts ) {
 						return;
 					}
 
@@ -5957,16 +5896,16 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					familyHold.parentNode.appendChild( searchHold );
 
 					// Add the custom fonts.
-					if ( 'object' === typeof FusionApp.assets.webfonts.custom && ! _.isEmpty( FusionApp.assets.webfonts.custom ) ) {
+					if ( 'object' === typeof window.awbTypographySelect.webfonts.custom && ! _.isEmpty( window.awbTypographySelect.webfonts.custom ) ) {
 
 						// Extra check for different empty.
-						if ( 1 !== FusionApp.assets.webfonts.custom.length || ! ( 'object' === typeof FusionApp.assets.webfonts.custom[ 0 ] && '' === FusionApp.assets.webfonts.custom[ 0 ].family ) ) {
+						if ( 1 !== window.awbTypographySelect.webfonts.custom.length || ! ( 'object' === typeof window.awbTypographySelect.webfonts.custom[ 0 ] && '' === window.awbTypographySelect.webfonts.custom[ 0 ].family ) ) {
 							option           = doc.createElement( 'div' );
 							option.innerHTML = fusionBuilderText.custom_fonts;
 							option.classList.add( 'fusion-cfh' );
 							familyHold.appendChild( option );
 
-							_.each( FusionApp.assets.webfonts.custom, function( font, index ) {
+							_.each( window.awbTypographySelect.webfonts.custom, function( font, index ) {
 								if ( font.family && '' !== font.family ) {
 									searchFonts.push( {
 										id: font.family.replace( /&quot;/g, '&#39' ),
@@ -5988,7 +5927,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					}
 
 					// Add the google fonts.
-					_.each( FusionApp.assets.webfonts.google, function( font, index ) {
+					_.each( window.awbTypographySelect.webfonts.google, function( font, index ) {
 						searchFonts.push( {
 							id: font.family,
 							text: font.label
@@ -6172,7 +6111,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						return;
 					}
 
-					if ( -1 !== FusionApp.assets.webfontsStandardArray.indexOf( font ) || this.isCustomFont( font ) ) {
+					if ( -1 !== window.awbTypographySelect.webfontsStandardArray.indexOf( font ) || this.isCustomFont( font ) ) {
 						this.changePreview( font, false, variant );
 
 					} else if ( this.webFontLoad( font, variant, false ) ) {
@@ -6182,21 +6121,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							self.changePreview( font, true, variant );
 						} );
 					}
-				},
-
-				isCustomFont: function( font ) {
-					var isCustom = false;
-
-					if ( 'object' !== typeof FusionApp.assets.webfonts.custom ) {
-						return false;
-					}
-					_.each( FusionApp.assets.webfonts.custom, function( checkFont, index ) {
-						if ( font === checkFont.family ) {
-							isCustom = true;
-						}
-					} );
-
-					return isCustom;
 				},
 
 				getFontFamily: function() {
@@ -6313,8 +6237,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						element;
 
 					if ( googleFont && variant ) {
-						fontWeight = this.getFontWeightFromVariant( variant );
-						fontStyle  = this.getFontStyleFromVariant( variant );
+						fontWeight = awbTypographySelect.getFontWeightFromVariant( variant );
+						fontStyle  = awbTypographySelect.getFontStyleFromVariant( variant );
 					}
 
 					this.base.restoreSelection();
@@ -6363,9 +6287,140 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					// Make sure not to hide form when clicking inside the form
 					event.stopPropagation();
+				},
+
+				// TODO: refactor this so its easier to lookup.
+				getVariants: function( fontFamily ) {
+					var variants = false;
+
+					// Family is a variable, variant only has that selection.
+					if ( -1 !== fontFamily.indexOf( 'var(' ) ) {
+						return [
+							{
+								id: fontFamily.replace( '-font-family)', ')' ),
+								label: awbTypoData.strings.global
+							}
+						];
+					}
+
+					if ( this.isCustomFont( fontFamily ) ) {
+						return [
+							{
+								id: '400',
+								label: 'Normal 400'
+							}
+						];
+					}
+
+					_.each( window.awbTypographySelect.webfonts.standard, function( font ) {
+						if ( fontFamily && font.family === fontFamily ) {
+							variants = font.variants;
+							return font.variants;
+						}
+					} );
+
+					_.each( window.awbTypographySelect.webfonts.google, function( font ) {
+						if ( font.family === fontFamily ) {
+							variants = font.variants;
+							return font.variants;
+						}
+					} );
+					return variants;
+				},
+
+				isCustomFont: function( family ) {
+					var isCustom = false;
+
+					// Figure out if this is a google-font.
+					_.each( window.awbTypographySelect.webfonts.custom, function( font ) {
+						if ( font.family === family ) {
+							isCustom = true;
+						}
+					} );
+
+					return isCustom;
+				},
+				webFontLoad: function( family, variant ) {
+					var isGoogleFont = this.isGoogleFont( family ),
+						scriptID,
+						script;
+
+					// Early exit if there is no font-family defined.
+					if ( _.isUndefined( family ) || '' === family || ! family ) {
+						return;
+					}
+
+					// Get a valid variant.
+					variant = this.getValidVariant( family, variant );
+
+					// Early exit if not a google-font.
+					if ( false === isGoogleFont ) {
+						return;
+					}
+
+					variant = ( _.isUndefined( variant ) || ! variant ) ? ':regular' : ':' + variant;
+					family  = family.replace( /"/g, '&quot' );
+
+					script  = family;
+					script += ( variant ) ? variant : '';
+
+					scriptID = script.replace( /:/g, '' ).replace( /"/g, '' ).replace( /'/g, '' ).replace( / /g, '' ).replace( /,/, '' );
+
+					if ( ! jQuery( 'head' ).find( '#' + scriptID ).length ) {
+						jQuery( 'head' ).first().append( '<script id="' + scriptID + '">WebFont.load({google:{families:["' + script + '"]},context:FusionApp.previewWindow,active: function(){ jQuery( window ).trigger( "fusion-font-loaded"); },});</script>' );
+						return false;
+					}
+					return true;
+				},
+
+				isGoogleFont: function( family ) {
+					var isGoogleFont = false;
+
+					// Figure out if this is a google-font.
+					_.each( window.awbTypographySelect.webfonts.google, function( font ) {
+						if ( font.family === family ) {
+							isGoogleFont = true;
+						}
+					} );
+
+					return isGoogleFont;
+				},
+
+				getValidVariant: function( family, variant ) {
+					var variants   = this.getVariants( family ),
+						isValid    = false,
+						hasRegular = false,
+						first      = ( ! _.isUndefined( variants[ 0 ] ) && ! _.isUndefined( variants[ 0 ].id ) ) ? variants[ 0 ].id : '400';
+
+					if ( 'string' !== typeof variant || '' === variant ) {
+						variant = '400';
+					}
+
+					// Variable family, set variant value as same variable.
+					if ( -1 !== family.indexOf( 'var(' ) ) {
+						return family.replace( '-font-family)', ')' );
+					}
+					if ( this.isCustomFont( family ) ) {
+						return '400';
+					}
+
+					_.each( variants, function( v ) {
+						if ( variant === v.id ) {
+							isValid = true;
+						}
+						if ( 'regular' === v.id || '400' === v.id || 400 === v.id ) {
+							hasRegular = true;
+						}
+					} );
+
+					if ( isValid ) {
+						return variant;
+					} else if ( hasRegular ) {
+						return '400';
+					}
+					return first;
 				}
 			} );
-			_.extend( fusionTypographyForm.prototype, FusionPageBuilder.options.fusionTypographyField );
 			MediumEditor.extensions.fusionTypography = fusionTypographyForm;
 		},
 
@@ -6444,7 +6499,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					for ( nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++ ) {
 						el    = nodes[ nodeIndex ];
-						color = jQuery( el ).css( 'color' );
+						color = 'string' == typeof el.style.color && '' !== el.style.color ? el.style.color : jQuery( el ).css( 'color' );
 						if ( jQuery( el ).data( 'fusion-font' ) ) {
 							return color;
 						}
@@ -6493,9 +6548,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				},
 
 				showForm: function( fontColor ) {
-					var self  = this,
-						input = this.getInput(),
-						form  = this.getForm();
+					var self   = this,
+						input  = this.getInput(),
+						$input = jQuery( input ),
+						form   = this.getForm();
 
 					this.base.saveSelection();
 					this.hideToolbarDefaultActions();
@@ -6504,31 +6560,26 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					this.setToolbarPosition();
 
-					input.value = fontColor || '';
+					$input.val( fontColor || '' ).trigger( 'change' );
 
-					jQuery( input ).wpColorPicker( {
-						width: 250,
-						palettes: false,
-						hide: true,
-						change: function( event, ui ) {
-							if ( 'none' !== jQuery( input ).closest( '.fusion-inline-color-picker' ).find( '.iris-picker' ).css( 'display' ) ) {
-								self.handleColorChange( ui.color.toString() );
+					if ( 'undefined' === typeof $input.awbColorPicker( 'instance' ) ) {
+						$input.awbColorPicker( {
+							width: 250,
+							hide: true,
+							allowToggle: false,
+							change: function( event, ui, value ) {
+								self.handleColorChange( value );
+							},
+							clear: function( event, ui ) {
+								self.clearFontColor();
 							}
-						},
-						clear: function( event, ui ) {
-							self.clearFontColor();
-						}
-					} );
-
-					jQuery( input ).iris( 'color', input.value );
-					jQuery( input ).iris( 'show' );
-
-					if ( ! jQuery( input ).parent().parent().find( '.wp-picker-clear-button' ).length ) {
-						jQuery( input ).parent().parent().append( '<button class="button button-small wp-picker-clear wp-picker-clear-button"><i class="fusiona-eraser-solid" aria-hidden="true"></i></button>' );
-
-						jQuery( input ).parent().parent().find( '.wp-picker-clear-button' ).on( 'click', function() {
-							jQuery( input ).parent().parent().find( 'input.wp-picker-clear' ).trigger( 'click' );
 						} );
+					}
+
+					if ( -1 === $input.val().indexOf( '--' ) ) {
+						$input.awbColorPicker( 'open' );
+					} else {
+						$input.awbColorPicker( 'openGlobals' );
 					}
 				},
 
@@ -6564,6 +6615,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					form.id        = 'medium-editor-toolbar-form-fontcolor-' + this.getEditorId();
 
 					input.className = 'medium-editor-toolbar-input fusion-builder-color-picker-hex';
+					input.type      = 'text';
 					input.setAttribute( 'data-alpha', true );
 					form.appendChild( input );
 
@@ -7876,95 +7928,294 @@ FusionPageBuilder.options.fusionCodeBlock = {
 		}
 	}
 };
-;var FusionPageBuilder = FusionPageBuilder || {};
+;/* globals awbPalette */
+var FusionPageBuilder = FusionPageBuilder || {};
 
 FusionPageBuilder.options = FusionPageBuilder.options || {};
 
 FusionPageBuilder.options.fusionColorPalette = {
+
 	optionColorPalette: function( $element ) {
-		var self = this,
-			$palettes;
+		var $palettes;
 
 		$element  = $element || this.$el;
 		$palettes = $element.find( '.fusion-color-palette-options' );
 
 		$palettes.each( function() {
-			var $paletteContainer = jQuery( this );
+			FusionPageBuilder.options.fusionColorPalette.initColorsPalette( jQuery( this ) );
+		} );
+	},
 
-			$paletteContainer.find( '.fusion-color-palette-item' ).on( 'click', function( e ) {
-				e.preventDefault();
+	initColorsPalette: function ( $paletteContainer ) {
+		var paletteSaveInput;
 
-				if ( 0 < $paletteContainer.find( '.fusion-color-palette-item.color-palette-active' ).length ) {
+		$paletteContainer = jQuery( $paletteContainer );
+		paletteSaveInput = $paletteContainer.find( '.awb-palette-save' );
+
+		if ( ! $paletteContainer.is( '.fusion-color-palette-options' ) ) {
+			return;
+		}
+
+		if ( $paletteContainer.hasClass( 'palette-init' ) ) {
+			return;
+		}
+		$paletteContainer.addClass( 'palette-init' );
+
+		initializePickers();
+
+		// Toggle open and close color.
+		$paletteContainer.on( 'click', '.preview, .fusiona-pen', handleToggleColor );
+
+		// Listen for removal of color.
+		$paletteContainer.on( 'click', '.fusiona-trash-o', handleTrashIconClick );
+
+		// Listen for the add color button.
+		$paletteContainer.on( 'click', '.awb-color-palette-add-btn', handleAddColorBtnClick );
+
+		// Bind input changes to toggle label.
+		$paletteContainer.on( 'change keyup', '.color-name', handleColorNameChange );
+
+		// Initialize all pickers.
+		function initializePickers() {
+			$paletteContainer.find( '.awb-picker' ).each( function() {
+				initializePicker( this );
+			} );
+		}
+
+		// Initialize a specific picker.
+		function initializePicker( picker ) {
+			var handleColorChange = _.debounce( _handleColorChange, 150 );
+			jQuery( picker ).awbColorPicker( {
+				change: handleColorChange
+			} );
+		}
+
+		// Update the palette object when a color changes.
+		function _handleColorChange( event, ui ) {
+			var $target = jQuery( event.target ),
+				value   = $target.val(),
+				slug    = $target.closest( '.fusion-color-palette-item' ).attr( 'data-slug' );
+
+			if ( 'object' === typeof ui ) {
+				value = ui.color.toString();
+			}
+
+			addOrUpdateOptionColor( slug, { color: value } );
+		}
+
+		// Show or hide the controls to change a color.
+		function handleToggleColor() {
+			jQuery( this ).closest( '.fusion-color-palette-item' ).find( '.awb-palette-content' ).slideToggle( 'fast' );
+		}
+
+		function handleColorNameChange() {
+			var paletteItem = jQuery( this ).closest( '.fusion-color-palette-item' ),
+				label    = jQuery( this ).val(),
+				oldLabel,
+				slug     = paletteItem.attr( 'data-slug' ),
+				object;
+
+			// Change the title to the new label.
+			paletteItem.find( '.label' ).text( label );
+
+			// The checks needed because change event can trigger without any value changes.
+			// As it triggers both on "keyup" and "change".
+			object = getPaletteSaveObject();
+			oldLabel = object[ slug ] ? object[ slug ].label : null;
+			if ( oldLabel !== label && object[ slug ] ) {
+				addOrUpdateOptionColor( slug, { label: label } );
+			}
+		}
+
+		// When a trash icon is clicked, remove the color from the palette.
+		function handleTrashIconClick() {
+			var paletteItem = jQuery( this ).closest( '.fusion-color-palette-item' ),
+				slug = paletteItem.attr( 'data-slug' ),
+				resultConfirm;
+
+			resultConfirm = window.confirm( window.awbPalette.removeColorAlert ); // eslint-disable-line no-alert
+
+			if ( ! resultConfirm ) {
+				return;
+			}
+
+			paletteItem.find( '.awb-palette-content' ).slideUp( 'fast' );
+			paletteItem.slideUp( 'fast', function() {
+				jQuery( this ).remove();
+			} );
+
+			removeOptionColor( slug );
+		}
+
+		function handleAddColorBtnClick( event ) {
+			var paletteList = $paletteContainer.find( '.awb-color-palette-list' ),
+				newItem     = jQuery( $paletteContainer.find( '.awb-color-palette-color-template' ).html().trim().replaceAll( /(^<!--|-->$)/g, '' ) ),
+				newSlug,
+				newPaletteColorObj;
+
+			event.preventDefault();
+
+			paletteList.append( newItem );
+
+			newSlug = generateSlug( newItem );
+			changeSlugInHTML( newItem, newSlug );
+
+			// Initialize global colors with the new color.
+			newPaletteColorObj = {
+				color: newItem.find( '.awb-picker' ).val(),
+				label: newItem.find( '.color-name' ).val()
+			};
+			addOrUpdateOptionColor( newSlug, newPaletteColorObj );
+
+			initializePicker( newItem.find( '.awb-picker' ) );
+		}
+
+		// Helper functions
+
+		// Update the color object in both save input global palette.
+		function addOrUpdateOptionColor( slug, colorObject ) {
+			var object;
+			awbPalette.addOrUpdateColor( slug, colorObject );
+
+			object = getPaletteSaveObject();
+			object[ slug ] = Object.assign( {}, object[ slug ], colorObject ); // eslint-disable-line
+			replacePaletteSaveObject( object );
+		}
+
+		// Removes the color object in both save input global palette.
+		function removeOptionColor( slug ) {
+			var object;
+			if ( ! slug ) {
+				return;
+			}
+
+			awbPalette.removeColor( slug );
+
+			object = getPaletteSaveObject();
+			if ( object[ slug ] ) {
+				delete object[ slug ];
+				replacePaletteSaveObject( object );
+			}
+		}
+
+		// Get the object of colors from the save input.
+		function getPaletteSaveObject() {
+			var objectString = paletteSaveInput.val(),
+				object;
+
+			try {
+				object = JSON.parse( objectString );
+				return object;
+			} catch ( e ) {
+				console.error( e );
+				return {};
+			}
+		}
+
+		// Replace the palette save object with a new one.
+		function replacePaletteSaveObject( object ) {
+			paletteSaveInput.val( JSON.stringify( object ) ).trigger( 'change' );
+		}
+
+		// From a name entered by a user, generate a new unique slug.
+		function generateSlug( paletteItem ) {
+			var paletteSlugs = [],
+				number,
+				slugWithoutAppendedNumber,
+				slug = 'custom_color_1';
+
+			// Make an array with existing slugs.
+			$paletteContainer.find( '.fusion-color-palette-item' ).not( paletteItem ).each( function() {
+				var itemSlug = jQuery( this ).attr( 'data-slug' );
+				if ( itemSlug ) {
+					paletteSlugs.push( itemSlug );
+				}
+			} );
+
+			// Append a number to the end of the slug, if the slug already exists.
+			if ( paletteSlugs.includes( slug ) ) {
+				number = 2;
+				slugWithoutAppendedNumber = slug.replace( /_(\d+)$/, '' );
+
+				while ( paletteSlugs.includes( slugWithoutAppendedNumber + '_' + number ) ) {
+					number++;
+				}
+
+				slug = slugWithoutAppendedNumber + '_' + number;
+			}
+
+			return slug;
+		}
+
+		// Change the slug of a color item, only in HTML.
+		function changeSlugInHTML( paletteItem, newSlug ) {
+			var oldSlug = paletteItem.attr( 'data-slug' );
+			if ( ! oldSlug || newSlug === oldSlug ) {
+				return;
+			}
+
+			changeOldAttributeSlug( paletteItem, 'data-slug' );
+			changeOldAttributeSlug( paletteItem.find( '.awb-picker' ), 'name' );
+			changeOldAttributeSlug( paletteItem.find( '.color-name' ), 'id', 'id' );
+			changeOldAttributeSlug( paletteItem.find( '.color-name' ), 'name' );
+			changeOldAttributeSlug( paletteItem.find( '.color-name-label' ), 'for', 'id' );
+
+			function changeOldAttributeSlug( input, attribute, replaceType = '' ) {
+				var oldAttr = input.attr( attribute ),
+					newAttr;
+
+				if ( ! oldAttr ) {
 					return;
 				}
 
-				self.showColorPicker( jQuery( this ) );
-			} );
+				if ( 'array' === replaceType ) {
+					newAttr = oldAttr.replaceAll( '[' + oldSlug + ']', '[' + newSlug + ']' );
+				} else if ( 'id' === replaceType ) {
+					newAttr = oldAttr.replaceAll( '-' + oldSlug, '-' + newSlug );
+				} else {
+					newAttr = oldAttr.replaceAll( oldSlug, newSlug );
+				}
 
-			$paletteContainer.find( '.fusion-colorpicker-icon' ).on( 'click', function( e ) {
-				e.preventDefault();
-
-				self.hideColorPicker( $paletteContainer.find( '.fusion-color-palette-item.color-palette-active' ) );
-			} );
-
-		} );
-	},
-
-	showColorPicker: function( $colorItem ) {
-		var $colorPickerWrapper = $colorItem.closest( '.fusion-color-palette-options' ).find( '.fusion-palette-colorpicker-container' );
-
-		$colorItem.addClass( 'color-palette-active' );
-
-		$colorPickerWrapper.find( '.fusion-builder-color-picker-hex' ).val( $colorItem.data( 'value' ) ).trigger( 'change' );
-
-		setTimeout( function() {
-			$colorPickerWrapper.find( '.wp-color-result' ).trigger( 'click' );
-			$colorPickerWrapper.css( 'display', 'block' );
-		}, 10 );
-	},
-
-	hideColorPicker: function( $colorItem ) {
-		var $colorPickerWrapper = $colorItem.closest( '.fusion-color-palette-options' ).find( '.fusion-palette-colorpicker-container' );
-
-		$colorItem.data( 'value', $colorPickerWrapper.find( '.fusion-builder-color-picker-hex' ).val() );
-		$colorItem.children( 'span' ).css( 'background-color', $colorPickerWrapper.find( '.fusion-builder-color-picker-hex' ).val() );
-		$colorItem.removeClass( 'color-palette-active' );
-		$colorPickerWrapper.css( 'display', 'none' );
-		this.updateColorPalette( $colorItem );
-	},
-
-	updateColorPalette: function( $colorItem ) {
-		var $colorItems            = $colorItem.closest( '.fusion-color-palette-options' ).find( '.fusion-color-palette-item' ),
-			colorValues            = [],
-			$storeInput            = $colorItem.closest( '.fusion-color-palette-options' ).find( '.color-palette-colors' ),
-			$generatedColorPickers = jQuery( '.fusion-builder-option.color-alpha, .fusion-builder-option.colorpickeralpha' );
-
-		$colorItems.each( function() {
-			colorValues.push( jQuery( this ).data( 'value' ) );
-		} );
-
-		// Wait for color picker's 'change' to finish.
-		setTimeout( function() {
-			$storeInput.val( colorValues.join( '|' ) ).trigger( 'change' );
-
-			// Update any already generated color pickers.
-			if ( 0 < $generatedColorPickers.length ) {
-				jQuery.each( $generatedColorPickers, function() {
-
-					jQuery.each( jQuery( this ).find( '.iris-palette' ), function( index, elem ) {
-
-						// Skip first 2 colors.
-						if ( 2 > index ) {
-							return;
-						}
-
-						jQuery( elem ).data( 'color', colorValues[ index - 2 ] ).css( 'background-color', colorValues[ index - 2 ] );
-					} );
-				} );
+				input.attr( attribute, newAttr );
 			}
-		}, 50 );
+		}
 
 	}
+};
+;/* global AwbTypographySet */
+var FusionPageBuilder = FusionPageBuilder || {};
+FusionPageBuilder.options = FusionPageBuilder.options || {};
+
+FusionPageBuilder.options.fusionTypographySetsField = {
+
+	/**
+	 * Initialize the typography field.
+	 *
+	 * @since 2.0.0
+	 * @param {Object} $element - The element jQuery object.
+	 * @return {void}
+	 */
+	optionTypographySets: function( $element ) {
+		var $set;
+
+		$element = 'undefined' !== typeof $element && $element.length ? $element : this.$el;
+
+		$set = $element.find( '.fusion-builder-option.typography-sets' );
+
+		if ( ! $set.length ) {
+			return;
+		}
+
+		// Init sets.
+		if ( _.isUndefined( window.awbTypographySelect ) || _.isUndefined( window.awbTypographySelect.webfonts ) ) {
+			jQuery.when( window.awbTypographySelect.getWebFonts() ).done( function() {
+				new AwbTypographySet( $set[ 0 ], this );
+			} );
+		} else {
+			new AwbTypographySet( $set[ 0 ], this );
+		}
+	}
+
 };
 ;/* global noUiSlider, wNumb */
 var FusionPageBuilder = FusionPageBuilder || {};
@@ -8556,6 +8807,569 @@ FusionPageBuilder.options.fusionHubSpotMap = {
 		}
 	}
 };
+;/* global ajaxurl */
+/* eslint no-empty-function: ["error", { "allow": ["functions"] }] */
+
+var FusionPageBuilder = FusionPageBuilder || {};
+FusionPageBuilder.options = FusionPageBuilder.options || {};
+
+( function() {
+
+	// Layout Options View
+	FusionPageBuilder.layoutConditions = Backbone.View.extend( {
+		template: FusionPageBuilder.template( jQuery( '#fusion-layout-options' ).html() ),
+		events: {
+			'click .close,.fusion-layout-overlay': 'closeModal',
+			'change input[type="checkbox"]': 'inputChange',
+			'click .layout-option-type,.layout-mode a': 'switchTab',
+			'click .layout-option-parent:not(.active) .load-child': 'showChildOptions',
+			'click .layout-option-parent.active .load-child': 'hideChildOptions',
+			'click .load-more': '_loadMore',
+			'input .layoutbox-search input[type="search"]': '_handleSearchInput',
+			'keyup .layoutbox-search input[type="search"]': '_handleSearchInput',
+			'click .remove-condition': 'removeCondition'
+		},
+
+		templateForChildOption: FusionPageBuilder.template( jQuery( '#fusion-layout-child-option' ).html() ),
+
+		/**
+		 * Initialize the layout
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		initialize: function( options ) {
+			this.handleSearchInput = _.debounce( this.handleSearchInput, 300 );
+			this.loadMore          = _.debounce( this.loadMore, 300 );
+			this.conditions        = options.conditions;
+			this.item              = options.item;
+		},
+
+		/**
+		 * Calls loadMore() so it can debounce correctly
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		_loadMore: function( event ) {
+			this.loadMore( event );
+		},
+
+		/**
+		 * Calls handleSearchInput() so it can debounce correctly
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		_handleSearchInput: function( event ) {
+			this.handleSearchInput( event );
+		},
+
+		/**
+		 * Get all conditions.
+		 *
+		 * @since 3.6
+		 * @return {object}
+		 */
+		getConditions: function() {
+			return this.conditions;
+		},
+
+		/**
+		 * Removes condition from Manage Conditions section.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		removeCondition: function( event ) {
+			var conditions 	= this.getConditions(),
+				$parent		= jQuery( event.target ).parent(),
+				id 			= $parent.data( 'condition-id' ),
+				condition 	= conditions[ id ];
+
+			event.preventDefault();
+
+			// Uncheck current condition box
+			this.getConditionCheckbox( id ).prop( 'checked', false );
+			// If it's a child condition remove it from preview
+			if ( condition.parent ) {
+				this.$el.find( 'li[data-condition-id="' + id + '"]' ).remove();
+			}
+			delete conditions[ id ];
+			// Remove condition from Manage Conditions section
+			$parent.remove();
+
+			this.updateConditionsSectionsVisibility();
+		},
+
+		/**
+		 * Hide or show Manage Conditions parts.
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		updateConditionsSectionsVisibility: function() {
+			var $includeConditions 		= this.$el.find( '.include .layout-conditions' ),
+				$excludeConditions 		= this.$el.find( '.exclude .layout-conditions' ),
+				hasIncludeConditions	= Boolean( $includeConditions.find( 'span' ).length ),
+				hasExcludeConditions	= Boolean( $excludeConditions.find( 'span' ).length );
+
+			// If there are include or exclude conditions we show the corresponding section
+			// If there are no conditions we  show empty conditions placeholder
+			if ( hasIncludeConditions ) {
+				$includeConditions.parent().show();
+			} else {
+				$includeConditions.parent().hide();
+			}
+			if ( hasExcludeConditions ) {
+				$excludeConditions.parent().show();
+			} else {
+				$excludeConditions.parent().hide();
+			}
+			if ( hasIncludeConditions || hasExcludeConditions ) {
+				this.$el.find( '.empty-conditions' ).hide();
+			} else {
+				this.$el.find( '.empty-conditions' ).show();
+			}
+		},
+
+		/**
+		 * Render the template.
+		 *
+		 * @since 3.6
+		 * @return {Object} this.
+		 */
+		render: function() {
+			var self		= this,
+				conditions 	= this.getConditions();
+
+			this.$el.html( this.template( this ) );
+
+			// Update checkboxes state
+			this.$el.find( 'input[type="checkbox"]' ).each( function() {
+				if ( this.value in conditions && this.dataset.mode === conditions[ this.value ].mode ) {
+					this.checked = true;
+				}
+			} );
+
+			// Update previews and update checkboxes that were previously selected.
+			_.each( this.getConditions(), function( condition, id ) {
+				if ( condition.parent ) {
+					self.$el.find( '.layout-option-parent[data-condition="' + condition.parent + '"] + .child-options-preview' )
+						.append(
+							'<li data-condition-id="' + id + '" class="preview-' + condition.mode + '">' + condition.label + '</li>'
+						);
+				}
+				self.getConditionCheckbox( id ).prop( 'checked', true );
+			} );
+
+			this.renderConditionsSection();
+
+			// Add listener for escape key to close modal.
+			jQuery( 'body' ).on( 'keydown', function( event ) {
+				if ( 27 === event.keyCode || '27' === event.keyCode ) {
+					jQuery( 'body' ).off( 'keydown' );
+					self.renderLayoutBoxConditionsSection();
+					self.remove( event );
+					return false;
+				}
+				return true;
+			} );
+
+			return this;
+		},
+
+		/**
+		 * Returns a DOM element for condition checkbox
+		 *
+		 * @since 3.6
+		 * @param {String} id - Condition id.
+		 * @return {Object} this.
+		 */
+		getConditionCheckbox: function( id ) {
+			var condition = this.getConditions()[ id ];
+			if ( condition.parent ) {
+				return this.$el.find( '#' + id.replace( '|', '\\|' ) + '-' + condition.mode );
+			}
+			return this.$el.find( '#' + id + '-' + condition.mode );
+		},
+
+		/**
+		 * Loads child options.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {Object} this.
+		 */
+		showChildOptions: function( event ) {
+			var $target = jQuery( event.currentTarget ),
+				$parent = $target.parent();
+
+			event.preventDefault();
+
+			$target.find( 'i' ).addClass( 'fusiona-chevron-small-up' );
+
+			// Hide Preview
+			$parent.siblings( '.child-options-preview' ).hide();
+			$parent.addClass( 'active' );
+		},
+
+		/**
+		 * Hide child options.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {Object} this.
+		 */
+		hideChildOptions: function( event ) {
+			var $input		= jQuery( event.currentTarget ),
+				$parent		= $input.parent(),
+				$preview 	= $parent.siblings( '.child-options-preview' );
+
+			event.preventDefault();
+			$input.find( 'i' ).removeClass( 'fusiona-chevron-small-up' );
+			$parent.removeClass( 'active loading' );
+
+
+			// Update and show child previews
+			$preview.html( '' );
+			_.each( this.getConditions(), function( condition, id ) { //eslint-disable-line no-unused-vars
+				if ( condition.parent ===  $parent.data( 'condition' ) ) {
+					$preview.append(
+						'<li data-condition-id="' + id + '" class="preview-' + condition.mode + '">' + condition.label + '</li>'
+					);
+				}
+			} );
+			$preview.show();
+		},
+
+		/**
+		 * Ajax handler
+		 *
+		 * @since 3.5
+		 * @param {Object} data
+		 * @param {Function} callback
+		 * @return {Void}.
+		 */
+		doAjax: function( data, callback ) {
+			jQuery.ajax( {
+				type: 'POST',
+				url: ajaxurl,
+				dataType: 'json',
+				data: data,
+				complete: function( response ) {
+					if ( 200 === response.status ) {
+						return callback( response.responseJSON );
+					}
+					return callback( null, response );
+				}
+			} );
+		},
+
+		/**
+		 * Fetches child options for specific parent.
+		 *
+		 * @since 3.6
+		 * @param {Object} $parent - The layout option parent Element.
+		 * @return {void}
+		 */
+		loadChildOptions: function( $parent ) {
+			var self			= this,
+				page 			= $parent.data( 'page' ),
+				parentCondition = $parent.data( 'condition' );
+
+			page = page ? parseInt( page ) + 1 : 1;
+
+			this.doAjax( {
+				action: 'fusion_admin_layout_options',
+				parent: parentCondition,
+				page: page,
+				security: this.item.find( '#layout-conditions-nonce' ).val()
+			}, function( response ) {
+				if ( response.success ) {
+					self.renderChildOptions( $parent, page, response.data );
+				}
+			} );
+		},
+
+		/**
+		 * Renders child options for specific parent.
+		 *
+		 * @since 3.6
+		 * @param {Object} $parent
+		 * @param {Number} page
+		 * @param {Array} options
+		 * @return {void}
+		 */
+		renderChildOptions: function( $parent, page, options ) {
+			var self 		= this,
+				container 	= $parent.find( '.child-options' ),
+				conditions 	= this.getConditions();
+
+			_.each( options, function( option ) {
+				option.checked = conditions[ option.id ] && conditions[ option.id ].mode;
+				container.append( self.templateForChildOption( option ) );
+			} );
+
+			$parent.removeClass( 'loading' );
+			// Update results page
+			$parent.data( 'page', page );
+
+			// If less than 10 results change button label and disable button
+			// else show button and enable it again
+			if ( 10 > options.length ) {
+				$parent.find( '.load-more' ).addClass( 'disabled' );
+				$parent.find( '.load-more span' ).text( $parent.find( '.load-more' ).data( 'empty' ) );
+			} else {
+				$parent.find( '.load-more' ).show().prop( 'disabled', false ).removeClass( 'loading' );
+			}
+		},
+
+		/**
+		 * Handler for load more button.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		loadMore: function( event ) {
+			var $parent = jQuery( event.target ).closest( '.layout-option-parent' );
+			jQuery( event.currentTarget ).addClass( 'loading' ).prop( 'disabled', true );
+			this.loadChildOptions( $parent );
+		},
+
+		/**
+		 * Fetches child options for specific parent.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		inputChange: function( event ) {
+			var conditions 		= this.getConditions(),
+				input 			= event.target,
+				conditionId		= input.name,
+				conditionMode 	= input.value;
+
+			// If the user is selecting the same condition perform a deselect
+			// Else if is selecting same condition but the mode is different perform a toggle
+			// Else were adding a new condition
+			if ( conditions[ conditionId ] && conditions[ conditionId ].mode === conditionMode ) {
+				jQuery( input ).prop( 'checked', false );
+				this.updateParent( input, conditionId );
+				delete conditions[ conditionId ];
+			} else if ( conditions[ conditionId ] ) {
+				jQuery( input ).siblings( 'input' ).prop( 'checked', false );
+				conditions[ conditionId ].mode = conditionMode;
+				this.updateParent( input, conditionId );
+			} else {
+				conditions[ conditionId ] = {
+					label: input.dataset.label,
+					type: input.dataset.type,
+					mode: conditionMode,
+					[ input.dataset.type ]: conditionId,
+					parent: input.dataset.parent
+				};
+				this.updateParent( input, conditionId );
+			}
+
+			this.renderConditionsSection();
+		},
+
+		/**
+		 * Updates parent options if options selected from search results
+		 * @since 3.6
+		 * @param input
+		 * @param conditionId
+		 */
+		updateParent: function( input, conditionId ) {
+			// If checkbox is from search results update child option if exist
+			if ( jQuery( input ).closest( '.layoutbox-search-results' ).length ) {
+				this.getConditionCheckbox( conditionId ).each( function() {
+					var checkbox = jQuery( this );
+					var status = jQuery( input ).prop( 'checked' );
+					if ( ! checkbox.is( input ) ) {
+						checkbox.siblings( 'input' ).prop( 'checked', false );
+						checkbox.prop( 'checked', status );
+					}
+				} );
+			}
+		},
+
+		/**
+		 * Renders conditions section
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		renderConditionsSection: function() {
+			// TODO use DiffDOM to avoid jank.
+			var $includeConditions 		= this.$el.find( '.include .layout-conditions' ),
+				$excludeConditions 		= this.$el.find( '.exclude .layout-conditions' );
+
+			$includeConditions.html( '' );
+			$excludeConditions.html( '' );
+
+			_.each( this.getConditions(), function( condition, id ) {
+				var $condition = jQuery( '<span data-condition-id="' + id + '">' + condition.label + '<a href="#" class="fusiona-cross remove-condition" aria-label="Remove condition" /></span>' );
+				if ( 'include' === condition.mode ) {
+					$includeConditions.append( $condition );
+				} else {
+					$excludeConditions.append( $condition );
+				}
+			} );
+			this.updateConditionsSectionsVisibility();
+		},
+
+		/**
+		 * Handler for search input.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		handleSearchInput: function( event ) {
+			var self 	= this,
+				search	= event.target.value,
+				$parent	= jQuery( event.target ).closest( '.layout-option-parent' ),
+				conditions = this.getConditions();
+			// If search is valid do ajax.
+			// Else clean results and close dropdown.
+			if ( search ) {
+				// Add loader
+				$parent.find( '.layoutbox-search-results' )
+					.attr( 'data-state', 'active' )
+					.html( '' )
+					.append( '<div class="layoutbox-loader"><div class="fusion-builder-loader"></div></div>' );
+
+				this.doAjax( {
+					action: 'fusion_admin_layout_options',
+					parent: $parent.data( 'condition' ),
+					search: search,
+					security: this.item.find( '#layout-conditions-nonce' ).val()
+				}, function( response ) {
+					var $container, hideSearch;
+					if ( response.success ) {
+						$container = $parent.find( '.layoutbox-search-results' );
+						$container.html( '' );
+						if ( response.data.length ) {
+							_.each( response.data, function( result ) {
+								result.checked = conditions[ result.id ] && conditions[ result.id ].mode;
+								$container.append( self.templateForChildOption( result ) );
+							} );
+							// Hide search results when a click outside $container occurs
+							hideSearch = function ( e ) {
+								if ( ! $container.is( e.target ) && 0 === $container.has( e.target ).length ) {
+									$container.attr( 'data-state', '' );
+									jQuery( document ).off( 'mouseup', hideSearch );
+								}
+							};
+							jQuery( document ).on( 'mouseup', hideSearch );
+						} else {
+							$container.attr( 'data-state', '' );
+						}
+					}
+				} );
+			} else {
+				$parent.find( '.layoutbox-search-results' ).html( '' ).attr( 'data-state', '' );
+			}
+		},
+
+		/**
+		 * Switches a tab. Takes care of toggling the 'current' & 'inactive' classes
+		 * and also changes the 'display' property of elements to properly make the switch.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		switchTab: function( event ) {
+			var $tabLink = jQuery( event.currentTarget ),
+				tab      = $tabLink.attr( 'href' );
+
+			if ( event ) {
+				event.preventDefault();
+			}
+
+			$tabLink.addClass( 'current' ).removeClass( 'inactive' );
+			$tabLink.siblings().removeClass( 'current' ).addClass( 'inactive' );
+
+
+			this.$el.find( tab ).siblings( '.layout-mode-tab, .layout-option-tab' ).hide();
+			this.$el.find( tab ).show();
+		},
+
+		/**
+		 * Renders conditions section
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		renderLayoutBoxConditionsSection: function() {
+			var $layoutBox 	= this.item.find( '.awb-conditions ul' ),
+				conditions	= this.getConditions();
+
+			$layoutBox.find( '.include, .exclude' ).remove();
+			$layoutBox.closest( '.awb-off-canvas-conditions-constoller' ).removeClass( 'has-conditions' );
+
+			if ( 'object' === typeof conditions && 0 < Object.keys( conditions ).length ) {
+				$layoutBox.closest( '.awb-off-canvas-conditions-constoller' ).addClass( 'has-conditions' );
+				_.each( conditions, function( condition ) {
+					var $condition = jQuery( '<li class="' + condition.mode + '"><span>' + condition.label + '</span></li>' );
+					$layoutBox.append( $condition );
+				} );
+			}
+
+			this.item.find( '.awb-conditions-value' ).val( JSON.stringify( conditions ) ).change();
+		},
+
+		/**
+		 * Close layout options modal.
+		 *
+		 * @since 3.6
+		 * @param {Object} event - The event.
+		 * @return {void}
+		 */
+		closeModal: function( event ) {
+			event.preventDefault();
+			this.renderLayoutBoxConditionsSection();
+			this.remove();
+		}
+	} );
+
+}( jQuery ) );
+
+FusionPageBuilder.options.fusionLayoutConditions = {
+
+	/**
+	 * Run actions on load.
+	 *
+	 * @since 3.6
+	 *
+	 * @return {void}
+	 */
+	optionLayoutConditions: function( $element ) {
+
+		if ( 'undefined' === typeof this.layoutConditions ) {
+			$element.find( '.awb-manage-conditions' ).click( function( e ) {
+				var conditions = jQuery( this ).closest( '.fusion-builder-option' ).find( '.awb-conditions-value' ).val();
+
+				e.preventDefault();
+
+				conditions            = '""' === conditions || 0 === conditions.length ? '{}' : conditions;
+				this.layoutConditions = new FusionPageBuilder.layoutConditions( {
+					'conditions': JSON.parse( conditions ),
+					'item': jQuery( this ).closest( '.fusion-builder-option' )
+				} );
+
+				jQuery( '.layout-conditions-wrapper' ).remove();
+				jQuery( 'body' ).append( '<div class="layout-conditions-wrapper"></div>' ); // Needed for styles.
+				jQuery( 'body .layout-conditions-wrapper' ).prepend( this.layoutConditions.render().el );
+			} );
+		}
+	}
+};
 ;/* globals FusionPageBuilderApp, FusionApp, fusionSanitize */
 var FusionPageBuilder = FusionPageBuilder || {};
 FusionPageBuilder.options = FusionPageBuilder.options || {};
@@ -8720,169 +9534,45 @@ FusionPageBuilder.options = FusionPageBuilder.options || {};
 
 FusionPageBuilder.options.fusionColorPicker = {
 	optionColorpicker: function( $element ) {
-		var that = this,
-			$colorPicker;
+		var $colorPicker,
+			self = this;
 
 		$element     = 'undefined' !== typeof $element && $element.length ? $element : this.$el;
 		$colorPicker = $element.find( '.fusion-builder-color-picker-hex' );
 
 		if ( $colorPicker.length ) {
 			$colorPicker.each( function() {
-				var self          = jQuery( this ),
-					$defaultReset = self.closest( '.fusion-builder-option' ).find( '.fusion-builder-default-reset' ),
-					parentValue   = 'undefined' !== typeof that.parentValues && 'undefined' !== typeof that.parentValues[ self.attr( 'id' ) ] ? that.parentValues[ self.attr( 'id' ) ] : false;
+				var $picker       = jQuery( this ),
+					$defaultReset = $picker.closest( '.fusion-builder-option' ).find( '.fusion-builder-default-reset' ),
+					parentValue   = 'undefined' !== typeof self.parentValues && 'undefined' !== typeof self.parentValues[ $picker.attr( 'id' ) ] ? self.parentValues[ $picker.attr( 'id' ) ] : false;
 
-				setTimeout( function() {
-					var pickerWithDefault = self.data( 'default' ) && self.data( 'default' ).length;
+				// Child element inheriting default from parent.
+				if ( parentValue ) {
+					$picker.attr( 'data-default', parentValue );
+				}
 
-					self.wpColorPicker( {
-						create: function() {
-							jQuery( self ).addClass( 'fusion-color-created' );
-							that.updatePickerIconColor( self.val(), self );
-						},
-						change: function( event, ui ) {
-							if ( pickerWithDefault ) {
-								that.colorChange( ui.color.toString(), self, $defaultReset, parentValue, event.target.value );
-							} else {
-								that.colorChange( ui.color.toString(), self, undefined, undefined, event.target.value );
-							}
-							that.updatePickerIconColor( ui.color.toString(), self );
-						},
-						clear: function( event ) {
-							if ( pickerWithDefault ) {
-								that.colorClear( event, self, parentValue );
-							} else {
-								self.val( '' ).trigger( 'fusion-change' );
-								self.closest( '.fusion-colorpicker-container' ).find( '.color-picker-placeholder' ).val( '' );
-							}
-						}
-					} );
-
-					// Make it so the reset link also clears color.
-					if ( pickerWithDefault ) {
-						$defaultReset.on( 'click', 'a', function( event ) {
-							event.preventDefault();
-							that.colorClear( event, self, parentValue );
-						} );
+				$picker.awbColorPicker().on( 'blur', function() {
+					if ( jQuery( this ).hasClass( 'iris-error' ) ) {
+						jQuery( this ).removeClass( 'iris-error' );
+						jQuery( this ).val( '' );
 					}
+				} );
 
-					// For some reason non alpha are not triggered straight away.
-					if ( true !== self.data( 'alpha' ) ) {
-						self.wpColorPicker().change();
+				// Default reset icon, set value to empty.
+				$defaultReset.on( 'click', function( event ) {
+					var dataDefault,
+						$input = jQuery( this ).closest( '.fusion-builder-option' ).find( '.color-picker' );
+
+					event.preventDefault();
+					dataDefault = $input.attr( 'data-default' ) || $input.attr( 'data-default-color' );
+
+					// Make the color picker to start from the default color on open.
+					if ( dataDefault ) {
+						$input.val( dataDefault ).trigger( 'change' );
 					}
-
-					self.closest( '.fusion-colorpicker-container' ).find( '.color-picker-placeholder' ).on( 'change', function() {
-						var $el = jQuery( this );
-
-						setTimeout( function() {
-							var value = $el.val();
-
-							if ( ! value ) {
-								$el.closest( '.fusion-colorpicker-container' ).find( '.wp-color-picker' ).val( value ).attr( 'value', value ).trigger( 'change' );
-							}
-						}, 10 );
-					} );
-
-					self.on( 'blur', function() {
-						if ( jQuery( this ).hasClass( 'iris-error' ) ) {
-							jQuery( this ).removeClass( 'iris-error' );
-							jQuery( this ).val( '' );
-						}
-					} );
-				}, 10 );
+					$input.val( '' ).trigger( 'change' );
+				} );
 			} );
-		}
-	},
-
-	colorChange: function( value, self, defaultReset, parentValue, prevValue ) { // jshint ignore: line
-		var defaultColor = parentValue ? parentValue : self.data( 'default' ),
-			$placeholder = self.closest( '.fusion-colorpicker-container' ).find( '.color-picker-placeholder' ),
-			valueRGBA = value.replace( / |\(|\)|rgba/g, '' ).split( ',' ),
-			prevValueRGBA = prevValue.replace( / |\(|\)|rgba/g, '' ).split( ',' );
-
-		// Initial preview for empty.
-		if ( '' === value ) {
-			self.addClass( 'fusion-using-default' );
-			$placeholder.addClass( 'fusion-color-picker-placeholder-using-default' );
-			self.val( defaultColor ).change();
-			self.val( '' );
-			return;
-		}
-
-		if ( value === defaultColor && 'TO' !== self.attr( 'data-location' ) && 'PO' !== self.attr( 'data-location' ) && 'FBE' !== self.attr( 'data-location' ) ) {
-			setTimeout( function() {
-				self.val( '' ).change();
-			}, 10 );
-			if ( defaultReset ) {
-				defaultReset.addClass( 'checked' );
-
-				// Update default value in description.
-				defaultReset.parent().find( '> a' ).html( defaultColor );
-			}
-		} else {
-			self.removeClass( 'fusion-using-default' );
-			$placeholder.removeClass( 'fusion-color-picker-placeholder-using-default' );
-			if ( defaultReset ) {
-				defaultReset.removeClass( 'checked' );
-			}
-			self.val( value ).change();
-		}
-
-		// If alpha is 0 and we're changing to a different color reset alpha to 1
-		if (
-			value !== prevValue &&
-			( valueRGBA[ 3 ] && '0' == valueRGBA[ 3 ] ) &&
-			( ( prevValueRGBA[ 3 ] && prevValueRGBA[ 3 ] === valueRGBA[ 3 ] ) || ( '' === prevValue ) )
-		) {
-			valueRGBA[ 3 ] = 1;
-			self.val( 'rgba( ' + valueRGBA.join( ',' ) + ' )' ).change();
-		}
-
-		setTimeout( function() {
-			self.closest( '.wp-picker-container' ).find( '.wp-color-result' ).css( {
-				backgroundImage: '',
-				backgroundColor: value
-			} );
-		}, 100 );
-	},
-
-	colorChanged: function( value, self ) {
-		self.val( value );
-		self.change();
-	},
-
-	updatePickerIconColor: function( value, self ) {
-		var colorObj  = jQuery.Color( value ),
-			lightness = parseInt( colorObj.lightness() * 100, 10 );
-
-		if ( 0.3 < colorObj.alpha() && 70 > lightness ) {
-			self.closest( '.fusion-colorpicker-container' ).find( '.fusion-colorpicker-icon' ).css( 'color', '#fff' );
-		} else {
-			self.closest( '.fusion-colorpicker-container' ).find( '.fusion-colorpicker-icon' ).removeAttr( 'style' );
-		}
-	},
-
-	colorClear: function( event, self, parentValue ) {
-		var defaultColor = parentValue ? parentValue : self.data( 'default' ),
-			$placeholder = self.closest( '.fusion-colorpicker-container' ).find( '.color-picker-placeholder' );
-
-		$placeholder.val( '' );
-
-		if ( ! self.hasClass( 'fusion-default-changed' ) && self.hasClass( 'fusion-using-default' ) ) {
-			self.closest( '.wp-picker-container' ).find( '.wp-color-result' ).css( 'background-color', defaultColor );
-			return;
-		}
-
-		if ( null !== defaultColor && ( 'TO' !== self.closest( '.fusion-builder-option' ).data( 'type' ) || 'FBE' !== self.closest( '.fusion-builder-option' ).data( 'type' ) ) ) {
-			self.addClass( 'fusion-using-default' );
-			$placeholder.addClass( 'fusion-color-picker-placeholder-using-default' );
-			self.removeClass( 'fusion-default-changed' );
-			self.val( defaultColor ).change();
-			self.val( '' );
-			self.closest( '.wp-picker-container' ).find( '.wp-color-result' ).css( 'background-color', defaultColor );
-		} else if ( null !== defaultColor && ( 'TO' === self.closest( '.fusion-builder-option' ).data( 'type' ) || 'FBE' === self.closest( '.fusion-builder-option' ).data( 'type' ) ) ) {
-			self.val( defaultColor ).change();
-			self.closest( '.wp-picker-container' ).find( '.wp-color-result' ).css( 'background-color', defaultColor );
 		}
 	}
 };
@@ -9974,7 +10664,7 @@ FusionPageBuilder.options.fusionOptionUpload = {
 		if ( jQuery( event.currentTarget ).closest( '.fusion-builder-option-container' ).find( '.fusion-url-only-input' ).length ) {
 			jQuery( event.currentTarget ).closest( '.fusion-builder-option-container' ).find( '.fusion-url-only-input' ).val( '' );
 		}
-
+		FusionEvents.trigger( 'awb-image-upload-url-' + $upload.data( 'param' ), '' );
 	},
 
 	optionUpload: function( $element ) {
@@ -10501,6 +11191,10 @@ FusionPageBuilder.options.fusionOptionUpload = {
 			imageURL = $uploadField.data( 'url' );
 		}
 
+		// Trigger event with Image URL.
+		FusionEvents.trigger( 'awb-image-upload-url-' + $uploadButton.data( 'param' ), imageURL );
+
+
 		if ( 0 <= imageURL.indexOf( '<img' ) ) {
 			imagePreview = imageURL;
 		} else {
@@ -10549,6 +11243,91 @@ FusionPageBuilder.options.fusionOptionUpload = {
 
 		$preview.find( 'img' ).replaceWith( imagePreview );
 		$preview.closest( '.fusion-upload-area' ).addClass( 'fusion-uploaded-image' );
+
+	}
+};
+;/* global FusionEvents */
+var FusionPageBuilder = FusionPageBuilder || {};
+FusionPageBuilder.options = FusionPageBuilder.options || {};
+
+FusionPageBuilder.options.fusionImageFocusPoint = {
+	optionFocusImage: function( el ) {
+		var points = el.find( '.fusion-image-focus-point' );
+		var model = this.model;
+
+		points.each( function() {
+			var point 	= jQuery( this ).find( '.point' );
+			var field 	= jQuery( this ).find( 'input.fusion-builder-focus-point-field' );
+			var preview = jQuery( this ).find( '.preview' );
+			var previewImg = preview.find( '.image' );
+			var placeHolder = jQuery( this ).find( '.placeholder' );
+			var paramName	= previewImg.data( 'image' );
+			var image 	= el.find( `[data-option-id="${paramName}"]` ).find( '.fusion-builder-upload-preview img' );
+			var imageValue = model.attributes.params[ paramName ];
+
+			if ( imageValue ) {
+				placeHolder.hide();
+				preview.show();
+				previewImg.append( image.clone() );
+			} else {
+				preview.hide();
+				placeHolder.show();
+			}
+			FusionEvents.on( 'awb-image-upload-url-' + paramName, function( url ) {
+				if ( url ) {
+					image 	= '<img src="' + url + '" alt="">';
+					previewImg.find( 'img' ).remove();
+					previewImg.append( image );
+					preview.show();
+					placeHolder.hide();
+				} else {
+					previewImg.find( 'img' ).remove();
+					preview.hide();
+					placeHolder.show();
+				}
+			} );
+
+			point.draggable( {
+				containment: 'parent',
+				scroll: false,
+				drag: function () {
+					var top = parseInt( 100 * parseFloat( jQuery( this ).css( 'top' ) ) / parseFloat( jQuery( this ).parent().css( 'height' ) ) );
+					var left = parseInt( 100 * parseFloat( jQuery( this ).css( 'left' ) ) / parseFloat( jQuery( this ).parent().css( 'width' ) ) );
+					field.val( `${left}% ${top}%` ).trigger( 'change' );
+
+				},
+				stop: function () {
+					var top = parseInt( 100 * parseFloat( jQuery( this ).css( 'top' ) ) / parseFloat( jQuery( this ).parent().css( 'height' ) ) );
+					var left = parseInt( 100 * parseFloat( jQuery( this ).css( 'left' ) ) / parseFloat( jQuery( this ).parent().css( 'width' ) ) );
+					field.val( `${left}% ${top}%` ).trigger( 'change' );
+				}
+			} );
+
+			const $defaultReset = point.closest( '.fusion-builder-option' ).find( '.fusion-builder-default-reset' );
+
+			// Default reset icon, set value to empty.
+			$defaultReset.on( 'click', function( event ) {
+				var dataDefault,
+					top = '50%',
+					left = '50%';
+
+				event.preventDefault();
+				dataDefault = jQuery( this ).find( '.fusion-range-default' ).attr( 'data-default' ) || '';
+
+				if ( dataDefault && 'string' === typeof dataDefault ) {
+					top = dataDefault.split( ' ' )[ 1 ];
+					left = dataDefault.split( ' ' )[ 0 ];
+				}
+				point.css( {
+					top,
+					left
+				} );
+				field.val( dataDefault ).trigger( 'change' );
+
+			} );
+
+		} );
+
 
 	}
 };
@@ -10841,7 +11620,7 @@ FusionPageBuilder.options.fusionRangeField = {
 				$min          = jQuery( this ).data( 'min' ),
 				$max          = jQuery( this ).data( 'max' ),
 				$step         = jQuery( this ).data( 'step' ),
-				$direction    = jQuery( this ).data( 'direction' ),
+				$direction    = 'ltr',
 				$value        = $rangeInput.val(),
 				$decimals     = $step.countDecimals(),
 				$rangeCheck   = 1 === jQuery( this ).closest( '.fusion-builder-option' ).find( '.fusion-with-default' ).length,
@@ -11007,6 +11786,11 @@ FusionPageBuilder.options.fusionRepeaterField = {
 			params,
 			values,
 			rowTitle;
+
+		// When doing a search we need to set the context correctly.
+		if ( 'search' === this.context ) {
+			this.context = jQuery( '.fusion-sidebar-section[data-context]' ).data( 'context' );
+		}
 
 		switch ( this.context ) {
 
@@ -12150,7 +12934,7 @@ FusionPageBuilder.options.fusionTextFieldPlaceholder = {
 		}
 	}
 };
-;/* global FusionApp, Fuse, fusionBuilderText */
+;/* global AwbTypography */
 var FusionPageBuilder = FusionPageBuilder || {};
 FusionPageBuilder.options = FusionPageBuilder.options || {};
 
@@ -12164,734 +12948,22 @@ FusionPageBuilder.options.fusionTypographyField = {
 	 * @return {void}
 	 */
 	optionTypography: function( $element ) {
-		var self = this;
+		var self     = this,
+			typoSets = {};
 
 		$element = 'undefined' !== typeof $element && $element.length ? $element : this.$el;
 
-		if ( $element.find( '.wrapper .font-family' ).length ) {
-			if ( _.isUndefined( FusionApp.assets ) || _.isUndefined( FusionApp.assets.webfonts ) ) {
-				jQuery.when( FusionApp.assets.getWebFonts() ).done( function() {
-					self.initAfterWebfontsLoaded( $element );
-				} );
-			} else {
-				this.initAfterWebfontsLoaded( $element );
-			}
-		}
-	},
-
-	/**
-	 * Make sure we initialize the field only after the webfonts are available.
-	 * Since webfonts are loaded via AJAX we need this to make sure there are no errors.
-	 *
-	 * @since 2.0.0
-	 * @param {Object} $element - The element jQuery object.
-	 * @return {void}
-	 */
-	initAfterWebfontsLoaded: function( $element ) {
-		this.renderFontSelector( $element );
-	},
-
-	/**
-	 * Adds the font-families to the font-family dropdown
-	 * and instantiates select2.
-	 *
-	 * @since 2.0.0
-	 * @param {Object} $element - The element jQuery object.
-	 * @return {void}
-	 */
-	renderFontSelector: function( $element ) {
-		var self          = this,
-			fonts         = FusionApp.assets.webfonts,
-			standardFonts = [],
-			googleFonts   = [],
-			customFonts   = [],
-			selectors     = $element.find( '.font-family .fusion-select-field' ),
-			data          = [],
-			$fusionSelect;
-
-		// Format standard fonts as an array.
-		if ( ! _.isUndefined( fonts.standard ) ) {
-			_.each( fonts.standard, function( font ) {
-				standardFonts.push( {
-					id: font.family.replace( /&quot;/g, '&#39' ),
-					text: font.label
-				} );
-			} );
-		}
-
-		// Format google fonts as an array.
-		if ( ! _.isUndefined( fonts.google ) ) {
-			_.each( fonts.google, function( font ) {
-				googleFonts.push( {
-					id: font.family,
-					text: font.label
-				} );
-			} );
-		}
-
-		// Format custom fonts as an array.
-		if ( ! _.isUndefined( fonts.custom ) ) {
-			_.each( fonts.custom, function( font ) {
-				if ( font.family && '' !== font.family ) {
-					customFonts.push( {
-						id: font.family.replace( /&quot;/g, '&#39' ),
-						text: font.label
+		if ( $element.find( '.awb-typography' ).length ) {
+			if ( _.isUndefined( window.awbTypographySelect ) || _.isUndefined( window.awbTypographySelect.webfonts ) ) {
+				jQuery.when( window.awbTypographySelect.getWebFonts() ).done( function() {
+					$element.find( '.fusion-builder-option.typography' ).each( function() {
+						typoSets[ jQuery( this ).attr( 'data-option-id' ) ] = new AwbTypography( this, self );
 					} );
-				}
-			} );
-		}
-
-		// Combine forces and build the final data.
-		if ( customFonts[ 0 ] ) {
-			data.push( { text: 'Custom Fonts', children: customFonts } );
-		}
-		data.push( { text: 'Standard Fonts', children: standardFonts } );
-		data.push( { text: 'Google Fonts',   children: googleFonts } );
-
-		_.each( jQuery( selectors ), function( selector ) {
-			var fontFamily = self.getTypographyVal( selector, 'font-family' ).replace( /'/g, '"' ),
-				id         = jQuery( selector ).closest( '.fusion-builder-option' ).attr( 'data-option-id' );
-
-			$fusionSelect = jQuery( selector ).fusionSelect( {
-				fieldId: id,
-				fieldName: 'font-family',
-				fieldValue: fontFamily,
-				data: data
-			} );
-
-			// Render dependent choices.
-			setTimeout( function() {
-				self.renderBackupFontSelector( id, fontFamily );
-				self.renderVariantSelector( id, fontFamily );
-			}, 70 );
-
-			$fusionSelect.find( '.fusion-select-option-value' ).on( 'change', function() {
-
-				// Re-render dependent elements on-change.
-				self.renderBackupFontSelector( id, jQuery( this ).val() );
-				self.renderVariantSelector( id, jQuery( this ).val() );
-
-				// Load new font using the webfont-loader.
-				self.webFontLoad( jQuery( this ).val(), self.getTypographyVal( id, 'variant' ), selector );
-			} );
-		} );
-	},
-
-	/**
-	 * Adds the font-families to the font-family dropdown
-	 * and instantiates select2.
-	 *
-	 * @since 2.0.0
-	 * @param {string} id - The option ID.
-	 * @param {string} fontFamily - The font-family selected.
-	 * @return {void}
-	 */
-	renderBackupFontSelector: function( id, fontFamily ) {
-		var self          = this,
-			$option       = jQuery( '.fusion-builder-option[data-option-id="' + id + '"] .font-backup' ),
-			standardFonts = [],
-			$fusionSelect; // eslint-disable-line no-unused-vars
-
-		// Format standard fonts as an array.
-		if ( ! _.isUndefined( FusionApp.assets.webfonts.standard ) ) {
-			_.each( FusionApp.assets.webfonts.standard, function( font ) {
-				standardFonts.push( {
-					id: font.family.replace( /&quot;/g, '&#39' ),
-					text: font.label
-				} );
-			} );
-		}
-
-		$fusionSelect = $option.find( '.fusion-select-field' ).fusionSelect( { // eslint-disable-line no-unused-vars
-			fieldId: id,
-			fieldName: 'font-backup',
-			data: [ { text: 'Standard Fonts', children: standardFonts } ]
-		} );
-
-		// Hide if we're not on a google-font and early exit.
-		if ( false === self.isGoogleFont( fontFamily ) ) {
-			$option.hide();
-			self.setTypographyVal( id, 'font-backup', '' );
-			return;
-		}
-
-		$option.show();
-	},
-
-	/**
-	 * Renders the variants selector using select2
-	 * Displays font-variants for the currently selected font-family.
-	 *
-	 * @since 2.0.0
-	 * @param {string} id - The option ID.
-	 * @param {string} fontFamily - The font-family selected.
-	 * @return {void}
-	 */
-	renderVariantSelector: function( id, fontFamily ) {
-
-		var self       = this,
-			selector   = jQuery( '.fusion-builder-option[data-option-id="' + id + '"] .variant select' ),
-			variants   = self.getVariants( fontFamily ),
-			data       = [],
-			variant    = self.getTypographyVal( id, 'variant' ),
-			params;
-
-		if ( false === variants ) {
-			jQuery( selector ).closest( '.variant' ).hide();
-		}
-
-		if ( jQuery( selector ).closest( '.fusion-builder-option' ).hasClass( 'font_family' ) && '' === fontFamily ) {
-
-			// Element, and switched to empty family, clear out variant param.
-			if ( 'EO' == this.type ) {
-				params                                = this.model.get( 'params' );
-				params[ 'fusion_font_variant_' + id ] = '';
-				jQuery( selector ).val( '' );
-			}
-			jQuery( selector ).closest( '.fusion-variant-wrapper' ).hide();
-			return;
-		}
-
-		// If we got this far, show the selector.
-		jQuery( selector ).closest( '.variant' ).show();
-		jQuery( selector ).closest( '.fusion-variant-wrapper' ).show();
-		jQuery( selector ).show();
-
-		_.each( variants, function( scopedVariant ) {
-
-			if ( scopedVariant.id && 'italic' === scopedVariant.id ) {
-				scopedVariant.id = '400italic';
-			}
-
-			data.push( {
-				id: scopedVariant.id,
-				text: scopedVariant.label
-			} );
-		} );
-
-		variant = self.getValidVariant( fontFamily, variant );
-
-		// Clear old values.
-		jQuery( selector ).empty();
-
-		_.each( data, function( font ) {
-			var selected = font.id === variant ? 'selected' : '';
-			jQuery( selector ).append( '<option value="' + font.id + '" ' + selected + '>' + font.text + '</option>' );
-		} );
-
-		if ( self.isCustomFont( fontFamily ) ) {
-			self.setTypographyVal( id, 'variant', '400' );
-			self.setTypographyVal( id, 'font-weight', '400' );
-		}
-
-		// When the value changes.
-		jQuery( selector ).on( 'fusion.typo-variant-loaded change', function() {
-			self.getFontWeightFromVariant( jQuery( this ).val() );
-			self.getFontStyleFromVariant( jQuery( this ).val() );
-
-			// Load new font using the webfont-loader.
-			self.webFontLoad( self.getTypographyVal( id, 'font-family' ), jQuery( this ).val(), selector );
-		} );
-
-		jQuery( selector ).val( variant ).trigger( 'fusion.typo-variant-loaded' );
-	},
-
-	/**
-	 * Gets the font-weight from a variant.
-	 *
-	 * @since 2.0.0
-	 * @param {string} variant The variant.
-	 * @return {string} - Returns the font-weight.
-	 */
-	getFontWeightFromVariant: function( variant ) {
-		if ( ! _.isString( variant ) ) {
-			return '400';
-		}
-		if ( ! _.isObject( variant.match( /\d/g ) ) ) {
-			return '400';
-		}
-		return variant.match( /\d/g ).join( '' );
-	},
-
-	/**
-	 * Gets the font-weight from a variant.
-	 *
-	 * @since 2.0.0
-	 * @param {string} variant - The variant.
-	 * @return {string} - Returns the font-style.
-	 */
-	getFontStyleFromVariant: function( variant ) {
-		if ( ! _.isUndefined( variant ) && _.isString( variant ) && -1 !== variant.indexOf( 'italic' ) ) {
-			return 'italic';
-		}
-		return '';
-	},
-
-	/**
-	 * Get variants for a font-family.
-	 *
-	 * @since 2.0.0
-	 * @param {string} fontFamily - The font-family name.
-	 * @return {Object} - Returns the variants for the selected font-family.
-	 */
-	getVariants: function( fontFamily ) {
-		var variants = false;
-
-		if ( this.isCustomFont( fontFamily ) ) {
-			return [
-				{
-					id: '400',
-					label: 'Normal 400'
-				}
-			];
-		}
-
-		_.each( FusionApp.assets.webfonts.standard, function( font ) {
-			if ( fontFamily && font.family === fontFamily ) {
-				variants = font.variants;
-				return font.variants;
-			}
-		} );
-
-		_.each( FusionApp.assets.webfonts.google, function( font ) {
-			if ( font.family === fontFamily ) {
-				variants = font.variants;
-				return font.variants;
-			}
-		} );
-		return variants;
-	},
-
-	/**
-	 * Gets the value for this typography field.
-	 *
-	 * @since 2.0.0
-	 * @param {string} selector - The selector for this option.
-	 * @param {string} property - The property we want to get.
-	 * @return {string|Object} - Returns a string if we have defined a property.
-	 *                            If no property is defined, returns the full set of options.
-	 */
-	getTypographyVal: function( selector, property ) {
-		var id,
-			value = {},
-			$option,
-			optionName,
-			params;
-
-		// For element options, take from params.
-		if ( 'EO' == this.type ) {
-			if ( 'string' !== typeof selector ) {
-				$option = jQuery( selector ).closest( '.fusion-builder-option' );
-			} else {
-				$option = jQuery( '.fusion-builder-option[data-option-id="' + selector + '"]' );
-			}
-			property      = property.replace( '-', '_' );
-			optionName    = $option.find( '.input-' + property ).attr( 'name' );
-			params        = this.model.get( 'params' );
-			value         = params[ optionName ];
-
-			if ( 'undefined' === typeof value || '' === value ) {
-				value = $option.find( '.input-' + property ).attr( 'data-default' );
-			}
-			return value;
-		}
-
-		// The selector can be an ID or an actual element.
-		if ( ! _.isUndefined( FusionApp.settings[ selector ] ) ) {
-			id = selector;
-		} else {
-			id = jQuery( selector ).closest( '.fusion-builder-option' ).attr( 'data-option-id' );
-		}
-
-		// Get all values.
-		if ( ! _.isUndefined( FusionApp.settings[ id ] ) ) {
-			value = FusionApp.settings[ id ];
-		}
-
-		value = this.removeEmpty( value );
-
-		// Define some defaults.
-		value = _.defaults( value, {
-			'font-family': '',
-			'font-backup': '',
-			variant: '400',
-			'font-style': '',
-			'font-weight': '400',
-			'font-size': '',
-			'line-height': '',
-			'letter-spacing': '',
-			'word-spacing': '',
-			'text-align': '',
-			'text-transform': '',
-			color: '',
-			'margin-top': '',
-			'margin-bottom': ''
-		} );
-
-		// Variant specific return.
-		if ( 'variant' === property && ! _.isUndefined( value[ property ] ) ) {
-			if ( 'italic' === value[ 'font-style' ] ) {
-				return value[ 'font-weight' ] + value[ 'font-style' ];
-			}
-			return value[ 'font-weight' ];
-		}
-
-		// Only return a specific property if one is defined.
-		if ( ! _.isUndefined( property ) && property && ! _.isUndefined( value[ property ] ) )  {
-			return value[ property ];
-		}
-		return value;
-	},
-
-	/**
-	 * Remove empty values from params so when merging with defaults, the defaults are used.
-	 *
-	 * @since 2.0.0
-	 * @param {Object} params - The parameters.
-	 * @return {Object} - Returns the parameters without the emoty values.
-	 */
-	removeEmpty: function( params ) {
-		var self = this;
-		Object.keys( params ).forEach( function( key ) {
-			if ( params[ key ] && 'object' === typeof params[ key ] ) {
-				self.removeEmpty( params[ key ] );
-			} else if ( null === params[ key ] || '' === params[ key ] ) {
-				delete params[ key ];
-			}
-		} );
-		return params;
-	},
-
-	/**
-	 * Sets a parameter of the value in FusionApp.settings.
-	 *
-	 * @since 2.0.0
-	 * @param {string} id - The option ID.
-	 * @param {string} param - Where we'll save the value.
-	 * @param {string} value - The value to set.
-	 * @return {void}
-	 */
-	setTypographyVal: function( id, param, value ) {
-		if ( 'EO' == this.type ) {
-			return;
-		}
-		if ( _.isUndefined( FusionApp.settings[ id ] ) ) {
-			FusionApp.settings[ id ] = {};
-		}
-		FusionApp.settings[ id ][ param ] = value;
-	},
-
-	/**
-	 * Load the typography using webfont-loader.
-	 *
-	 * @param {string} family - The font-family
-	 * @param {string} variant - The variant to load.
-	 * @param {string} selector - The selector.
-	 * @return {void}
-	 */
-	webFontLoad: function( family, variant, selector ) {
-		var self         = this,
-			isGoogleFont = self.isGoogleFont( family ),
-			scriptID,
-			script;
-
-		// Get a valid variant.
-		variant = self.getValidVariant( family, variant );
-
-		// Early exit if there is no font-family defined.
-		if ( _.isUndefined( family ) || '' === family || ! family ) {
-			return;
-		}
-
-		// Check font has actually changed from default.
-		if ( 'undefined' !== typeof selector && selector && ! this.checkFontChanged( family, variant, selector ) ) {
-			return;
-		}
-
-		// Early exit if not a google-font.
-		if ( false === isGoogleFont ) {
-			return;
-		}
-
-		variant = ( _.isUndefined( variant ) || ! variant ) ? ':regular' : ':' + variant;
-		family  = family.replace( /"/g, '&quot' );
-
-		script  = family;
-		script += ( variant ) ? variant : '';
-
-		scriptID = script.replace( /:/g, '' ).replace( /"/g, '' ).replace( /'/g, '' ).replace( / /g, '' ).replace( /,/, '' );
-
-		if ( ! jQuery( 'head' ).find( '#' + scriptID ).length ) {
-			jQuery( 'head' ).first().append( '<script id="' + scriptID + '">WebFont.load({google:{families:["' + script + '"]},context:FusionApp.previewWindow,active: function(){ jQuery( window ).trigger( "fusion-font-loaded"); },});</script>' );
-			return false;
-		}
-		return true;
-	},
-
-	/**
-	 * Check if a font-family is a google-font or not.
-	 *
-	 * @since 2.0.0
-	 * @param {string} family - The font-family to check.
-	 * @return {boolean} - Whether the font-family is a google font or not.
-	 */
-	isGoogleFont: function( family ) {
-		var isGoogleFont = false;
-
-		// Figure out if this is a google-font.
-		_.each( FusionApp.assets.webfonts.google, function( font ) {
-			if ( font.family === family ) {
-				isGoogleFont = true;
-			}
-		} );
-
-		return isGoogleFont;
-	},
-
-	/**
-	 * Check if a font-family is a custom font or not.
-	 *
-	 * @since 2.0.0
-	 * @param {string} family - The font-family to check.
-	 * @return {boolean} - Whether the font-family is a custom font or not.
-	 */
-	isCustomFont: function( family ) {
-		var isCustom = false;
-
-		// Figure out if this is a google-font.
-		_.each( FusionApp.assets.webfonts.custom, function( font ) {
-			if ( font.family === family ) {
-				isCustom = true;
-			}
-		} );
-
-		return isCustom;
-	},
-
-	/**
-	 * Gets a valid variant for the font-family.
-	 * This method checks if a defined variant is valid,
-	 * and if not provides a valid fallback.
-	 *
-	 * @since 2.0.0
-	 * @param {string} [family]  The font-family we'll be checking against.
-	 * @param {string} [variant] The variant we want.
-	 * @return {string} - Returns a valid variant for the defined font-family.
-	 */
-	getValidVariant: function( family, variant ) {
-
-		var self       = this,
-			variants   = self.getVariants( family ),
-			isValid    = false,
-			hasRegular = false,
-			first      = ( ! _.isUndefined( variants[ 0 ] ) && ! _.isUndefined( variants[ 0 ].id ) ) ? variants[ 0 ].id : '';
-
-		if ( this.isCustomFont( family ) ) {
-			return '400';
-		}
-
-		_.each( variants, function( v ) {
-			if ( variant === v.id ) {
-				isValid = true;
-			}
-			if ( 'regular' === v.id || '400' === v.id || 400 === v.id ) {
-				hasRegular = true;
-			}
-		} );
-
-		if ( isValid ) {
-			return variant;
-		} else if ( hasRegular ) {
-			return '400';
-		}
-		return first;
-	},
-
-	/**
-	 * Checks that font has actually been changed.
-	 *
-	 * @since 2.0.0
-	 * @param {string} family - The font-family.
-	 * @param {string} variant - The variant for the defined font-family.
-	 * @param {string} element - The element we're checking.
-	 * @return {boolean} - Whether there was a change or not.
-	 */
-	checkFontChanged: function( family, variant, element ) {
-		var id     = jQuery( element ).closest( '.fusion-builder-option' ).attr( 'data-option-id' ),
-			values = FusionApp.settings[ id ];
-
-		if ( 'EO' == this.type ) {
-			return true;
-		}
-		variant = 'regular' === variant ? '400' : variant;
-
-		if ( values[ 'font-family' ] !== family ) {
-			return true;
-		}
-		if ( values.variant !== variant && values[ 'font-weight' ] !== variant ) {
-			return true;
-		}
-		return false;
-	}
-};
-
-jQuery.fn.fusionSelect = function( options ) {
-	var checkBoxes         = '',
-		$selectField       = jQuery( this ),
-		$selectValue       = $selectField.find( '.fusion-select-option-value' ),
-		$selectDropdown    = $selectField.find( '.fusion-select-dropdown' ),
-		$selectPreview     = $selectField.find( '.fusion-select-preview-wrap' ),
-		$selectSearchInput = $selectField.find( '.fusion-select-search input' );
-
-	if ( $selectField.hasClass( 'fusion-select-inited' ) ) {
-		return $selectField;
-	}
-
-	$selectField.addClass( 'fusion-select-inited' );
-
-	if ( $selectField.closest( '.fusion-builder-option' ).hasClass( 'font_family' ) ) {
-		checkBoxes += '<label class="fusion-select-label' + ( '' === $selectValue.val() ? ' fusion-option-selected' : '' ) + '" data-value="" data-id="">' + fusionBuilderText.typography_default + '</label>';
-	}
-	_.each( options.data, function( subset ) {
-		checkBoxes += 'string' === typeof subset.text && 'font-family' === options.fieldName ? '<div class="fusion-select-optiongroup">' + subset.text + '</div>' : '';
-		_.each( subset.children, function( name ) {
-			var checked = name.id === $selectValue.val() ? ' fusion-option-selected' : '',
-				id      = 'string' === typeof name.id ? name.id.replace( /"/g, '' ).replace( /'/g, '' ).toLowerCase() : '';
-
-			checkBoxes += '<label class="fusion-select-label' + checked + '" data-value="' + name.id + '" data-id="' + id + '">' + name.text + '</label>';
-		} );
-	} );
-	$selectField.find( '.fusion-select-options' ).html( checkBoxes );
-
-	// Open select dropdown.
-	$selectPreview.on( 'click', function( event ) {
-		var open = $selectField.hasClass( 'fusion-open' );
-
-		event.preventDefault();
-
-		if ( ! open ) {
-			$selectField.addClass( 'fusion-open' );
-			if ( $selectSearchInput.length ) {
-				$selectSearchInput.focus();
-			}
-		} else {
-			$selectField.removeClass( 'fusion-open' );
-			if ( $selectSearchInput.length ) {
-				$selectSearchInput.val( '' ).blur();
-			}
-			$selectField.find( '.fusion-select-label' ).css( 'display', 'block' );
-		}
-	} );
-
-	// Option is selected.
-	$selectField.on( 'click', '.fusion-select-label', function() {
-		$selectPreview.find( '.fusion-select-preview' ).html( jQuery( this ).html() );
-		$selectPreview.trigger( 'click' );
-
-		$selectDropdown.find( '.fusion-select-label' ).removeClass( 'fusion-option-selected' );
-		jQuery( this ).addClass( 'fusion-option-selected' );
-
-		$selectField.find( '.fusion-select-option-value' ).val( jQuery( this ).data( 'value' ) ).trigger( 'change', [ { userClicked: true } ] );
-	} );
-
-	$selectField.find( '.fusion-select-option-value' ).on( 'change', function( event, data ) {
-		if ( 'undefined' !== typeof data && 'undefined' !== typeof data.userClicked && true !== data.userClicked ) {
-			return;
-		}
-
-		// Option changed progamatically, we need to update preview.
-		$selectPreview.find( '.fusion-select-preview' ).html( $selectField.find( '.fusion-select-label[data-value="' + jQuery( this ).val() + '"]' ).html() );
-		$selectDropdown.find( '.fusion-select-label' ).removeClass( 'fusion-option-selected' );
-		$selectDropdown.find( '.fusion-select-label[data-value="' + jQuery( this ).val() + '"]' ).addClass( 'fusion-option-selected' );
-	} );
-
-	// Search field.
-	if ( 'font-family' === options.fieldName ) {
-		$selectSearchInput.on( 'keyup change paste', function() {
-			var value         = jQuery( this ).val(),
-				standardFonts = 'object' === typeof options.data[ 0 ] ? jQuery.extend( true, options.data[ 0 ].children, {} ) : {},
-				googleFonts   = 'object' === typeof options.data[ 1 ] ? jQuery.extend( true, options.data[ 1 ].children, {} ) : {},
-				customFonts   = 'object' === typeof options.data[ 2 ] ? jQuery.extend( true, options.data[ 2 ].children, {} ) : {},
-				fuseOptions,
-				fuse,
-				result;
-
-			if ( 3 > value.length ) {
-				$selectField.find( '.fusion-select-label' ).css( 'display', 'block' );
-				return;
-			}
-
-			// Select option on "Enter" press if only 1 option is visible.
-			if ( 'keyup' === event.type && 13 === event.keyCode && 1 === $selectField.find( '.fusion-select-label:visible' ).length ) {
-				$selectField.find( '.fusion-select-label:visible' ).trigger( 'click' );
-				return;
-			}
-
-			$selectField.find( '.fusion-select-label' ).css( 'display', 'none' );
-
-			fuseOptions = {
-				threshold: 0.2,
-				location: 0,
-				distance: 100,
-				maxPatternLength: 32,
-				minMatchCharLength: 3,
-				keys: [ 'text' ]
-			};
-
-			fuse   = new Fuse( jQuery.extend( true, googleFonts, standardFonts, customFonts, {} ), fuseOptions );
-			result = fuse.search( value );
-
-			_.each( result, function( resultFont ) {
-				$selectField.find( '.fusion-select-label[data-id="' + resultFont.id.replace( /"/g, '' ).replace( /'/g, '' ).toLowerCase() + '"]' ).css( 'display', 'block' );
-			} );
-		} );
-	} else {
-		$selectSearchInput.on( 'keyup change paste', function() {
-			var val          = jQuery( this ).val(),
-				optionInputs = $selectField.find( '.fusion-select-label' );
-
-			// Select option on "Enter" press if only 1 option is visible.
-			if ( 'keyup' === event.type && 13 === event.keyCode && 1 === $selectField.find( '.fusion-select-label:visible' ).length ) {
-				$selectField.find( '.fusion-select-label:visible' ).trigger( 'click' );
-				return;
-			}
-
-			_.each( optionInputs, function( optionInput ) {
-				if ( -1 === jQuery( optionInput ).html().toLowerCase().indexOf( val.toLowerCase() ) ) {
-					jQuery( optionInput ).css( 'display', 'none' );
-				} else {
-					jQuery( optionInput ).css( 'display', 'block' );
-				}
-			} );
-		} );
-	}
-
-	return $selectField;
-};
-;/* global FusionApp */
-var FusionPageBuilder = FusionPageBuilder || {};
-FusionPageBuilder.options = FusionPageBuilder.options || {};
-
-FusionPageBuilder.options.fusionFontFamilyField = {
-
-	/**
-	 * Initialize the font family field.
-	 *
-	 * @since 2.0.0
-	 * @param {Object} $element - The element jQuery object.
-	 * @return {void}
-	 */
-	optionFontFamily: function( $element ) {
-		var self = this;
-
-		$element = 'undefined' !== typeof $element && $element.length ? $element : this.$el;
-		if ( $element.find( '.wrapper .font-family' ).length ) {
-			if ( _.isUndefined( FusionApp.assets ) || _.isUndefined( FusionApp.assets.webfonts ) ) {
-				jQuery.when( FusionApp.assets.getWebFonts() ).done( function() {
-					self.initAfterWebfontsLoaded( $element );
 				} );
 			} else {
-				this.initAfterWebfontsLoaded( $element );
+				$element.find( '.fusion-builder-option.typography' ).each( function() {
+					typoSets[ jQuery( this ).attr( 'data-option-id' ) ] = new AwbTypography( this, self );
+				} );
 			}
 		}
 	}
@@ -13071,7 +13143,7 @@ var fusionSanitize = {
 	 * @return {string} - RBGA color, ready to be used in CSS.
 	 */
 	color_alpha_set: function( value, adjustment ) {
-		var color  = jQuery.Color( value ),
+		var color  = jQuery.AWB_Color( value ),
 			adjust = Math.abs( adjustment );
 
 		if ( 1 < adjust ) {
@@ -13120,6 +13192,13 @@ var fusionSanitize = {
 						if ( arg[ 0 ].split( '[' )[ 1 ] && 'undefined' !== typeof settingVal[ arg[ 0 ].split( '[' )[ 1 ].replace( ']', '' ) ] ) {
 							settingVal = settingVal[ arg[ 0 ].split( '[' )[ 1 ].replace( ']', '' ) ];
 						}
+					}
+				}
+
+				if ( window.awbTypographySelect && window.awbTypographySelect.isTypographyCssVar( settingVal ) ) {
+					settingVal = window.awbTypographySelect.getRealValue( settingVal );
+					if ( ! settingVal ) {
+						settingVal = '';
 					}
 				}
 
@@ -13339,45 +13418,13 @@ var fusionSanitize = {
 		if ( 'transparent' === value ) {
 			return args.transparent;
 		}
-		color = jQuery.Color( value );
+		color = jQuery.AWB_Color( value );
 
 		if ( 1 === color.alpha() ) {
 			return args.opaque;
 		}
 
 		return args.transparent;
-	},
-
-	/**
-	 * Gets a readable text color depending on the background color and the defined args.
-	 *
-	 * @param {string}       value - The background color.
-	 * @param {Object}       args - An object with the arguments for the readable color.
-	 * @param {string|number} args.threshold - The threshold. Value between 0 and 1.
-	 * @param {string}       args.light - The color to return if background is light.
-	 * @param {string}       args.dark - The color to return if background is dark.
-	 * @return {string} - HEX color value.
-	 */
-	get_readable_color: function( value, args ) {
-		var color     = jQuery.Color( value ),
-			threshold = parseFloat( args.threshold );
-
-		if ( 'object' !== typeof args ) {
-			args = {};
-		}
-		if ( 'undefined' === typeof args.threshold ) {
-			args.threshold = 0.547;
-		}
-		if ( 'undefined' === typeof args.light ) {
-			args.light = '#333';
-		}
-		if ( 'undefined' === typeof args.dark ) {
-			args.dark = '#fff';
-		}
-		if ( 1 < threshold ) {
-			threshold = threshold / 100;
-		}
-		return ( color.lightness() < threshold ) ? args.dark : args.light;
 	},
 
 	/**
@@ -13391,7 +13438,7 @@ var fusionSanitize = {
 	 * @return {string} - RBGA color, ready to be used in CSS.
 	 */
 	lightness_adjust: function( value, adjustment ) {
-		var color  = jQuery.Color( value ),
+		var color  = jQuery.AWB_Color( value ),
 			adjust = Math.abs( adjustment ),
 			neg    = ( 0 > adjust );
 
@@ -13434,7 +13481,7 @@ var fusionSanitize = {
 		if ( 'transparent' === value ) {
 			return ( '$' === args.transparent ) ? value : args.transparent;
 		}
-		color = jQuery.Color( value );
+		color = jQuery.AWB_Color( value );
 
 		if ( 0 === color.alpha() ) {
 			return ( '$' === args.transparent ) ? value : args.transparent;
@@ -13450,7 +13497,7 @@ var fusionSanitize = {
 	 * @return {string} - RGBA/HEX color, ready to be used in CSS.
 	 */
 	get_non_transparent_color: function( value ) {
-		var color = jQuery.Color( value );
+		var color = jQuery.AWB_Color( value );
 
 		if ( 0 === color.alpha() ) {
 			return color.alpha( 1 ).toHexString();
@@ -13472,7 +13519,7 @@ var fusionSanitize = {
 			'v6' !== this.getSettings().header_layout &&
 			'left' === this.getSettings().header_position &&
 			this.getSettings().header_border_color &&
-			0 === jQuery.Color( this.getSettings().header_border_color ).alpha()
+			0 === jQuery.AWB_Color( this.getSettings().header_border_color ).alpha()
 		) {
 			return value;
 		}
@@ -13736,35 +13783,35 @@ var fusionSanitize = {
 			}
 			break;
 		case 'opaque':
-			if ( 1 === jQuery.Color( value ).alpha() ) {
+			if ( 1 === jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'not-opaque':
-			if ( 1 > jQuery.Color( value ).alpha() ) {
+			if ( 1 > jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'header-not-opaque':
-			if ( 1 > jQuery.Color( value ).alpha() && 'undefined' !== typeof FusionApp && 'off' !== FusionApp.preferencesData.transparent_header ) {
+			if ( 1 > jQuery.AWB_Color( value ).alpha() && 'undefined' !== typeof FusionApp && 'off' !== FusionApp.preferencesData.transparent_header ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'full-transparent':
-			if ( 'transparent' === value || 0 === jQuery.Color( value ).alpha() ) {
+			if ( 'transparent' === value || 0 === jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
 			}
 			break;
 		case 'not-full-transparent':
-			if ( 'transparent' !== value && 0 < jQuery.Color( value ).alpha() ) {
+			if ( 'transparent' !== value && 0 < jQuery.AWB_Color( value ).alpha() ) {
 				$el.addClass( args.className );
 			} else {
 				$el.removeClass( args.className );
@@ -13829,12 +13876,21 @@ var fusionSanitize = {
 	 * @return {string} - The changed font size.
 	 */
 	convert_font_size_to_px: function( value, baseFontSize ) {
-		var fontSizeUnit       = 'string' === typeof value ? value.replace( /\d+([,.]\d+)?/g, '' ) : value,
-			fontSizeNumber     = parseFloat( value ),
-			defaultFontSize    = 15, // Browser default font size. This is the average between Safari, Chrome and FF.
-			addUnits           = 'object' === typeof baseFontSize && 'undefined' !== typeof baseFontSize.addUnits && baseFontSize.addUnits,
+		var fontSizeUnit,
+			fontSizeNumber,
+			defaultFontSize,
+			addUnits,
 			baseFontSizeUnit,
 			baseFontSizeNumber;
+
+		if ( 'string' === typeof value && value.includes( '--awb' ) && window.awbTypographySelect ) {
+			value = window.awbTypographySelect.getRealValue( value );
+		}
+
+		fontSizeUnit       = 'string' === typeof value ? value.replace( /\d+([,.]\d+)?/g, '' ) : value;
+		fontSizeNumber     = parseFloat( value );
+		defaultFontSize    = 15; // Browser default font size. This is the average between Safari, Chrome and FF.
+		addUnits           = 'object' === typeof baseFontSize && 'undefined' !== typeof baseFontSize.addUnits && baseFontSize.addUnits;
 
 		if ( 'object' === typeof baseFontSize && 'undefined' !== typeof baseFontSize.setting ) {
 			baseFontSize = this.getOption( baseFontSize.setting );
@@ -13898,7 +13954,7 @@ function fusionReturnStringIfTransparent( value, args ) {
 	if ( 'transparent' === value ) {
 		return ( '$' === args.transparent ) ? value : args.transparent;
 	}
-	color = jQuery.Color( value );
+	color = jQuery.AWB_Color( value );
 
 	if ( 0 === color.alpha() ) {
 		return ( '$' === args.transparent ) ? value : args.transparent;
@@ -13918,7 +13974,7 @@ function fusionReturnColorAlphaInt( value ) {
 	if ( 'transparent' === value ) {
 		return 1;
 	}
-	color = jQuery.Color( value );
+	color = jQuery.AWB_Color( value );
 
 	if ( 1 === color.alpha() ) {
 		return 0;

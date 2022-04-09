@@ -469,7 +469,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					};
 
 					if ( 'masonry' === values.layout ) {
-						color    = jQuery.Color( values.grid_box_color );
+						color    = jQuery.AWB_Color( values.grid_box_color );
 						colorCSS = color.toRgbaString();
 						if ( 0 === color.alpha() ) {
 							colorCSS = color.toHexString();
@@ -486,9 +486,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						blogFusionPostWrapper.style += 'border-color:' + values.grid_element_color + ';';
 
 					} else if ( 'grid' === values.layout ) {
-						color       = jQuery.Color( values.grid_box_color );
+						color       = jQuery.AWB_Color( values.grid_box_color );
 						colorCSS    = color.toRgbaString();
-						borderColor = jQuery.Color( values.grid_element_color );
+						borderColor = jQuery.AWB_Color( values.grid_element_color );
 
 						if ( 0 === borderColor.alpha() || 'transparent' === values.grid_element_color ) {
 							blogFusionPostWrapper.style += 'border:none;';
@@ -500,7 +500,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						blogFusionPostWrapper.style += 'border-color:' + values.grid_element_color + ';';
 
 					} else if ( 'timeline' === values.layout ) {
-						color    = jQuery.Color( values.grid_box_color );
+						color    = jQuery.AWB_Color( values.grid_box_color );
 						colorCSS = color.toRgbaString();
 						blogFusionPostWrapper.style = 'background-color:' + colorCSS + ';';
 					}

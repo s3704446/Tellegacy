@@ -10,10 +10,10 @@ $fusion_settings = awb_get_fusion_settings();
 $type         = strtolower( $fusion_settings->get( 'button_type' ) );
 $gradient_top = $gradient_bottom = $accent_color = $border_color = $border_width = $border_radius = '';
 
-$gradient_top    = fusion_color_needs_adjustment( $fusion_settings->get( 'button_gradient_top_color' ) ) ? '#f8f8f8' : $fusion_settings->get( 'button_gradient_top_color' );
-$gradient_bottom = fusion_color_needs_adjustment( $fusion_settings->get( 'button_gradient_bottom_color' ) ) ? '#f8f8f8' : $fusion_settings->get( 'button_gradient_bottom_color' );
-$accent_color    = fusion_color_needs_adjustment( $fusion_settings->get( 'button_accent_color' ) ) ? '#f8f8f8' : $fusion_settings->get( 'button_accent_color' );
-$border_color    = fusion_color_needs_adjustment( $fusion_settings->get( 'button_border_color' ) ) ? '#f8f8f8' : $fusion_settings->get( 'button_border_color' );
+$gradient_top    = Fusion_Color::new_color( $fusion_settings->get( 'button_gradient_top_color' ) )->is_needs_adjustment() ? '#f8f8f8' : $fusion_settings->get( 'button_gradient_top_color' );
+$gradient_bottom = Fusion_Color::new_color( $fusion_settings->get( 'button_gradient_bottom_color' ) )->is_needs_adjustment() ? '#f8f8f8' : $fusion_settings->get( 'button_gradient_bottom_color' );
+$accent_color    = Fusion_Color::new_color( $fusion_settings->get( 'button_accent_color' ) )->is_needs_adjustment() ? '#f8f8f8' : $fusion_settings->get( 'button_accent_color' );
+$border_color    = Fusion_Color::new_color( $fusion_settings->get( 'button_border_color' ) )->is_needs_adjustment() ? '#f8f8f8' : $fusion_settings->get( 'button_border_color' );
 $border_width    = $fusion_settings->get( 'button_border_width', 'top' ) . ' ' . $fusion_settings->get( 'button_border_width', 'right' ) . ' ' . $fusion_settings->get( 'button_border_width', 'bottom' ) . ' ' . $fusion_settings->get( 'button_border_width', 'left' );
 $text_transform  = $fusion_settings->get( 'button_text_transform' );
 ?>

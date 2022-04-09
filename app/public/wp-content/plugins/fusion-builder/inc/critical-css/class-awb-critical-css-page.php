@@ -562,7 +562,7 @@ class AWB_Critical_CSS_Page {
 	 * @return void
 	 */
 	public function add_menu_page() {
-		add_submenu_page( 'avada', esc_html__( 'Critical CSS', 'fusion-builder' ), esc_html__( 'Critical CSS', 'fusion-builder' ), 'switch_themes', 'avada-critical', [ $this, 'render_page' ], 13 );
+		add_submenu_page( 'avada', esc_html__( 'Critical CSS', 'fusion-builder' ), esc_html__( 'Critical CSS', 'fusion-builder' ), 'switch_themes', 'avada-critical', [ $this, 'render_page' ], 16 );
 	}
 
 	/**

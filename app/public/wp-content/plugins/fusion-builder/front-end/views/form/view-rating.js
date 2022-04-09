@@ -63,7 +63,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				// CSS for .rating-icon:hover, .rating-icon:checked
 				if ( values.active_icon_color ) {
-					hoverColor = jQuery.Color( values.active_icon_color ).alpha( 0.5 ).toRgbaString();
+					hoverColor = jQuery.AWB_Color( values.active_icon_color ).alpha( 0.5 ).toRgbaString();
 					styles += '.fusion-form-form-wrapper .fusion-form-field .fusion-form-rating-area-' + this.model.get( 'cid' ) + '.fusion-form-rating-area .fusion-form-input:checked~label i{ color: ' + values.active_icon_color + ';}';
 
 					styles += '.fusion-form-form-wrapper .fusion-form-field .fusion-form-rating-area-' + this.model.get( 'cid' ) + '.fusion-form-rating-area .fusion-form-input:checked:hover ~ label i,';

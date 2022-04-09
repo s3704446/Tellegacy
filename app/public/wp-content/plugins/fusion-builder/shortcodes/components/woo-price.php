@@ -172,6 +172,8 @@ if ( fusion_is_element_enabled( 'fusion_tb_woo_price' ) ) {
 			 * @return string          HTML output.
 			 */
 			public function render( $args, $content = '' ) {
+				global $product;
+
 				$this->defaults = self::get_element_defaults();
 				$this->args     = FusionBuilder::set_shortcode_defaults( $this->defaults, $args, 'fusion_tb_woo_price' );
 
@@ -185,7 +187,7 @@ if ( fusion_is_element_enabled( 'fusion_tb_woo_price' ) ) {
 
 				$this->emulate_product();
 
-				if ( ! $this->is_product() ) {
+				if ( ! $this->is_product() || ! is_object( $product ) ) {
 					return;
 				}
 
@@ -479,6 +481,20 @@ function fusion_component_woo_price() {
 				'name'                    => esc_attr__( 'Woo Price', 'fusion-builder' ),
 				'shortcode'               => 'fusion_tb_woo_price',
 				'icon'                    => 'fusiona-woo-price',
+				'subparam_map'            => [
+					'price_font_size'                      => 'price_fonts',
+					'fusion_font_family_price_typography'  => 'price_fonts',
+					'fusion_font_variant_price_typography' => 'price_fonts',
+					'sale_font_size'                       => 'sale_fonts',
+					'fusion_font_family_sale_typography'   => 'sale_fonts',
+					'fusion_font_variant_sale_typography'  => 'sale_fonts',
+					'stock_font_size'                      => 'stock_fonts',
+					'fusion_font_family_stock_typography'  => 'stock_fonts',
+					'fusion_font_variant_stock_typography' => 'stock_fonts',
+					'badge_font_size'                      => 'badge_fonts',
+					'fusion_font_family_badge_typography'  => 'badge_fonts',
+					'fusion_font_variant_badge_typography' => 'badge_fonts',
+				],
 				'component'               => true,
 				'templates'               => [ 'content', 'post_cards', 'page_title_bar' ],
 				'components_per_template' => 1,
@@ -630,14 +646,6 @@ function fusion_component_woo_price() {
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Price Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the price text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'price_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-					],
-					[
 						'type'        => 'colorpickeralpha',
 						'heading'     => esc_attr__( 'Price Text Color', 'fusion-builder' ),
 						'description' => esc_attr__( 'Select a color for the price text.', 'fusion-builder' ),
@@ -647,34 +655,26 @@ function fusion_component_woo_price() {
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Price Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the price text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'price_fonts',
+						'choices'          => [
+							'font-family'    => 'price_typography',
+							'font-size'      => 'price_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Price Font Family', 'fusion-builder' ),
-						/* translators: URL for the link. */
-						'description'      => esc_html__( 'Controls the font family of the price text.  Leave empty for the global font family.', 'fusion-builder' ),
-						'param_name'       => 'price_typography',
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'         => [
 							'function' => 'fusion_style_block',
-						],
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Sale Old Price Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the sale old price text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'sale_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'show_sale',
-								'value'    => 'no',
-								'operator' => '!=',
-							],
 						],
 					],
 					[
@@ -694,13 +694,26 @@ function fusion_component_woo_price() {
 						],
 					],
 					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Sale Old Price Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the sale old price text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'sale_fonts',
+						'choices'          => [
+							'font-family'    => 'sale_typography',
+							'font-size'      => 'sale_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Sale Old Price Font Family', 'fusion-builder' ),
-						/* translators: URL for the link. */
-						'description'      => esc_html__( 'Controls the font family of the sale old price text.  Leave empty for the global font family.', 'fusion-builder' ),
-						'param_name'       => 'sale_typography',
-						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+						'global'           => true,
+						'callback'         => [
+							'function' => 'fusion_style_block',
+						],
 						'dependency'       => [
 							[
 								'element'  => 'show_sale',
@@ -708,28 +721,7 @@ function fusion_component_woo_price() {
 								'operator' => '!=',
 							],
 						],
-						'callback'         => [
-							'function' => 'fusion_style_block',
-						],
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Stock Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the stock text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'stock_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'show_stock',
-								'value'    => 'no',
-								'operator' => '!=',
-							],
-						],
+						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
 						'type'        => 'colorpickeralpha',
@@ -748,38 +740,30 @@ function fusion_component_woo_price() {
 						],
 					],
 					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Stock Font Family', 'fusion-builder' ),
-						/* translators: URL for the link. */
-						'description'      => esc_html__( 'Controls the font family of the stock text.  Leave empty for the global font family.', 'fusion-builder' ),
-						'param_name'       => 'stock_typography',
-						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'       => [
-							[
-								'element'  => 'show_stock',
-								'value'    => 'no',
-								'operator' => '!=',
-							],
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Stock Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the stock text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'stock_fonts',
+						'choices'          => [
+							'font-family'    => 'stock_typography',
+							'font-size'      => 'stock_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
 						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
+						'remove_from_atts' => true,
+						'global'           => true,
+						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'         => [
 							'function' => 'fusion_style_block',
 						],
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Discount Badge Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the discount badge text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'badge_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'dependency'  => [
+						'dependency'       => [
 							[
-								'element'  => 'show_badge',
+								'element'  => 'show_stock',
 								'value'    => 'no',
 								'operator' => '!=',
 							],
@@ -802,26 +786,33 @@ function fusion_component_woo_price() {
 						],
 					],
 					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Discount Badge Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the discount badge text. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'badge_fonts',
+						'choices'          => [
+							'font-family'    => 'badge_typography',
+							'font-size'      => 'badge_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '400',
+						],
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Discount Badge Font Family', 'fusion-builder' ),
-						/* translators: URL for the link. */
-						'description'      => esc_html__( 'Controls the font family of the discount badge text.  Leave empty for the global font family.', 'fusion-builder' ),
-						'param_name'       => 'badge_typography',
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+						'callback'         => [
+							'function' => 'fusion_style_block',
+						],
 						'dependency'       => [
 							[
 								'element'  => 'show_badge',
 								'value'    => 'no',
 								'operator' => '!=',
 							],
-						],
-						'callback'         => [
-							'function' => 'fusion_style_block',
-						],
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
 						],
 					],
 					[

@@ -19,12 +19,12 @@ $is_builder = ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_previe
 if ( 'off' !== Avada()->settings->get( 'status_totop' ) || $is_builder ) {
 	$to_top_position = explode( '_', Avada()->settings->get( 'totop_position' ) );
 	$to_top_position = isset( $to_top_position[1] ) ? 'to-top-' . $to_top_position[0] . ' to-top-' . $to_top_position[1] : 'to-top-' . $to_top_position[0];
-	
+
 	?>
 	<div class="to-top-container <?php echo esc_attr( $to_top_position ); ?>">
 		<a href="#" id="toTop" class="fusion-top-top-link">
 			<span class="screen-reader-text"><?php esc_html_e( 'Go to Top', 'Avada' ); ?></span>
 		</a>
 	</div>
-	<?php 
+	<?php
 }

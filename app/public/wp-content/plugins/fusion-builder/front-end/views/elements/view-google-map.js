@@ -217,7 +217,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					}
 
 					if ( 'theme' === values.map_style ) {
-						colorObject = jQuery.Color( extras.primary_color );
+						colorObject = jQuery.AWB_Color( extras.primary_color );
 						rgb         = [ colorObject.red(), colorObject.green(), colorObject.blue() ];
 
 						mapStyle               = 'custom';
@@ -233,7 +233,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							infoboxTextColor = '#fff';
 						}
 					} else if ( 'custom' === values.map_style ) {
-						if ( 0 === jQuery.Color( values.overlay_color ).alpha() ) {
+						if ( 0 === jQuery.AWB_Color( values.overlay_color ).alpha() ) {
 							overlayColor = '';
 						}
 					}
@@ -319,7 +319,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						}
 					} );
 
-					colorObject     = jQuery.Color( overlayColor );
+					colorObject     = jQuery.AWB_Color( overlayColor );
 					overlayColorHSL = {
 						hue: colorObject.hue(),
 						sat: colorObject.saturation() * 100,
@@ -431,7 +431,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					if ( values.static_map_color ) {
 						rgb         = values.static_map_color.replace( '#', '' );
-						colorObject = jQuery.Color( values.static_map_color );
+						colorObject = jQuery.AWB_Color( values.static_map_color );
 						saturation  = ( colorObject.saturation() * 200 ) - 100;
 						lightness   = ( colorObject.lightness() * 200 ) - 100;
 

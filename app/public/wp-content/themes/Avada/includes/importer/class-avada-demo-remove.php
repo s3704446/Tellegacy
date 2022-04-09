@@ -156,6 +156,7 @@ class Avada_Demo_Remove {
 				'fusion_tb_section',
 				'fusion_icons',
 				'fusion_form',
+				'awb_off_canvas',
 				'avada_faq',
 				'avada_portfolio',
 				'attachment',

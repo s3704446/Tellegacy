@@ -1100,6 +1100,7 @@ class Avada_Demo_Import {
 		$options = [
 			'status_fusion_slider'    => '1',
 			'status_fusion_forms'     => '1',
+			'status_awb_Off_Canvas'   => '1',
 			'status_fusion_portfolio' => '1',
 			'status_fusion_faqs'      => '1',
 			'js_compiler'             => '1',

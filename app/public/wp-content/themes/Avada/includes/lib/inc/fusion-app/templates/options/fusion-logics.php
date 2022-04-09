@@ -48,7 +48,7 @@
 #>
 <div class="fusion-builder-option-logics fusion-option-{{ fieldId }}">
 	<# if ( choices.length ) { #>
-		<a href="#" class="fusion-builder-add-sortable-child"><span class="fusiona-plus"></span> {{ fusionBuilderText.add_new_logic }}</a>
+		<a href="#" class="fusion-builder-add-sortable-child"><span class="fusiona-plus"></span><span class="add-sortable-child-text">{{ fusionBuilderText.add_new_logic }}</span></a>
 		<div class="options-grid">
 			<ul class="fusion-logics">
 				<# _.each( options, function( option ) {

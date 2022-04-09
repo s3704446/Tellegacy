@@ -29,14 +29,14 @@
 	</div>
 
 	<div class="fusion-builder-blank-page-info fusion-builder-blank-page-docs">
-		<a href="https://theme-fusion.com/documentation/fusion-builder/" target="_blank" class="info-icon fusion-builder-docs-button">
+		<a href="https://theme-fusion.com/documentation/avada/avada-builder/" target="_blank" class="info-icon fusion-builder-docs-button">
 			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="22" viewBox="0 0 20 22">
 				<image id="Ellipse_2" data-name="Ellipse 2" width="20" height="22" xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAWCAQAAABqSHSNAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAHdElNRQfiCQYBAS3iJSqHAAAAS0lEQVQoz9WQMQrAMAwDT8UP98/VKaFLiQ2BEE0ajkO2zMynzmiUh2LkIlg2BgC5oPLwxqKyebUWlNtG+P9lNjfK3rzxBjDGVduML101DCz6qjHzAAAAAElFTkSuQmCC"/>
 			</svg>
 		</a>
 		<h3>{{{ fusionBuilderText.fusion_builder_docs }}}</h3>
 		<p class="fusion-docs-description">{{ fusionBuilderText.fusion_builder_docs_description }}</p>
-		<a href="https://theme-fusion.com/documentation/fusion-builder/" target="_blank" class="fusion-builder-submit-button fusion-builder-docs-button">{{ fusionBuilderText.fusion_builder_docs }}<span class="fa-long-arrow-alt-right fas"></span></a>
+		<a href="https://theme-fusion.com/documentation/avada/avada-builder/" target="_blank" class="fusion-builder-submit-button fusion-builder-docs-button">{{ fusionBuilderText.fusion_builder_docs }}<span class="fa-long-arrow-alt-right fas"></span></a>
 	</div>
 
 	<div id="video-dialog" title="{{{ fusionBuilderText.getting_started_video }}}">

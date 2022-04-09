@@ -7,6 +7,171 @@ This is why we highly recommend to stay up to date with each new theme version a
 
 
 -----------------------------------------------------------------------------------------
+Version 7.6.1 - January 17th, 2022
+-----------------------------------------------------------------------------------------
+
+
+- NEW: Added option to Flickr element to display images from a specific album
+- NEW: Added rounding option to the Star Rating element
+- PERFORMANCE: Added checks for specific ConvertPlus modules being activated to avoid unnecessary initialization
+- IMPROVEMENT: Events Calendar single event pages will display title and time below featured image on mobile
+- IMPROVEMENT: Live editor color pickers will no longer auto-open when clicking into the text field
+- UPDATED: Compatibility with WooCommerce 6.1
+- UPDATED: HubSpot API CRM scopes
+- ACCESSIBILITY: Added aria-labelledby attribute to Progressbar element
+- ACCESSIBILITY: Fixed WooCommerce product gallery lightbox trigger link missing title attribute
+- FIXED: Compatibility issue with WooCommerce Fancy Product Designer causing issue with cart page item thumbnails
+- FIXED: Compatibility issue with WooCommerce Payments plugin, causing display issues on custom checkout pages
+- FIXED: Fatal error happening on backend post save when WooCommerce Payments plugin and YOAST SEO are active
+- FIXED: WooCommerce sorting boxes showing on category pages, when those are set to show sub-categories
+- FIXED: The link to the reviews does not work in the quick view of WooComerce products
+- FIXED: Fatal error happening when using a CPT called 'product' when WooCommerce is not active
+- FIXED: Incorrect sidebar classes being used on body HTML tag on WooCommerce custom taxonomy pages
+- FIXED: Compatibility issue with WooCommerce Membership and Ultimate Member plugins, causing content to change in layout sections
+- FIXED: Compatibility issue with WP Customer Area plugin, causing content to change in layout sections
+- FIXED: Updates from versions below 6.2 triggering an error in the upgrade class
+- FIXED: Attribute escaping missing for a translation string in the menu nav walker
+- FIXED: Typography Global Options using the global typography sets cog icon incorrectly on margins
+- FIXED: Mobile menu items not correctly aligned vertically on mobile when using legacy header/menu
+- FIXED: Facebook Page element not being auto-activated
+- FIXED: Global typography picker being slightly cut off in performance wizard
+- FIXED: Layout dependencies and notes for header/footer social icon global options
+- FIXED: Privacy placeholder not working in a few instances of iframe embeds
+- FIXED: Facebook and Twitter Timeline elements loading iframes even without privacy consent
+- FIXED: Videos not being stopped after closing the modal in Avada Off Canvas
+- FIXED: Backgrounds of Avada Sliders in parallax mode not being shifted with Off Canvas sliding bars in push mode
+- FIXED: Toggle element default active/inactive icons being reversed
+- FIXED: Widget title display option not working for the Events Calendar widgets
+- FIXED: Honeypot form field not being removed from submission email content in Avada Forms
+- FIXED: Select form field not being removed from submission email content in Avada Forms when hidden because of conditional rendering
+- FIXED: Option to create Avada Form database tables on the Avada Status page not working
+- FIXED: Sub-menu expand carets not working on first click on iPhones when mobile menu is set to auto-expand
+- FIXED: Framed scrolling is not working correctly when user is logged out of WordPress
+- FIXED: Fatal error happening in Archive element when using in content layout section for Portfolio archive pages
+- FIXED: Countdown element missing margin between heading and count down in stacked layout, when no subheading is used
+- FIXED: Transition being jumpy in Testimonial element, when no avatar is elected and clean design is used
+- FIXED: Social sharing box being displayed inside of layout sections on Events Calendar single events when blocks are used
+- FIXED: Hover effects not working together with image masks in the Image element
+- FIXED: Image centering not working in Image element when using bottom shadow style together with a max-width
+- FIXED: Mask preview icons missing from Image element in the backend editor
+- FIXED: Images always displaying in full width in Image element in live editor, regardless of native image dimensions
+- FIXED: JS error in live editor global option search when a repeater option is part of results
+- FIXED: Colors in Page Options being saved as default even when left empty in live editor
+- FIXED: Single page import of a prebuilt site not working in the live editor
+
+
+-----------------------------------------------------------------------------------------
+Version 7.6 - December 14th, 2021
+-----------------------------------------------------------------------------------------
+
+
+Avada 7.6 introduces the Off Canvas builder, allowing you to build popups, flyouts, sliding bars, and pushouts, 
+using our awesome building UI. We have also added global color and typography system for easy across-site management 
+of these important design assets.
+
+See the promo video here: https://youtu.be/zUBJDiwWOl8
+
+- NEW: Added Off Canvas Builder for drag & drop creation of popups, sliding bars, flyout menus, and push menus
+- NEW: Added the ability to have push menus
+- NEW: Added a global color palette feature, making it easy to create and update a global color scheme and have it shared across the site
+- NEW: Added a global typography feature, making it easy to create and update typography sets and have them shared across the site
+- NEW: Added aspect ratio and focus point options to the Image element
+- NEW: Added image mask options to the Image element for stunning new image effects, including 18 prebuilt masks and possibility to upload custom shapes
+- NEW: Added option to upload custom SVGs in the Section Separator element
+- NEW: Tagcloud element
+- NEW: Facebook Page element with extended options, replacing Facebook widget
+- NEW: Twitter element with extended options, replacing Twitter widget
+- NEW: Flickr element with extended options, replacing Flickr widget
+- NEW: Added margin, border-size, border-color, hover colors, and animation options to the Social Links element
+- NEW: Added option to display sub-categories instead of posts in the Post Card Archives element
+- NEW: Added color picker options to Avada Slider and Page Options for easier color usage and alpha channel colors
+- NEW: Added new typography option set for easier typography management
+- NEW: Added border-radius option to the Social Share element
+- NEW: Added responsive alignment options to the Meta element
+- NEW: Added dynamic data URL options for YouTube/Vimeo/Video elements and Container/Column video backgrounds
+- NEW: Added taxonomy selection to the Layout Section dynamic preview sources
+- NEW: Avada Special Menu Items can now use description text
+- NEW: Added The Events Calendar event date to order options of the Post Cards element
+- NEW: Added order by option to Post Cards element when terms are used instead of posts
+- NEW: Added WooCommerce cart total to dynamic data option
+- NEW: Added a filter for the Post Cards element placeholder for easier fallback message creation
+- PERFORMANCE: Added option to allow lazy loading of iframes
+- PERFORMANCE: Removed two CSS related actions from being executed on admin screens
+- IMPROVEMENT: Removed the "Enable CSS Variables" Global Option, as modern browsers do all support CSS variables
+- IMPROVEMENT: Added dynamic data to several more places, including Google Maps element
+- IMPROVEMENT: Line breaks in Avada Forms Textarea elements are now also displayed in the submission emails
+- IMPROVEMENT: Added form submission error information for easier debugging
+- IMPROVEMENT: Allow categories to display in the metadata of the Archives element for portfolio posts
+- IMPROVEMENT: Lightbox toolbar is now visible also for logged in users (adjusting to WP admin bar)
+- IMPROVEMENT: Removed unneeded, email-related form fields from form rendering
+- IMPROVEMENT: Post published dynamic data now using current data, if now preview post is set
+- IMPROVEMENT: Updated several option descriptions and dependencies for better usability
+- UPDATED: Critical CSS creation engine
+- UPDATED: Automatic cache clearing for SiteGround optimizer plugin
+- UPDATED: Some outdated documentation links
+- UPDATED: Compatibility with WooCommerce 6.0
+- ACCESSIBILITY: Flipxbox element not staying flipped when jumping to a link on backside using tab key
+- ACCESSIBILITY: Fixed aria-expanded attribute being wrong on custom mobile menu using the Menu element
+- ACCESSIBILITY: Fixed incorrect role attribute in the Ticker element
+- FIXED: Font-face declarations missing from criticals CSS when CSS variables are used
+- FIXED: Avada Form submissions where form fields share the same name not being correctly stored in the database
+- FIXED: Avada Forms on the same page using same reCAPTCHA id when using reCAPTCHA v2
+- FIXED: Avada Forms submissions not working when form uses reCAPTCHA and is rendered in a Modal element
+- FIXED: Avada Forms submissions working even if required fields are not filled in, if those required fields are conditional and hidden
+- FIXED: JS error happening when submitting Avada Forms with conditionally hidden range and upload fields
+- FIXED: JS error happening when submitting Avada Forms with conditionally hidden checkbox fields that need a minimum selection
+- FIXED: Second level menu items in megamenu when title option is turned off display incorrectly in Menu element
+- FIXED: Sub-menu text hover color not working in the Menu element
+- FIXED: Sub-menu expand direction incorrectly changing the sub-menu link alignment in the Menu element
+- FIXED: Incorrect right padding shown on buttons in mega menu columns
+- FIXED: Megamenu not being closed on click on an anchor scrolling item, in the Menu element
+- FIXED: Image captions title having wrong color when using heading tags
+- FIXED: Widget element options not displaying in backend builder when the element settings are re-opened
+- FIXED: Previous/next arrows missing in the calendar of The Events Calendar plugin
+- FIXED: Plugin compatibility issue with Tutor LMS Pro plugin when Layout Sections are used
+- FIXED: Plugin compatibility issue with Cooked Pro plugin when Layout Sections are used
+- FIXED: Plugin compatibility issue with Private Content plugin when Layout Sections are used
+- FIXED: Plugin compatibility issue where lightbox gets doubled up when the "load" event fires twice
+- FIXED: Plugin compatibility issue leading to incorrect redirects (e.g. WPSEO sitemap being 404)
+- FIXED: Compatibility issue with WooCommerce PayPal Payments plugin leading to wrong notice styling on checkout page
+- FIXED: Compatibility issue with WooCommerce PayPal Payments plugin on legacy product template
+- FIXED: Fatal error happening in the WooCommerce Price element on product posts, when it is copy/pasted in invalid layout sections
+- FIXED: Displaying issue of Avada Studio content in Safari on the back-end page
+- FIXED: Star rating element not working correctly when using before/after text in product rating dynamic data
+- FIXED: Scrolling on sliding bar causing page scroll on latest webkit browsers
+- FIXED: Facade images being broken in Vimeo element
+- FIXED: Reddit social sharing link and made sure all sharing links use SSL in Social Sharing element
+- FIXED: Error boxes appearance in Gravity Forms
+- FIXED: Button 100% width option not respecting margins in Button element
+- FIXED: Infinite scroll not working correctly in some cases, when using several Post Cards elements on one page
+- FIXED: Ordering option not correctly working in Post Cards element when used to display WooCommerce product archives
+- FIXED: Custom font names with whitespace in the name not working correctly in the global Button element typography
+- FIXED: Alignment issue in the Countdown element when either title or link are not used
+- FIXED: Sticky sidebar positioning issue when using a custom sticky header
+- FIXED: Menu anchor highlights being incorrect in sub-pixel cases when using side headers
+- FIXED: Gallery element not displaying images as lightbox gallery in the live editor
+- FIXED: Featured image does not work inside of Post Cards element when used for tag archives
+- FIXED: Main featured image being pulled in featured image dynamic data when one of the additional featured images is not set
+- FIXED: After image using same image alt value as before image in the Image Before & After element
+- FIXED: Loading spinner not being removed from video in when lightbox, when previously a lightbox with image was triggered
+- FIXED: Double icon picker menu appearing when a new social media entry is created in Global Options
+- FIXED: Performance Wizard recommends enabling "Combine Third Party CSS Files" option even if it is already enabled
+- FIXED: Minor styling issue in back-end builder, showing "close" text next to the x close icon in modals
+- FIXED: PHP notice in shared icon border-radius option when Icon element is disabled
+- FIXED: PHP notice in older instances of Tagline element when a specific button shape is set
+- FIXED: Fatal error on PHP 5.6
+- FIXED: Fatal error happening in some cases when live editor is either disabled or can't get loaded
+- FIXED: Rendering issue in live editor with fonts using single quotes
+- FIXED: PHP notice when assigning a slider through Page Options in live editor
+- FIXED: Import/Export settings of Global Options in live editor being incorrectly rendered
+- FIXED: Privacy bar on/off option not correctly working in live editor
+- FIXED: Rolling back to start position in live editor history, removing all post contents completely
+- FIXED: Live editor button selection options jump in appearance when being the last option of a tab
+- FIXED: Avada Forms submission type resets to default when selecting "Default POST HTML Form (non-AJAX)" in live editor
+- FIXED: RTL styling issues in the live editor UI
+
+
+-----------------------------------------------------------------------------------------
 Version 7.5 - October 18th, 2021
 -----------------------------------------------------------------------------------------
 

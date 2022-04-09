@@ -24,10 +24,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 function avada_options_section_blog( $sections ) {
 
 	// Check if we have a global content override.
-	$has_global_content = false;
+	$has_global_content        = false;
+	$template_terms['content'] = [];
 	if ( class_exists( 'Fusion_Template_Builder' ) ) {
 		$default_layout     = Fusion_Template_Builder::get_default_layout();
 		$has_global_content = isset( $default_layout['data']['template_terms'] ) && isset( $default_layout['data']['template_terms']['content'] ) && $default_layout['data']['template_terms']['content'];
+
+		// PHP 5.6 compat.
+		$template_terms = Fusion_Template_Builder::get_instance()->get_template_terms();
 	}
 
 	$blog_general_options = [
@@ -218,7 +222,7 @@ function avada_options_section_blog( $sections ) {
 				'label'       => esc_attr__( 'Load More Posts Button Background Color', 'fusion-core' ),
 				'description' => esc_attr__( 'Controls the background color of the load more button for ajax post loading for blog archives.', 'fusion-core' ),
 				'id'          => 'blog_load_more_posts_button_bg_color',
-				'default'     => 'rgba(242,243,245,0.7)',
+				'default'     => 'var(--awb-color7)',
 				'type'        => 'color-alpha',
 				'css_vars'    => [
 					[
@@ -239,7 +243,7 @@ function avada_options_section_blog( $sections ) {
 				'label'       => esc_attr__( 'Load More Posts Button Text Color', 'fusion-core' ),
 				'description' => esc_attr__( 'Controls the text color of the load more button for ajax post loading for blog archives.', 'fusion-core' ),
 				'id'          => 'blog_load_more_posts_button_text_color',
-				'default'     => '#333333',
+				'default'     => 'var(--awb-color1)',
 				'type'        => 'color-alpha',
 				'css_vars'    => [
 					[
@@ -260,7 +264,7 @@ function avada_options_section_blog( $sections ) {
 				'label'       => esc_attr__( 'Load More Posts Button Hover Background Color', 'fusion-core' ),
 				'description' => esc_attr__( 'Controls the hover background color of the load more button for ajax post loading for blog archives.', 'fusion-core' ),
 				'id'          => 'blog_load_more_posts_hover_button_bg_color',
-				'default'     => 'rgba(242,243,245,0.8)',
+				'default'     => 'var(--awb-color5)',
 				'type'        => 'color-alpha',
 				'css_vars'    => [
 					[
@@ -281,7 +285,7 @@ function avada_options_section_blog( $sections ) {
 				'label'       => esc_attr__( 'Load More Posts Hover Button Text Color', 'fusion-core' ),
 				'description' => esc_attr__( 'Controls the hover text color of the load more button for ajax post loading for blog archives.', 'fusion-core' ),
 				'id'          => 'blog_load_more_posts_hover_button_text_color',
-				'default'     => '#333333',
+				'default'     => 'var(--awb-color1)',
 				'type'        => 'color-alpha',
 				'css_vars'    => [
 					[
@@ -685,7 +689,7 @@ function avada_options_section_blog( $sections ) {
 				'label'       => esc_attr__( 'Blog Alternate Layout Date Box Color', 'fusion-builder' ),
 				'description' => esc_attr__( 'Controls the color of the date box in blog alternate and recent posts layouts.', 'fusion-builder' ),
 				'id'          => 'dates_box_color',
-				'default'     => '#f2f3f5',
+				'default'     => 'var(--awb-color2)',
 				'type'        => 'color-alpha',
 				'css_vars'    => [
 					[
@@ -744,8 +748,8 @@ function avada_options_section_blog( $sections ) {
 				'hidden'      => $has_global_content,
 				'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 					/* translators: %1$s: Live Builder. %2$s: Content|Header|Footer|Page Title Bar. %3$s: Layout selection URL. */
-					'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s. To create a custom %2$s layout, <a href="%3$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
-					isset( Fusion_Template_Builder::get_instance()->get_template_terms()['content']['alias'] ) ? Fusion_Template_Builder::get_instance()->get_template_terms()['content']['alias'] : '',
+					'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s. To create a custom %2$s Layout, <a href="%3$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
+					isset( $template_terms['content']['alias'] ) ? $template_terms['content']['alias'] : '',
 					Fusion_Template_Builder::get_instance()->get_template_terms()['content']['label'],
 					admin_url( 'admin.php?page=avada-layouts' )
 				) : '',

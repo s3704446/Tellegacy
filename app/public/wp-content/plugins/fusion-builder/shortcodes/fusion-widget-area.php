@@ -263,7 +263,7 @@ if ( fusion_is_element_enabled( 'fusion_widget_area' ) ) {
 								'label'       => esc_html__( 'Widget Title Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of widget titles.', 'fusion-builder' ),
 								'id'          => 'widget_area_title_color',
-								'default'     => apply_filters( 'fusion_builder_widget_area_title_color', '' ),
+								'default'     => apply_filters( 'fusion_builder_widget_area_title_color', 'var(--awb-color8)' ),
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -294,7 +294,7 @@ function fusion_element_widget_area() {
 				'name'      => esc_attr__( 'Widget Area', 'fusion-builder' ),
 				'shortcode' => 'fusion_widget_area',
 				'icon'      => 'fusiona-sidebar',
-				'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/widget-area-element/',
+				'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/widget-area-element/',
 				'params'    => [
 					[
 						'type'        => 'select',

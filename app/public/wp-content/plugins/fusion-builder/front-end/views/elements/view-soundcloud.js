@@ -62,7 +62,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				values.show_user    = ( 'yes' === values.show_user ) ? 'true' : 'false';
 
 				if ( values.color ) {
-					values.color = jQuery.Color( values.color ).toHexString();
+					values.color = jQuery.AWB_Color( values.color ).toHexString();
 					values.color = values.color.replace( '#', '' );
 				}
 			},

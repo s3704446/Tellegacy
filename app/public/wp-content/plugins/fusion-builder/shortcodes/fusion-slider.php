@@ -470,7 +470,7 @@ function fusion_element_media_slider() {
 				'preview'       => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-media-slider-preview.php',
 				'preview_id'    => 'fusion-builder-block-module-media-slider-preview-template',
 				'child_ui'      => true,
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/slider-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/slider-element/',
 				'sortable'      => false,
 				'params'        => [
 					[

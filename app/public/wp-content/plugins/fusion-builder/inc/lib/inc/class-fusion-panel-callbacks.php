@@ -21,6 +21,9 @@ class Fusion_Panel_Callbacks {
 	 * @return string
 	 */
 	public static function sanitize_color( $color ) {
+		if ( false !== strpos( $color, 'var(' ) ) {
+			return $color;
+		}
 		$obj = Fusion_Color::new_color( $color );
 		return $obj->to_css( $obj->mode );
 	}
@@ -76,6 +79,10 @@ class Fusion_Panel_Callbacks {
 				if ( isset( $parts[1] ) ) {
 					$saved = isset( $saved[ str_replace( ']', '', $parts[1] ) ] ) ? $saved[ str_replace( ']', '', $parts[1] ) ] : '';
 				}
+			}
+
+			if ( class_exists( 'AWB_Global_Typography' ) && AWB_Global_Typography::get_instance()->is_typography_css_var( $saved ) ) {
+				$saved = AWB_Global_Typography::get_instance()->get_real_value( $saved );
 			}
 
 			switch ( $arg[1] ) {
@@ -139,7 +146,7 @@ class Fusion_Panel_Callbacks {
 		}
 
 		$color = Fusion_Color::new_color( $value );
-	
+
 		if ( 1 > $color->alpha ) {
 			return $args['transparent'];
 		}
@@ -161,40 +168,11 @@ class Fusion_Panel_Callbacks {
 			return ( '$' === $args['transparent'] ) ? $value : $args['transparent'];
 		}
 		$color = Fusion_Color::new_color( $value );
-	
+
 		if ( 0 === $color->alpha ) {
 			return ( '$' === $args['transparent'] ) ? $value : $args['transparent'];
 		}
 		return ( '$' === $args['opaque'] ) ? $value : $args['opaque'];
-	}
-
-	/**
-	 * Gets a readable color based on threshold.
-	 *
-	 * @static
-	 * @access public
-	 * @since 2.0
-	 * @param string $value The color we'll be basing our calculations on.
-	 * @param string $args  The arguments ['threshold'=>0.5,'dark'=>'#fff','light'=>'#333'].
-	 * @return string
-	 */
-	public static function get_readable_color( $value, $args = [] ) {
-		if ( ! is_array( $args ) ) {
-			$args = [];
-		}
-		if ( ! isset( $args['threshold'] ) ) {
-			$args['threshold'] = .547;
-		}
-		if ( ! isset( $args['light'] ) ) {
-			$args['light'] = '#333';
-		}
-		if ( ! isset( $args['dark'] ) ) {
-			$args['dark'] = '#fff';
-		}
-		if ( 1 > $args['threshold'] ) {
-			$args['threshold'] = $args['threshold'] * 256;
-		}
-		return $args['threshold'] < fusion_calc_color_brightness( $value ) ? $args['light'] : $args['dark'];
 	}
 
 	/**
@@ -214,7 +192,7 @@ class Fusion_Panel_Callbacks {
 		if ( 1 >= abs( $adjustment ) ) {
 			$adjustment *= 100;
 		}
-		return fusion_adjust_brightness( Fusion_Sanitize::color( $value ), $adjustment );
+		return Fusion_Color::new_color( Fusion_Sanitize::color( $value ) )->adjust_brightness( $adjustment );
 	}
 
 	/**

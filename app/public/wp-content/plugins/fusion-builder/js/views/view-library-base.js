@@ -86,6 +86,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					type = 'forms';
 				}
 
+				// Off Canvas.
+				if ( 'fusion_template' === type && 'string' === typeof fusionBuilderConfig.post_type && 'awb_off_canvas' === fusionBuilderConfig.post_type ) {
+					type = 'awb_off_canvas';
+				}
+
 				if ( 'object' === typeof FusionPageBuilderApp.studio.studioData && 'undefined' !== typeof FusionPageBuilderApp.studio.studioData[ type ] ) {
 					studioElements = FusionPageBuilderApp.studio.filterLayouts( FusionPageBuilderApp.studio.studioData[ type ] );
 

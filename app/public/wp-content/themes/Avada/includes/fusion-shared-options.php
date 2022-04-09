@@ -114,6 +114,13 @@ function avada_set_builder_classes( $default_elements, $class ) {
 	];
 	$element_map['.fusion-button-quantity'] = $elements;
 
+	if ( class_exists( 'GFForms' ) ) {
+		$elements[] = ' .gform_wrapper .gform_validation_errors';
+		$elements[] = ' .gform_wrapper .gfield_error .gfield_validation_message';
+
+		$element_map['.alert-danger'] = $elements;
+	}
+
 	if ( isset( $element_map[ $class ] ) ) {
 		return array_merge( $element_map[ $class ], $default_elements );
 	}
@@ -465,7 +472,11 @@ function avada_add_fb_styling( $css ) {
 		$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['color']            = 'var(--icon_color)';
 		$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['background-color'] = 'var(--icon_circle_color)';
 		$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['border-color']     = 'var(--icon_border_color)';
-		$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['border-radius']    = implode( ' ', Avada()->settings->get( 'icon_border_radius' ) );
+
+		$icon_border_radius = Avada()->settings->get( 'icon_border_radius' );
+		if ( is_array( $icon_border_radius ) ) {
+			$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['border-radius'] = implode( ' ', $icon_border_radius );
+		}
 
 		$css['global']['.fontawesome-icon:hover']['color'] = 'var(--icon_color_hover)';
 

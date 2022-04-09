@@ -63,6 +63,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				attributes.contentAttr               = this.buildContentAttr( atts.values );
 				attributes.title                     = atts.values.title;
 				attributes.elementContent            = atts.values.element_content;
+				attributes.activeIcon                = '' !== parentValues.active_icon ? parentValues.active_icon : 'awb-icon-minus';
+				attributes.inActiveIcon              = '' !== parentValues.inactive_icon ? parentValues.inactive_icon : 'awb-icon-plus';
+				attributes.childStyles               = this.buildStyles( atts.values );
 
 				// Set selectors.
 				this.buildPanelAttr( atts.values, parentValues );
@@ -122,6 +125,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' !== values.id ) {
 					toggleShortcodePanel.id = values.id;
 				}
+
+				toggleShortcodePanel[ 'class' ] += ' panel-' + this.model.get( 'cid' );
 
 				if ( '1' == parentValues.boxed_mode || 'yes' === parentValues.boxed_mode ) {
 					toggleShortcodePanel[ 'class' ] += ' fusion-toggle-no-divider fusion-toggle-boxed-mode';
@@ -206,6 +211,58 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}, contentAttr );
 
 				return contentAttr;
+			},
+
+			/**
+			 * Builds the stylesheet.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values object.
+			 * @return {string}
+			 */
+			buildStyles: function( values ) {
+				var styles = '',
+					parentCID = this.model.get( 'parent' ),
+					cid       = this.model.get( 'cid' ),
+					title_styles;
+
+				// Title typography.
+				styles += '.fusion-accordian  #accordion-cid' + parentCID + ' .panel-' + cid + ' .panel-title a {';
+
+				if ( '' !== values.title_font_size ) {
+					styles += 'font-size: ' + values.title_font_size + ';';
+				}
+
+				if ( ! _.isEmpty( values.title_color ) ) {
+					styles += 'color:' + values.title_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'title_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
+
+				// Content typography.
+				styles += '.fusion-accordian  #accordion-cid' + parentCID + ' .panel-' + cid + ' .toggle-content {';
+
+				if ( '' !== values.content_font_size ) {
+					styles += 'font-size: ' + values.content_font_size + ';';
+				}
+
+				if ( ! _.isEmpty( values.content_color ) ) {
+					styles += 'color:' + values.content_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'content_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
+
+				return styles;
 			}
 		} );
 	} );

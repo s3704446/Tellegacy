@@ -36,6 +36,9 @@
   background: #333;
   background: rgba(0, 0, 0, 0.25);
 }
+.admin-bar:not(.isMobile) .ilightbox-toolbar.parade {
+  top: 43px;
+}
 .ilightbox-toolbar.parade a {
   width: 29px;
   height: 25px;

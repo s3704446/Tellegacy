@@ -20,7 +20,11 @@ if ( 'undefined' !== typeof values.element_content && ! _.isEmpty( values.elemen
 		html = 'above' === values.caption_style ? captionHtml + html : html + captionHtml;
 	}
 
-	html = marginStyles + html;
+	html = '<style>' + maskStyles + aspectRatioStyles + marginStyles + '</style>' + html;
+
+	if ( '' !== values.max_width && '' !== values.aspect_ratio ) {
+		html = '<div style="display:inline-block; max-width:100%; width:'+ _.fusionGetValueWithUnit( values.max_width ) +';">' + html + '</div>';
+	}
 
 	if ( 'center' === values.align && ! isFlex ) {
 		html = '<div class="imageframe-align-center">' + html + '</div>';

@@ -29,7 +29,7 @@ class AWB_Studio_Admin {
 		// Import Studio Media.
 		add_action( 'wp_ajax_awb_studio_admin_import_media', [ $this, 'ajax_import_media' ] );
 
-		add_action( 'admin_menu', [ $this, 'add_menu_page' ], 12 );
+		add_action( 'avada_add_admin_menu_pages', [ $this, 'add_menu_page' ], 15 );
 	}
 
 	/**
@@ -40,7 +40,7 @@ class AWB_Studio_Admin {
 	 * @return void
 	 */
 	public function add_menu_page() {
-		add_submenu_page( 'avada', esc_html__( 'Studio', 'fusion-builder' ), esc_html__( 'Studio', 'fusion-builder' ), 'switch_themes', 'avada-studio', [ $this, 'render_page' ], 3 );
+		add_submenu_page( 'avada', esc_html__( 'Studio', 'fusion-builder' ), esc_html__( 'Studio', 'fusion-builder' ), 'switch_themes', 'avada-studio', [ $this, 'render_page' ], 4 );
 	}
 
 	/**
@@ -78,12 +78,16 @@ class AWB_Studio_Admin {
 
 				<p><?php esc_html_e( 'Here you can preview all Avada Studio content, and save any of the content blocks directly to your local Library.', 'fusion-builder' ); ?></p>
 
-				<div class="avada-db-card-notice">
-					<i class="fusiona-info-circle"></i>
-					<p class="avada-db-card-notice-heading">
-						<?php esc_html_e( 'Avada Studio updates daily. However, you can manually sync by clicking on the button.', 'fusion-builder' ); ?>
+				<div class="avada-db-card-notice-button">
+					<div class="avada-db-card-notice">
+						<i class="fusiona-info-circle"></i>
+						<p class="avada-db-card-notice-heading">
+							<?php esc_html_e( 'Avada Studio content syncs daily. However, you can manually sync by clicking on the button.', 'fusion-builder' ); ?>
+						</p>
+					</div>
+					<div class="avada-db-card-notice notice-button">
 						<span class="awb-studio-sync-button"><a href="#" class="button awb-studio-sync" title="<?php esc_attr_e( 'Sync Avada Studio', 'fusion-builder' ); ?>"><span><?php esc_html_e( 'Sync Avada Studio', 'fusion-builder' ); ?></span></a><span>
-					</p>
+					</div>
 				</div>
 			</section>
 
@@ -132,6 +136,10 @@ class AWB_Studio_Admin {
 					<li data-type="post_cards">
 						<i class="fusiona-post-cards-element"></i>
 						<span><?php esc_html_e( 'Post Cards', 'fusion-builder' ); ?></span>
+					</li>
+					<li data-type="awb_off_canvas">
+						<i class="fusiona-off-canvas"></i>
+						<span><?php esc_html_e( 'Off Canvas', 'fusion-builder' ); ?></span>
 					</li>
 				</ul>
 			</section>

@@ -161,7 +161,7 @@ function avada_options_section_background( $sections ) {
 						'label'       => esc_html__( 'Background Color For Page', 'Avada' ),
 						'description' => esc_html__( 'Controls the background color for the page. When the color value is set to anything below 100% opacity, the color will overlay the background image if one is uploaded.', 'Avada' ),
 						'id'          => 'bg_color',
-						'default'     => '#e2e2e2',
+						'default'     => 'var(--awb-color3)',
 						'type'        => 'color-alpha',
 						'css_vars'    => [
 							[
@@ -259,7 +259,7 @@ function avada_options_section_background( $sections ) {
 						'label'       => esc_html__( 'Main Content Background Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the background color of the main content area.', 'Avada' ),
 						'id'          => 'content_bg_color',
-						'default'     => '#ffffff',
+						'default'     => 'var(--awb-color1)',
 						'type'        => 'color-alpha',
 						'css_vars'    => [
 							[

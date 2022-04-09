@@ -112,7 +112,7 @@
 						'customIcons'        => fusion_get_custom_icons_array(),
 
 						/* translators: The iconset name. */
-						'no_results_in'      => esc_html__( 'No Results in "%s"', 'fusion-builder' ),
+						'no_results_in'      => esc_html__( 'No Results in "%s"', 'Avada' ),
 					]
 				);
 				wp_localize_script( 'fusion-menu-options', 'fusionBuilderText', fusion_app_textdomain_strings() );

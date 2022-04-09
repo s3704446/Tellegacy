@@ -188,7 +188,7 @@ if ( $content_align && ( 'grid' === $blog_layout || 'masonry' === $blog_layout |
 
 				$masonry_column_spacing = ( $grid_columns_spacing ) . 'px';
 
-				if ( class_exists( 'Fusion_Sanitize' ) && class_exists( 'Fusion_Color' ) && ! fusion_is_color_transparent( Avada()->settings->get( 'timeline_color' ) ) ) {
+				if ( class_exists( 'Fusion_Sanitize' ) && class_exists( 'Fusion_Color' ) && ! Fusion_Color::new_color( Avada()->settings->get( 'timeline_color' ) )->is_color_transparent() ) {
 
 					$masonry_column_offset = ' - ' . ( $grid_columns_spacing / 2 ) . 'px';
 					if ( false !== strpos( $element_orientation_class, 'fusion-element-portrait' ) ) {

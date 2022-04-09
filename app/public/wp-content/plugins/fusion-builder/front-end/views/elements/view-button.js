@@ -286,14 +286,16 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @return {Object}
 			 */
 			buildAttr: function( values ) {
-				var params = this.model.get( 'params' ),
-					attr = _.fusionVisibilityAtts( values.hide_on_mobile, {
+				var params           = this.model.get( 'params' ),
+					attr             = _.fusionVisibilityAtts( values.hide_on_mobile, {
 						class: 'fusion-button button-' + values.type + ' button-' + values.color + ' button-cid' + this.model.get( 'cid' ),
 						style: ''
 					} ),
-					sizeClass    = 'button-' + values.size,
-					stretchClass = 'fusion-button-span-' + values.stretch,
-					typeClass    = '';
+					sizeClass        = 'button-' + values.size,
+					stretchClass     = 'fusion-button-span-' + values.stretch,
+					typeClass        = '',
+					isDefaultStretch = ( 'undefined' !== typeof values.stretch && ( '' === values.stretch || 'default' === values.stretch ) ) || 'undefined' === typeof values.stretch,
+					marginRight, marginLeft;
 
 				attr[ 'class' ] += _.fusionGetStickyClass( values.sticky_display );
 
@@ -342,6 +344,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( 'undefined' !== typeof values.margin_left && '' !== values.margin_left ) {
 					attr.style += 'margin-left:' + values.margin_left + ';';
+				}
+
+				if ( ( ( 'undefined' !== typeof values.margin_right && '' !== values.margin_right ) || ( 'undefined' !== typeof values.margin_left && '' !== values.margin_left ) ) && ( ( ! isDefaultStretch && 'yes' === values.stretch ) || ( isDefaultStretch && 'yes' === fusionAllElements.fusion_button.defaults.stretch ) ) ) {
+					marginRight = 'undefined' !== typeof values.margin_right && '' !== values.margin_right ? ' - ' + values.margin_right : '';
+					marginLeft  = 'undefined' !== typeof values.margin_left && '' !== values.margin_left ? ' - ' + values.margin_left : '';
+
+					attr.style += 'width:calc(100%' + marginRight + marginLeft + ');';
 				}
 
 				if ( '' !== values[ 'class' ] ) {

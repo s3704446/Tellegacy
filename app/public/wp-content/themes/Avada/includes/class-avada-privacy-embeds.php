@@ -182,11 +182,17 @@ class Avada_Privacy_Embeds {
 	 * @return  void
 	 */
 	public function set_options() {
+		$privacy_bar = Avada()->settings->get( 'privacy_bar' );
+
+		// Check for app full refresh data.
+		if ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_preview_frame() && ! empty( Fusion_App()->get_data( 'fusion_options' ) ) ) {
+			$privacy_bar = Fusion_App()->get_data( 'fusion_options' )['privacy_bar'];
+		}
 		$this->options = apply_filters(
 			'avada_privacy_options',
 			[
 				'privacy_embeds'                 => Avada()->settings->get( 'privacy_embeds' ),
-				'privacy_bar'                    => Avada()->settings->get( 'privacy_bar' ),
+				'privacy_bar'                    => $privacy_bar,
 				'privacy_expiry'                 => Avada()->settings->get( 'privacy_expiry' ),
 				'privacy_embed_types'            => Avada()->settings->get( 'privacy_embed_types' ),
 				'privacy_embed_defaults'         => Avada()->settings->get( 'privacy_embed_defaults' ),

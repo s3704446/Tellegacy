@@ -160,7 +160,6 @@ final class Avada_Google_Fonts {
 			preg_match_all( '/http.*?\.woff2/', $css, $fonts );
 			$fonts = array_shift( $fonts );
 
-
 			if ( empty( $user_variants ) && empty( $user_subsets ) ) {
 				foreach ( $fonts as $font ) {
 					$tags .= '<link rel="preload" href="' . $font . '" as="font" type="font/woff2" crossorigin>';
@@ -244,8 +243,20 @@ final class Avada_Google_Fonts {
 			array_push( $fields, 'mobile_menu_typography' );
 		}
 
+		$fields = apply_filters( 'awb_typography_fields', $fields );
+
 		foreach ( $fields as $field ) {
 			$this->generate_google_font( $field );
+		}
+
+		// If we are in the live builder, load the fonts for all typography sets.
+		if ( fusion_is_preview_frame() || fusion_is_builder_frame() ) {
+			$typography = AWB_Global_Typography()->get_typography();
+			if ( ! empty( $typography ) ) {
+				foreach ( $typography as $id => $data ) {
+					$this->generate_google_font( '', $data );
+				}
+			}
 		}
 	}
 
@@ -253,17 +264,30 @@ final class Avada_Google_Fonts {
 	 * Processes the field.
 	 *
 	 * @access private
-	 * @param array $field The field arguments.
+	 * @param array   $field The field arguments.
+	 * @param boolean $value The value.
 	 */
-	private function generate_google_font( $field ) {
+	private function generate_google_font( $field = '', $value = false ) {
 		$variant  = '';
 		$variants = [];
 
 		// Get the value.
-		$value = Avada()->settings->get( $field );
+		$value = ! $value ? Avada()->settings->get( $field ) : $value;
 
-		// If we don't have a font-family or the font-family is not a Google font, then we can skip this.
-		if ( ! isset( $value['font-family'] ) || ! isset( $this->google_fonts[ $value['font-family'] ] ) ) {
+		// If we don't have a font-family.
+		if ( ! isset( $value['font-family'] ) ) {
+			return;
+		}
+
+		// If its a var, get the real family, weight and style.
+		if ( false !== strpos( $value['font-family'], 'var(' ) ) {
+			$value['font-style']  = AWB_Global_Typography()->get_real_value( $value['font-family'], 'font-style' );
+			$value['font-weight'] = AWB_Global_Typography()->get_real_value( $value['font-family'], 'font-weight' );
+			$value['font-family'] = AWB_Global_Typography()->get_real_value( $value['font-family'] );
+		}
+
+		// Not a google family, skip.
+		if ( ! isset( $this->google_fonts[ $value['font-family'] ] ) ) {
 			return;
 		}
 
@@ -340,7 +364,7 @@ final class Avada_Google_Fonts {
 			if ( ! isset( $this->google_fonts[ $font ] ) ) {
 				unset( $this->fonts[ $font ] );
 				continue;
-			}           
+			}
 
 			// Get all valid font variants for this font.
 			$font_variants = [];
@@ -350,7 +374,7 @@ final class Avada_Google_Fonts {
 
 			// Make sure variant names of element / content fonts are correct for intersection.
 			foreach ( $variants as $index => $variant ) {
-				if ( '400' === $variant ) {
+				if ( '400' === (string) $variant ) {
 					$variants[ $index ] = 'regular';
 				} elseif ( '400italic' === $variant ) {
 					$variants[ $index ] = 'italic';
@@ -445,7 +469,7 @@ final class Avada_Google_Fonts {
 				}
 			}
 
-			if ( ! isset( $weights['italic'] ) && isset( $weights['regilar'] ) && 1 === count( $weights['regular'] ) && 400 === $weights['regular'][0] ) {
+			if ( ! isset( $weights['italic'] ) && isset( $weights['regular'] ) && 1 === count( $weights['regular'] ) && 400 === $weights['regular'][0] ) {
 				$link_fonts[] = $link_font;
 				continue;
 			}

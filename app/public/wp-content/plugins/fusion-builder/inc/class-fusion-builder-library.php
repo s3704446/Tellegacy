@@ -1073,7 +1073,7 @@ class Fusion_Builder_Library {
 								printf(
 									/* translators: The "Fusion Documentation" link. */
 									__( 'Manage your saved containers. Containers cannot be inserted from the library window. The globe icon indicates the element is a <a href="%s" target="_blank">global element</a>.', 'fusion-builder' ), // phpcs:ignore WordPress.Security.EscapeOutput
-									'https://theme-fusion.com/documentation/fusion-builder/fusion-builder-library/fusion-builder-global-elements/'
+									'https://theme-fusion.com/documentation/avada/library/avada-builder-library-global-elements/'
 								);
 								?>
 							</span>
@@ -1170,7 +1170,7 @@ class Fusion_Builder_Library {
 								printf(
 									/* translators: The "Fusion Documentation" link. */
 									__( 'Manage your saved columns. Columns cannot be inserted from the library window and they must always go inside a container. The globe icon indicates the element is a <a href="%s" target="_blank">global element</a>.', 'fusion-builder' ), // phpcs:ignore WordPress.Security.EscapeOutput
-									'https://theme-fusion.com/documentation/fusion-builder/fusion-builder-library/fusion-builder-global-elements/'
+									'https://theme-fusion.com/documentation/avada/library/avada-builder-library-global-elements/'
 								);
 								?>
 							</span>
@@ -1270,7 +1270,7 @@ class Fusion_Builder_Library {
 								printf(
 									/* translators: The "Fusion Documentation" link. */
 									__( 'Manage your saved elements. Elements cannot be inserted from the library window and they must always go inside a column. The globe icon indicates the element is a <a href="%s" target="_blank">global element</a>.', 'fusion-builder' ), // phpcs:ignore WordPress.Security.EscapeOutput
-									'https://theme-fusion.com/documentation/fusion-builder/fusion-builder-library/fusion-builder-global-elements/'
+									'https://theme-fusion.com/documentation/avada/library/avada-builder-library-global-elements/'
 								);
 								?>
 							</span>

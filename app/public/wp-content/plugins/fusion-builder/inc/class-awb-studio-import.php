@@ -177,7 +177,8 @@ class AWB_Studio_Import {
 		// Post content set.
 		$post_content = $layout['post_content'];
 
-		$layout_data = [];
+		$layout_data  = [];
+		$off_canvases = [];
 
 		if ( ! isset( $layout['post_id'] ) ) {
 			$layout['post_id'] = null;
@@ -258,6 +259,46 @@ class AWB_Studio_Import {
 
 					if ( $new_form_post_id ) {
 						$post_content = str_replace( 'form_post_id="' . $form_post_id . '"', 'form_post_id="' . $new_form_post_id . '"', $post_content );
+					}
+				}
+			}
+
+			// Import referenced off canvases if set.
+			if ( isset( $layout['avada_media']['off_canvases'] ) && ! empty( $layout['avada_media']['off_canvases'] ) && current_user_can( 'edit_theme_options' ) && class_exists( 'AWB_Off_Canvas' ) && false !== AWB_Off_Canvas::is_enabled() ) {
+				foreach ( $layout['avada_media']['off_canvases'] as $off_canvas_id => $active ) {
+
+					$post_details                   = $this->import_post( $off_canvas_id, 'awb_off_canvas' );
+					$new_off_canvas_id              = $post_details['post_id'];
+					$off_canvases[ $off_canvas_id ] = $new_off_canvas_id;
+
+					// Update dynamic data references.
+					if ( false !== strpos( $post_content, 'b2ZmX2NhbnZhc' ) && false !== strpos( $post_content, 'dynamic_params' ) ) {
+						preg_match_all( '/(?<=dynamic_params=")(.*?)(?=\")/', $post_content, $matches );
+						if ( ! empty( $matches ) ) {
+							foreach ( (array) $matches[0] as $match ) {
+								if ( false !== strpos( $match, 'b2ZmX2NhbnZhc' ) ) {
+									$dynamic_params = json_decode( base64_decode( $match ), true );
+									if ( is_array( $dynamic_params ) ) {
+										foreach ( $dynamic_params as $id => $data ) {
+
+											if ( isset( $data['off_canvas_id'] ) ) {
+												$dynamic_params['link']['off_canvas_id'] = isset( $off_canvases[ $dynamic_params['link']['off_canvas_id'] ] ) ? $off_canvases[ $dynamic_params['link']['off_canvas_id'] ] : $dynamic_params['link']['off_canvas_id'];
+												$update_contents                         = base64_encode( wp_json_encode( $dynamic_params ) );
+											}
+										}
+										$post_content = str_replace( $match, $update_contents, $post_content );
+									}
+								}
+							}
+						}
+					}
+				}
+
+				// Update menu references.
+				$menus = $post_data = isset( $_POST['data']['postData']['avada_media']['menus'] ) ? wp_unslash( $_POST['data']['postData']['avada_media']['menus'] ) : []; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+				foreach ( $menus as $menu_slug => $active ) {
+					if ( $active ) {
+						$this->update_menu_off_canvas_references( $menu_slug, $off_canvases );
 					}
 				}
 			}
@@ -434,6 +475,32 @@ class AWB_Studio_Import {
 		}
 
 		return $menu_id;
+	}
+
+	/**
+	 * Updates menu.
+	 *
+	 * @access public
+	 * @since 3.6
+	 * @param string $menu_slug    The menu slug to import.
+	 * @param array  $off_canvases Referrenced off canvases in menu.
+	 * @return void
+	 */
+	public function update_menu_off_canvas_references( $menu_slug, $off_canvases ) {
+
+		// Get menu items.
+		$nav_items = wp_get_nav_menu_items( $menu_slug );
+
+		if ( is_array( $nav_items ) && ! empty( $nav_items ) ) {
+			foreach ( $nav_items as $nav_item ) {
+				$meta = maybe_unserialize( get_post_meta( $nav_item->ID, '_menu_item_fusion_megamenu', true ) );
+
+				if ( isset( $meta['special_link'] ) && 'awb-off-canvas-menu-trigger' === $meta['special_link'] && ! empty( $meta['off_canvas_id'] ) && class_exists( 'AWB_Off_Canvas' ) && false !== AWB_Off_Canvas::is_enabled() ) {
+					$meta['off_canvas_id'] = isset( $off_canvases[ $meta['off_canvas_id'] ] ) ? $off_canvases[ $meta['off_canvas_id'] ] : $meta['off_canvas_id'];
+					update_post_meta( $nav_item->ID, '_menu_item_fusion_megamenu', $meta );
+				}
+			}
+		}
 	}
 
 	/**

@@ -613,7 +613,7 @@ if ( fusion_is_element_enabled( 'fusion_images' ) ) {
 				];
 				// title color.
 				if ( ! $this->is_default( 'caption_title_color' ) ) {
-					$this->add_css_property( $selectors, 'color', $this->parent_args['caption_title_color'] );
+					$this->add_css_property( $selectors, 'color', $this->parent_args['caption_title_color'], true );
 				}
 				// title size.
 				if ( ! $this->is_default( 'caption_title_size' ) ) {
@@ -807,7 +807,20 @@ function fusion_element_images() {
 				'preview_id'    => 'fusion-builder-block-module-image-carousel-preview-template',
 				'child_ui'      => true,
 				'sortable'      => false,
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/image-carousel-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/image-carousel-element/',
+				'subparam_map'  => [
+					/* Caption title */
+					'fusion_font_family_caption_title_font' => 'caption_title_fonts',
+					'fusion_font_variant_caption_title_font' => 'caption_title_fonts',
+					'caption_title_size'                   => 'caption_title_fonts',
+					'caption_title_transform'              => 'caption_title_fonts',
+
+					/* Caption text */
+					'fusion_font_family_caption_text_font' => 'caption_text_fonts',
+					'fusion_font_variant_caption_text_font' => 'caption_text_fonts',
+					'caption_text_size'                    => 'caption_text_fonts',
+					'caption_text_transform'               => 'caption_text_fonts',
+				],
 				'params'        => [
 					[
 						'type'        => 'tinymce',
@@ -1007,21 +1020,6 @@ function fusion_element_images() {
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Image Title Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the image title. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'caption_title_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Caption', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'caption_style',
-								'value'    => 'off',
-								'operator' => '!=',
-							],
-						],
-					],
-					[
 						'type'        => 'radio_button_set',
 						'heading'     => esc_attr__( 'Image Title Heading Tag', 'fusion-builder' ),
 						'description' => esc_attr__( 'Choose HTML tag of the image title, either div or the heading tag, h1-h6.', 'fusion-builder' ),
@@ -1046,37 +1044,25 @@ function fusion_element_images() {
 						],
 					],
 					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Image Title Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the image title.', 'fusion-builder' ),
-						'param_name'       => 'caption_title_font',
-						'group'            => esc_attr__( 'Caption', 'fusion-builder' ),
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Image Title Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the image title. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'caption_title_fonts',
+						'choices'          => [
+							'font-family'    => 'caption_title_font',
+							'font-size'      => 'caption_title_size',
+							'text-transform' => 'caption_title_transform',
+							'line-height'    => false,
+							'letter-spacing' => false,
+						],
 						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
+							'font-family' => '',
+							'variant'     => '400',
 						],
+						'remove_from_atts' => true,
+						'global'           => true,
+						'group'            => esc_attr__( 'Caption', 'fusion-builder' ),
 						'dependency'       => [
-							[
-								'element'  => 'caption_style',
-								'value'    => 'off',
-								'operator' => '!=',
-							],
-						],
-					],
-					[
-						'type'        => 'radio_button_set',
-						'heading'     => esc_attr__( 'Image Title Transform', 'fusion-builder' ),
-						'description' => esc_attr__( 'Choose how the title is displayed.', 'fusion-builder' ),
-						'param_name'  => 'caption_title_transform',
-						'default'     => '',
-						'value'       => [
-							''          => esc_attr__( 'Default', 'fusion-builder' ),
-							'none'      => esc_attr__( 'Normal', 'fusion-builder' ),
-							'uppercase' => esc_attr__( 'Uppercase', 'fusion-builder' ),
-						],
-						'group'       => esc_attr__( 'Caption', 'fusion-builder' ),
-						'dependency'  => [
 							[
 								'element'  => 'caption_style',
 								'value'    => 'off',
@@ -1142,52 +1128,25 @@ function fusion_element_images() {
 						],
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Image Caption Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the image caption. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'caption_text_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Caption', 'fusion-builder' ),
-						'dependency'  => [
-							[
-								'element'  => 'caption_style',
-								'value'    => 'off',
-								'operator' => '!=',
-							],
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Image Caption Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the image caption. Leave empty for the global font family.', 'fusion-builder' ),
+						'param_name'       => 'caption_text_fonts',
+						'choices'          => [
+							'font-family'    => 'caption_text_font',
+							'font-size'      => 'caption_text_size',
+							'text-transform' => 'caption_text_transform',
+							'line-height'    => false,
+							'letter-spacing' => false,
 						],
-					],
-					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Image Caption Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the image caption.', 'fusion-builder' ),
-						'param_name'       => 'caption_text_font',
-						'group'            => esc_attr__( 'Caption', 'fusion-builder' ),
 						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '400',
+							'font-family' => '',
+							'variant'     => '400',
 						],
+						'remove_from_atts' => true,
+						'global'           => true,
+						'group'            => esc_attr__( 'Caption', 'fusion-builder' ),
 						'dependency'       => [
-							[
-								'element'  => 'caption_style',
-								'value'    => 'off',
-								'operator' => '!=',
-							],
-						],
-					],
-					[
-						'type'        => 'radio_button_set',
-						'heading'     => esc_attr__( 'Image Caption Transform', 'fusion-builder' ),
-						'description' => esc_attr__( 'Choose how the text is displayed.', 'fusion-builder' ),
-						'param_name'  => 'caption_text_transform',
-						'default'     => '',
-						'value'       => [
-							''          => esc_attr__( 'Default', 'fusion-builder' ),
-							'none'      => esc_attr__( 'Normal', 'fusion-builder' ),
-							'uppercase' => esc_attr__( 'Uppercase', 'fusion-builder' ),
-						],
-						'group'       => esc_attr__( 'Caption', 'fusion-builder' ),
-						'dependency'  => [
 							[
 								'element'  => 'caption_style',
 								'value'    => 'off',

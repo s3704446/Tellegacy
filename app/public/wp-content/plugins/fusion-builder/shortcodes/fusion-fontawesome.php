@@ -459,7 +459,7 @@ if ( fusion_is_element_enabled( 'fusion_fontawesome' ) ) {
 								'label'       => esc_html__( 'Icon Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the icon.', 'fusion-builder' ),
 								'id'          => 'icon_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -473,7 +473,7 @@ if ( fusion_is_element_enabled( 'fusion_fontawesome' ) ) {
 								'label'       => esc_html__( 'Icon Hover Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the icon on hover.', 'fusion-builder' ),
 								'id'          => 'icon_color_hover',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -491,15 +491,15 @@ if ( fusion_is_element_enabled( 'fusion_fontawesome' ) ) {
 								'type'        => 'radio-buttonset',
 								'transport'   => 'postMessage',
 								'choices'     => [
-									'yes' => esc_html__( 'On', 'fusion-builder' ),
-									'no'  => esc_html__( 'Off', 'fusion-builder' ),
+									'yes' => esc_html__( 'Yes', 'fusion-builder' ),
+									'no'  => esc_html__( 'No', 'fusion-builder' ),
 								],
 							],
 							'icon_circle_color'       => [
 								'label'       => esc_html__( 'Icon Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the background.', 'fusion-builder' ),
 								'id'          => 'icon_circle_color',
-								'default'     => '#4a4e57',
+								'default'     => 'var(--awb-color5)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -513,7 +513,7 @@ if ( fusion_is_element_enabled( 'fusion_fontawesome' ) ) {
 								'label'       => esc_html__( 'Icon Hover Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the background on hover.', 'fusion-builder' ),
 								'id'          => 'icon_circle_color_hover',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color4)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -545,7 +545,7 @@ if ( fusion_is_element_enabled( 'fusion_fontawesome' ) ) {
 								'label'       => esc_html__( 'Icon Background Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the border color of the background.', 'fusion-builder' ),
 								'id'          => 'icon_border_color',
-								'default'     => '#4a4e57',
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -559,7 +559,7 @@ if ( fusion_is_element_enabled( 'fusion_fontawesome' ) ) {
 								'label'       => esc_html__( 'Icon Hover Background Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the border color of the background on hover.', 'fusion-builder' ),
 								'id'          => 'icon_border_color_hover',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color4)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 								'css_vars'    => [
@@ -653,7 +653,7 @@ function fusion_element_font_awesome() {
 				'icon'       => 'fusiona-flag',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-font-awesome-preview.php',
 				'preview_id' => 'fusion-builder-block-module-font-awesome-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/font-awesome-icon-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/font-awesome-icon-element/',
 				'params'     => [
 					[
 						'type'        => 'iconpicker',

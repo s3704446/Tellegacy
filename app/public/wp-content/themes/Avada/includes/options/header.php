@@ -115,7 +115,7 @@ function avada_options_section_header( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['header']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -650,7 +650,7 @@ function avada_options_section_header( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['header']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -853,7 +853,7 @@ function avada_options_section_header( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['header']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -1033,7 +1033,7 @@ function avada_options_section_header( $sections ) {
 					'description' => esc_html__( 'Controls the background color and opacity for the header. For top headers, opacity set below 1 will remove the header height completely. For side headers, opacity set below 1 will display a color overlay. Transparent headers are disabled on all archive pages due to technical limitations.', 'Avada' ),
 					'id'          => 'header_bg_color',
 					'type'        => 'color-alpha',
-					'default'     => '#ffffff',
+					'default'     => 'var(--awb-color1)',
 					'css_vars'    => [
 						[
 							'name'     => '--header_bg_color',
@@ -1062,7 +1062,7 @@ function avada_options_section_header( $sections ) {
 					'description' => esc_html__( 'Controls the background color and opacity for the header on archive pages, search page and 404 page. For top headers, opacity set below 1 will remove the header height completely. For side headers, opacity set below 1 will display a color overlay.', 'Avada' ),
 					'id'          => 'archive_header_bg_color',
 					'type'        => 'color-alpha',
-					'default'     => '#ffffff',
+					'default'     => 'var(--awb-color1)',
 					'css_vars'    => [
 						[
 							'name'     => '--archive_header_bg_color',
@@ -1147,7 +1147,7 @@ function avada_options_section_header( $sections ) {
 					'label'       => esc_html__( 'Header Top Background Color', 'Avada' ),
 					'description' => esc_html__( 'Controls the background color of the top header section used in Headers 2-5.', 'Avada' ),
 					'id'          => 'header_top_bg_color',
-					'default'     => '#65bc7b',
+					'default'     => 'var(--awb-color4)',
 					'type'        => 'color-alpha',
 					'required'    => [
 						[
@@ -1222,7 +1222,7 @@ function avada_options_section_header( $sections ) {
 					'label'       => esc_html__( 'Header Tagline Font Color', 'Avada' ),
 					'description' => esc_html__( 'Controls the font color for the tagline text when using header 4.', 'Avada' ),
 					'id'          => 'tagline_font_color',
-					'default'     => '#747474',
+					'default'     => 'var(--awb-color8)',
 					'type'        => 'color-alpha',
 					'class'       => 'fusion-or-gutter',
 					'required'    => [
@@ -1261,7 +1261,7 @@ function avada_options_section_header( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s builder. To create a custom %1$s layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['header']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -1669,7 +1669,7 @@ function avada_options_section_header( $sections ) {
 					'description' => esc_html__( 'Controls the background color for the sticky header.', 'Avada' ),
 					'id'          => 'header_sticky_bg_color',
 					'type'        => 'color-alpha',
-					'default'     => '#ffffff',
+					'default'     => 'var(--awb-color1)',
 					'required'    => [
 						[
 							'setting'  => 'header_sticky',
@@ -1705,7 +1705,7 @@ function avada_options_section_header( $sections ) {
 					'description' => esc_html__( 'Controls the color for main menu text in the sticky header.', 'Avada' ),
 					'id'          => 'header_sticky_menu_color',
 					'type'        => 'color-alpha',
-					'default'     => '#333333',
+					'default'     => 'var(--awb-color8)',
 					'required'    => [
 						[
 							'setting'  => 'header_sticky',
@@ -1783,7 +1783,6 @@ function avada_options_section_header( $sections ) {
 			],
 		],
 	];
-
 
 	$sections['header']['fields'] = array_merge( $sections['header']['fields'], $fields );
 

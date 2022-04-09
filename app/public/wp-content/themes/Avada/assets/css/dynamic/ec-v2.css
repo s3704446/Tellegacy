@@ -127,12 +127,12 @@
   background-color: var(--primary_color) !important;
   color: var(--primary_overlay_text_color) !important;
 }
-.fusion-body #main .tribe-events .datepicker .prev .tribe-common-svgicon,
-.fusion-body #main .tribe-events .datepicker .next .tribe-common-svgicon {
+.fusion-body #main .tribe-events .datepicker .prev,
+.fusion-body #main .tribe-events .datepicker .next {
   color: var(--link_color);
 }
-.fusion-body #main .tribe-events .datepicker .prev .tribe-common-svgicon:hover,
-.fusion-body #main .tribe-events .datepicker .next .tribe-common-svgicon:hover {
+.fusion-body #main .tribe-events .datepicker .prev:hover,
+.fusion-body #main .tribe-events .datepicker .next:hover {
   color: var(--primary_color);
 }
 .fusion-body #main .tribe-events.tribe-events-view--week .datepicker .focused .day,

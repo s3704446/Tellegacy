@@ -243,14 +243,15 @@ if ( fusion_is_element_enabled( 'fusion_counters_circle' ) ) {
 				$stroke_size   = 11 * $multiplicator;
 				$font_size     = 50 * $multiplicator;
 
-				$attr['data-percent'] = $this->child_args['value'];
+				$attr['data-percent'] = $this->sanitize_percentage( $this->child_args['value'] );
 
 				if ( $this->child_args['countdown'] ) {
-					$attr['data-percent-original'] = $this->child_args['value'];
+					$attr['data-percent-original'] = $this->sanitize_percentage( $this->child_args['value'] );
 				}
+
 				$attr['data-countdown']     = $this->child_args['countdown'];
-				$attr['data-filledcolor']   = $this->child_args['filledcolor'];
-				$attr['data-unfilledcolor'] = $this->child_args['unfilledcolor'];
+				$attr['data-filledcolor']   = Fusion_Color::new_color( $this->child_args['filledcolor'] )->toCss( 'rgba' );
+				$attr['data-unfilledcolor'] = Fusion_Color::new_color( $this->child_args['unfilledcolor'] )->toCss( 'rgba' );
 				$attr['data-scale']         = $this->child_args['scales'];
 				$attr['data-size']          = $this->child_args['size'];
 				$attr['data-speed']         = $this->child_args['speed'];
@@ -281,6 +282,28 @@ if ( fusion_is_element_enabled( 'fusion_counters_circle' ) ) {
 			}
 
 			/**
+			 * Sanitize the percentage value, because this can come also from a
+			 * dynamic data which can be a string or a float.
+			 *
+			 * @since 3.6
+			 * @param int|string $percentage The value to be sanitized.
+			 * @return int
+			 */
+			protected function sanitize_percentage( $percentage ) {
+				$percentage = round( floatval( $percentage ), 0 );
+
+				if ( 0 > $percentage ) {
+					$percentage = 0;
+				}
+
+				if ( 100 < $percentage ) {
+					$percentage = 100;
+				}
+
+				return $percentage;
+			}
+
+			/**
 			 * Adds settings to element options panel.
 			 *
 			 * @access public
@@ -301,7 +324,7 @@ if ( fusion_is_element_enabled( 'fusion_counters_circle' ) ) {
 								'label'       => esc_html__( 'Counter Circles Filled Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the filled circle.', 'fusion-builder' ),
 								'id'          => 'counter_filled_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color5)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -309,7 +332,7 @@ if ( fusion_is_element_enabled( 'fusion_counters_circle' ) ) {
 								'label'       => esc_html__( 'Counter Circles Unfilled Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the unfilled circle.', 'fusion-builder' ),
 								'id'          => 'counter_unfilled_color',
-								'default'     => '#f2f3f5',
+								'default'     => 'var(--awb-color2)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -397,7 +420,7 @@ function fusion_element_counters_circle() {
 				'element_child' => 'fusion_counter_circle',
 				'sortable'      => false,
 				'icon'          => 'fusiona-clock',
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/counter-circles-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/counter-circles-element/',
 				'params'        => [
 					[
 						'type'        => 'tinymce',
@@ -467,11 +490,12 @@ function fusion_element_counter_circle() {
 				'hide_from_builder' => true,
 				'params'            => [
 					[
-						'type'        => 'range',
-						'heading'     => esc_attr__( 'Filled Area Percentage', 'fusion-builder' ),
-						'description' => esc_attr__( 'From 1% to 100%.', 'fusion-builder' ),
-						'param_name'  => 'value',
-						'value'       => '50',
+						'type'         => 'range',
+						'heading'      => esc_attr__( 'Filled Area Percentage', 'fusion-builder' ),
+						'description'  => esc_attr__( 'From 1% to 100%.', 'fusion-builder' ),
+						'dynamic_data' => true,
+						'param_name'   => 'value',
+						'value'        => '50',
 					],
 					[
 						'type'        => 'colorpickeralpha',

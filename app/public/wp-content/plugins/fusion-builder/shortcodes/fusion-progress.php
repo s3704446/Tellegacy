@@ -17,6 +17,15 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 		class FusionSC_Progressbar extends Fusion_Element {
 
 			/**
+			 * The counter.
+			 *
+			 * @access private
+			 * @since 3.6.1
+			 * @var int
+			 */
+			private $element_counter = 1;
+
+			/**
 			 * An array of the shortcode arguments.
 			 *
 			 * @access protected
@@ -36,6 +45,7 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 				add_filter( 'fusion_attr_progressbar-shortcode', [ $this, 'attr' ] );
 				add_filter( 'fusion_attr_progressbar-shortcode-bar', [ $this, 'bar_attr' ] );
 				add_filter( 'fusion_attr_progressbar-shortcode-content', [ $this, 'content_attr' ] );
+				add_filter( 'fusion_attr_fusion-progressbar-text', [ $this, 'text_attr' ] );
 				add_filter( 'fusion_attr_progressbar-shortcode-span', [ $this, 'span_attr' ] );
 
 				add_shortcode( 'fusion_progress', [ $this, 'render' ] );
@@ -123,7 +133,7 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 
 				$value = '';
 				if ( 'yes' === $show_percentage ) {
-					$value = '<span ' . FusionBuilder::attributes( 'fusion-progressbar-value' ) . '>' . $percentage . $unit . '</span>';
+					$value = '<span ' . FusionBuilder::attributes( 'fusion-progressbar-value' ) . '>' . $this->sanitize_percentage( $percentage ) . $unit . '</span>';
 				}
 
 				$text_wrapper = '<span ' . FusionBuilder::attributes( 'progressbar-shortcode-span' ) . '>' . $text . ' ' . $value . '</span>';
@@ -137,6 +147,8 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 				}
 
 				$this->on_render();
+
+				$this->element_counter++;
 
 				return apply_filters( 'fusion_element_progress_content', $html, $args );
 
@@ -261,11 +273,28 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 					$attr['style'] .= 'border-bottom-right-radius:' . $this->args['border_radius_bottom_right'] . ';';
 				}
 
-				$attr['role']          = 'progressbar';
-				$attr['aria-valuemin'] = '0';
-				$attr['aria-valuemax'] = '100';
+				$attr['role']            = 'progressbar';
+				$attr['aria-labelledby'] = 'awb-progressbar-label-' . $this->element_counter;
+				$attr['aria-valuemin']   = '0';
+				$attr['aria-valuemax']   = '100';
+				$attr['aria-valuenow']   = $this->sanitize_percentage( $this->args['percentage'] );
 
-				$attr['aria-valuenow'] = $this->args['percentage'];
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the text attributes array.
+			 *
+			 * @access public
+			 * @since 3.6.1
+			 * @return array
+			 */
+			public function text_attr() {
+				$attr = [
+					'class' => 'fusion-progressbar-text',
+					'id'    => 'awb-progressbar-label-' . $this->element_counter,
+				];
 
 				return $attr;
 
@@ -285,7 +314,7 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 				];
 
 				if ( 'on_bar' === $this->args['text_position'] ) {
-					$empty_percentage = 100 - intval( $this->args['percentage'] );
+					$empty_percentage = 100 - $this->sanitize_percentage( $this->args['percentage'] );
 					if ( 66 > $empty_percentage ) {
 						if ( ! is_rtl() ) {
 							$atts['style'] .= 'right: calc(15px + ' . $empty_percentage . '%);';
@@ -298,6 +327,28 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 				$atts['style'] .= Fusion_Builder_Element_Helper::get_font_styling( $this->args, 'text_font' );
 
 				return $atts;
+			}
+
+			/**
+			 * Sanitize the percentage value, because this can come also from a
+			 * dynamic data which can be a string or a float.
+			 *
+			 * @since 3.6
+			 * @param int|string $percentage The value to be sanitized.
+			 * @return int
+			 */
+			protected function sanitize_percentage( $percentage ) {
+				$percentage = round( floatval( $percentage ), 0 );
+
+				if ( 0 > $percentage ) {
+					$percentage = 0;
+				}
+
+				if ( 100 < $percentage ) {
+					$percentage = 100;
+				}
+
+				return $percentage;
 			}
 
 			/**
@@ -374,7 +425,7 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 								'label'       => esc_html__( 'Progress Bar Text Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the progress bar text.', 'fusion-builder' ),
 								'id'          => 'progressbar_text_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -390,7 +441,7 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 								'label'       => esc_html__( 'Progress Bar Filled Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the progress bar filled area.', 'fusion-builder' ),
 								'id'          => 'progressbar_filled_color',
-								'default'     => '#65bc7b',
+								'default'     => 'var(--awb-color5)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -398,7 +449,7 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 								'label'       => esc_html__( 'Progress Bar Unfilled Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the progress bar unfilled area.', 'fusion-builder' ),
 								'id'          => 'progressbar_unfilled_color',
-								'default'     => '#f2f3f5',
+								'default'     => 'var(--awb-color2)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -419,7 +470,7 @@ if ( fusion_is_element_enabled( 'fusion_progress' ) ) {
 								'label'       => esc_html__( 'Progress Bar Filled Border Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the border color of the progress bar filled area.', 'fusion-builder' ),
 								'id'          => 'progressbar_filled_border_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -480,23 +531,29 @@ function fusion_element_progress() {
 				'icon'          => 'fusiona-tasks',
 				'preview'       => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-progress-preview.php',
 				'preview_id'    => 'fusion-builder-block-module-progress-preview-template',
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/progress-bar-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/progress-bar-element/',
+				'subparam_map'  => [
+					'fusion_font_family_text_font'  => 'main_typography',
+					'fusion_font_variant_text_font' => 'main_typography',
+				],
 				'inline_editor' => true,
 				'params'        => [
 					[
-						'type'        => 'range',
-						'heading'     => esc_attr__( 'Filled Area Percentage', 'fusion-builder' ),
-						'description' => esc_attr__( 'From 1% to 100%.', 'fusion-builder' ),
-						'param_name'  => 'percentage',
-						'value'       => '70',
+						'type'         => 'range',
+						'heading'      => esc_attr__( 'Filled Area Percentage', 'fusion-builder' ),
+						'description'  => esc_attr__( 'From 1% to 100%.', 'fusion-builder' ),
+						'dynamic_data' => true,
+						'param_name'   => 'percentage',
+						'value'        => '70',
 					],
 					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Progress Bar Text', 'fusion-builder' ),
-						'description' => esc_attr__( 'Text will show up on progress bar.', 'fusion-builder' ),
-						'param_name'  => 'element_content',
-						'value'       => esc_attr__( 'Your Content Goes Here', 'fusion-builder' ),
-						'placeholder' => true,
+						'type'         => 'textfield',
+						'heading'      => esc_attr__( 'Progress Bar Text', 'fusion-builder' ),
+						'description'  => esc_attr__( 'Text will show up on progress bar.', 'fusion-builder' ),
+						'dynamic_data' => true,
+						'param_name'   => 'element_content',
+						'value'        => esc_attr__( 'Your Content Goes Here', 'fusion-builder' ),
+						'placeholder'  => true,
 					],
 					[
 						'type'        => 'radio_button_set',
@@ -593,15 +650,23 @@ function fusion_element_progress() {
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[
-						'type'             => 'font_family',
-						'heading'          => esc_attr__( 'Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the text.', 'fusion-builder' ),
-						'param_name'       => 'text_font',
+						'type'             => 'typography',
+						'heading'          => esc_attr__( 'Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the text typography.', 'fusion-builder' ),
+						'param_name'       => 'main_typography',
+						'choices'          => [
+							'font-family'    => 'text_font',
+							'font-size'      => false,
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
+						],
 						'default'          => [
-							'font_family'  => '',
-							'font_variant' => '400',
+							'font-family' => '',
+							'variant'     => '400',
 						],
 						'remove_from_atts' => true,
+						'global'           => true,
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
 					],
 					[

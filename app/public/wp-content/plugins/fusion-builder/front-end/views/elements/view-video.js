@@ -1,5 +1,5 @@
 /* jshint -W024 */
-/* global fusionAllElements, FusionApp, FusionPageBuilderApp */
+/* global fusionAllElements, FusionApp, FusionPageBuilderApp, awbPalette */
 var FusionPageBuilder = FusionPageBuilder || {};
 
 ( function() {
@@ -165,9 +165,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( '' !== values.overlay_color ) {
-					alpha = jQuery.Color( values.overlay_color ).alpha();
+					values.overlay_color = awbPalette.getRealColor( values.overlay_color );
+					alpha = jQuery.AWB_Color( values.overlay_color ).alpha();
 					if ( 1 === alpha ) {
-						values.overlay_color = jQuery.Color( values.overlay_color ).alpha( 0.5 ).toRgbaString();
+						values.overlay_color = jQuery.AWB_Color( values.overlay_color ).alpha( 0.5 ).toRgbaString();
 					}
 					attr[ 'class' ] += ' fusion-video-overlay';
 					attr.style += 'background-color:' + values.overlay_color + ';';

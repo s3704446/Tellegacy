@@ -39,8 +39,14 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var html                     = '',
 					rating                   = this.getRating( values ),
 					maximumRating            = values.maximum_rating,
-					isPerfectRoundRating     = ( parseInt( rating ) === rating ),
+					isPerfectRoundRating,
 					currentStar              = 1;
+
+				if ( '0decimals' === values.rating_number_rounding && 'yes' === values.display_rating_text ) {
+					rating = parseInt( rating.toFixed( 0 ) );
+				}
+
+				isPerfectRoundRating = ( parseInt( rating ) === rating );
 
 				while ( currentStar <= maximumRating ) {
 					html += '<i ' + _.fusionGetAttributes( this.getIconAttributes( values, currentStar ) ) + '>';
@@ -70,10 +76,45 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					rating = maximumRating;
 				}
 
-				rating = Number( rating ).toFixed( 2 );
+				rating = Number( rating ).toFixed( this.getNumberToRound( values, rating ) );
 
 				html += '<span>' + rating + '</span> / <span>' + maximumRating + '</span>';
 				return html;
+			},
+
+			getNumberToRound: function( values, rating ) {
+				var numParts,
+					numToRound;
+
+				if ( '0decimals' === values.rating_number_rounding ) {
+					return 0;
+				} else if ( '1decimal' === values.rating_number_rounding ) {
+					return 1;
+				} else if ( '2decimals' === values.rating_number_rounding ) {
+					return 2;
+				}
+
+				// 'rating_number_rounding' is set to 'auto' if here.
+
+				if ( Math.floor( rating ) === rating ) {
+					return 0;
+				}
+
+				numParts = rating.toString().trimEnd( '0' ).split( '.' );
+
+				if ( numParts[ 1 ] ) {
+					numToRound = numParts[ 1 ].length || 0;
+				} else {
+					numToRound = 0;
+				}
+
+				if ( 0 === numToRound ) {
+					return 0;
+				} else if ( 1 === numToRound ) {
+					return 1;
+				}
+
+				return 2;
 			},
 
 			/**
@@ -120,8 +161,15 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						'class': _.fusionFontAwesome( values.icon )
 					},
 					rating                = this.getRating( values ),
-					isPerfectRoundRating  = ( parseInt( rating ) === rating ),
-					iconIsPartiallyFilled = ( ( parseInt( rating ) + 1 ) === currentIconNum );
+					isPerfectRoundRating,
+					iconIsPartiallyFilled;
+
+				if ( '0decimals' === values.rating_number_rounding && 'yes' === values.display_rating_text ) {
+					rating = parseInt( rating.toFixed( 0 ) );
+				}
+
+				isPerfectRoundRating  = ( parseInt( rating ) === rating ),
+				iconIsPartiallyFilled = ( ( parseInt( rating ) + 1 ) === currentIconNum );
 
 				if ( currentIconNum <= rating ) {
 					attr[ 'class' ] += ' awb-stars-rating-filled-icon';

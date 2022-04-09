@@ -126,7 +126,7 @@ class Fusion_Patcher_Admin_Screen {
 			'manage_options',
 			$this->patcher->get_args( 'context' ) . '-patcher',
 			[ $this, 'admin_page' ],
-			9
+			13
 		);
 		self::$menu_added[ $this->patcher->get_args( 'context' ) ] = true;
 
@@ -259,10 +259,10 @@ class Fusion_Patcher_Admin_Screen {
 					wp_nonce_field( 'awb-bulk-apply-patches', 'awb-bulk-patches-nonce', false );
 
 					// Show button only if there are patches which are not applied.
-					if ( $available_patches !== $applied_patches ) : 
+					if ( $available_patches !== $applied_patches ) :
 						?>
 					<button id="bulk-apply-patches" class="button"><?php esc_html_e( 'Apply All Patches', 'fusion-builder' ); ?></button>
-						<?php 
+						<?php
 					endif;
 				}
 				?>

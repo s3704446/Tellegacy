@@ -195,7 +195,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 		 * @param string       $mode  The color mode. Leave empty to auto-detect.
 		 */
 		protected function __construct( $color = '', $mode = 'auto' ) {
-			$this->color = $color;
+			$this->color = $this->evaluate_color( $color );
 
 			if ( is_array( $color ) && isset( $color['fallback'] ) ) {
 				$this->fallback = $color['fallback'];
@@ -203,7 +203,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 			}
 
 			if ( ! method_exists( $this, 'from_' . $mode ) ) {
-				$mode = $this->get_mode( $color );
+				$mode = $this->get_mode( $this->color );
 			}
 
 			$this->mode = $mode;
@@ -449,6 +449,112 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 		}
 
 		/**
+		 * Replace variables with values where possible.
+		 *
+		 * @access protected
+		 * @since 1.0.0
+		 * @return void
+		 */
+		protected function evaluate_color( $color ) {
+			if ( is_array( $color ) && isset( $color[ 'color' ] ) ) {
+				$color = $color[ 'color' ];
+			}
+
+			if ( ! is_string( $color ) || ! function_exists( 'AWB_Global_Colors' ) ) {
+				return $color;
+			}
+
+			$var_pos = strpos( $color, 'var' );
+			if ( false === $var_pos ) {
+				return $color;
+			}
+
+			// Single var, find and replace with value.
+			if ( 0 === $var_pos ) {
+				$slug     = str_replace( [ 'var(--awb-', ')', ' ' ], '', $color );
+				$palettes = AWB_Global_Colors()->get_palette();
+
+				if ( isset( $palettes[ $slug ] ) ) {
+					return $palettes[ $slug ]['color'];
+				}
+
+				// Failed, return default.
+				return 'hsla(0,0%,0%,1)';
+			}
+
+			// TODO: try to refactor or avoid this.
+			$parts     = explode( ',', $color );
+			$palettes  = AWB_Global_Colors()->get_palette();
+
+			if ( 4 === count( $parts ) ) {
+				$map = [
+					0 => 'hue',
+					1 => 'saturation',
+					2 => 'lightness',
+					3 => 'alpha',
+				];
+
+				$color_object = false;
+				foreach ( $parts as $index => $part ) {
+					$finder = $part;
+					$suffix = '-' . substr( $map[ $index ], 0, 1 );
+
+					// No calc, should be a simple var, find it and add the value in.
+					if ( false === strpos( $finder, 'calc(' ) ) {
+						if ( ! $color_object ) {
+							$finder = str_replace( [ 'var(--awb-', 'hsla(', ')', ' ', $suffix  ], '', $finder );
+							if ( isset( $palettes[ $finder ] ) ) {
+								$color_object        = Fusion_Color::new_color( $palettes[ $finder ]['color'] );
+								$parts[ $index ]     = $color_object->{ $map[ $index ] };
+							}
+						} else {
+							$parts[ $index ] = $color_object->{ $map[ $index ] };
+						}
+					} else if ( strpos( $finder, ' + ' ) || strpos( $finder, ' - ' ) ) {
+						$explode_at = strpos( $finder, ' + ' ) ? ' + ' : ' - ';
+						$sign       = ' - ' === $explode_at ? '-' : '';
+						$params     = explode( $explode_at, $part );
+						$params[1]  = str_replace( [ ' ', '%', ')' ], '', $params[1] );
+
+						if ( 2 === count( $params ) ) {
+
+							// Work out the variable value.
+							if ( ! $color_object ) {
+								$finder = str_replace( [ 'hsla(', 'calc(', 'var(--awb-', ')', ' ', $suffix ], '', $params[0] );
+
+								if ( isset( $palettes[ $finder ] ) ) {
+									$color_object        = Fusion_Color::new_color( $palettes[ $finder ]['color'] );
+									$params[0]           = $color_object->{ $map[ $index ] };
+								}
+							} else {
+								$params[0] = $color_object->{ $map[ $index ] };
+							}
+
+							// Add the two together.
+							if ( 0 === $index ) {
+								$parts[ $index ] = (float) $params[0] + (float) ( $sign . $params[1] ) % 360;
+							} else if ( 1 === $index || 2 === $index ) {
+								$parts[ $index ] = ( (float) $params[0] + (float) ( $sign . $params[1] ) );
+							} else {
+								$parts[ $index ] = ( ( (float) $params[0] * 100 ) + (float) ( $sign . $params[1] ) ) / 100;
+							}
+						}
+					}
+				}
+
+				$parts[1] .= '%';
+				$parts[2] .= '%';
+				$color = 'hsla(' . implode( ',', $parts ) . ')';
+			}
+
+			// Tried our best but non-existent variable no doubt.
+			if ( false !== strpos( $color, 'var' ) ) {
+				return 'hsla(0,0%,0%,1)';
+			}
+			return $color;
+		}
+
+		/**
 		 * Starts with a HEX color and calculates all other properties.
 		 *
 		 * @access protected
@@ -574,6 +680,12 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 			$this->saturation = $value[1];
 			$this->lightness  = $value[2];
 			$this->alpha      = $value[3];
+
+			$value =  explode( ',', str_replace( array( ' ', 'hsla', '(', ')' ), '', $this->color ) );
+			if ( false !== strpos( $value[3], '%' ) ) {
+				$this->alpha = $this->alpha / 100;
+			}
+
 			$this->from_hsl_array();
 			$this->set_closest_word_color_match();
 		}
@@ -776,6 +888,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 				'green' => round( $this->green * .587 ),
 				'blue'  => round( $this->blue * .114 ),
 				'total' => intval( ( $this->red * .299 ) + ( $this->green * .587 ) + ( $this->blue * .114 ) ),
+				'level' => $this->calc_color_brightness(),
 			);
 		}
 
@@ -958,7 +1071,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 		 * @return array The array of all word colors and their values.
 		 */
 		public static function get_word_colors_with_values( $extended = false ) {
-			$base_colors = [	
+			$base_colors = [
 				'aqua' => [
 					'hex' => '00FFFF',
 					'rgb' => [ 'red' => '0', 'green' => '255', 'blue' => '255' ],
@@ -968,7 +1081,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 					'hex' => '000000',
 					'rgb' => [ 'red' => '0', 'green' => '0', 'blue' => '0' ],
 					'hsl' => [ 'hue' => '0', 'saturation' => '0', 'lightness' => '0' ],
-				],			
+				],
 				'blue' => [
 					'hex' => '0000FF',
 					'rgb' => [ 'red' => '0', 'green' => '0', 'blue' => '255' ],
@@ -1008,7 +1121,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 					'hex' => 'D3D3D3',
 					'rgb' => [ 'red' => '211', 'green' => '211', 'blue' => '211' ],
 					'hsl' => [ 'hue' => '0', 'saturation' => '0', 'lightness' => '83' ],
-				],			
+				],
 				'lime' => [
 					'hex' => '00FF00',
 					'rgb' => [ 'red' => '0', 'green' => '255', 'blue' => '0' ],
@@ -1018,12 +1131,12 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 					'hex' => 'FF00FF',
 					'rgb' => [ 'red' => '255', 'green' => '0', 'blue' => '255' ],
 					'hsl' => [ 'hue' => '300', 'saturation' => '100', 'lightness' => '50' ],
-				],			
+				],
 				'navy' => [
 					'hex' => '000080',
 					'rgb' => [ 'red' => '0', 'green' => '0', 'blue' => '128' ],
 					'hsl' => [ 'hue' => '240', 'saturation' => '100', 'lightness' => '25' ],
-				],		
+				],
 				'olive' => [
 					'hex' => '808000',
 					'rgb' => [ 'red' => '128', 'green' => '128', 'blue' => '0' ],
@@ -1103,7 +1216,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'FFE4C4',
 						'rgb' => [ 'red' => '255', 'green' => '228', 'blue' => '196' ],
 						'hsl' => [ 'hue' => '33', 'saturation' => '100', 'lightness' => '88' ],
-					],					
+					],
 					'blanchedalmond' => [
 						'hex' => 'FFEBCD',
 						'rgb' => [ 'red' => '255', 'green' => '235', 'blue' => '205' ],
@@ -1113,7 +1226,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => '8A2BE2',
 						'rgb' => [ 'red' => '138', 'green' => '43', 'blue' => '226' ],
 						'hsl' => [ 'hue' => '271', 'saturation' => '76', 'lightness' => '53' ],
-					],					
+					],
 					'burlywood' => [
 						'hex' => 'DEB887',
 						'rgb' => [ 'red' => '222', 'green' => '184', 'blue' => '135' ],
@@ -1153,7 +1266,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'DC143C',
 						'rgb' => [ 'red' => '220', 'green' => '20', 'blue' => '60' ],
 						'hsl' => [ 'hue' => '348', 'saturation' => '83', 'lightness' => '47' ],
-					],				
+					],
 					'darkblue' => [
 						'hex' => '00008B',
 						'rgb' => [ 'red' => '0', 'green' => '0', 'blue' => '139' ],
@@ -1308,7 +1421,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'FFD700',
 						'rgb' => [ 'red' => '255', 'green' => '215', 'blue' => '0' ],
 						'hsl' => [ 'hue' => '51', 'saturation' => '100', 'lightness' => '50' ],
-					],								
+					],
 					'goldenrod' => [
 						'hex' => 'DAA520',
 						'rgb' => [ 'red' => '218', 'green' => '165', 'blue' => '32' ],
@@ -1318,7 +1431,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'ADFF2F',
 						'rgb' => [ 'red' => '173', 'green' => '255', 'blue' => '47' ],
 						'hsl' => [ 'hue' => '84', 'saturation' => '100', 'lightness' => '59' ],
-					],							
+					],
 					'honeydew' => [
 						'hex' => 'F0FFF0',
 						'rgb' => [ 'red' => '240', 'green' => '255', 'blue' => '240' ],
@@ -1333,7 +1446,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'CD5C5C',
 						'rgb' => [ 'red' => '205', 'green' => '92', 'blue' => '92' ],
 						'hsl' => [ 'hue' => '0', 'saturation' => '53', 'lightness' => '58' ],
-					],				
+					],
 					'ivory' => [
 						'hex' => 'FFFFF0',
 						'rgb' => [ 'red' => '255', 'green' => '255', 'blue' => '240' ],
@@ -1343,7 +1456,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'F0E68C',
 						'rgb' => [ 'red' => '240', 'green' => '230', 'blue' => '140' ],
 						'hsl' => [ 'hue' => '54', 'saturation' => '77', 'lightness' => '75' ],
-					],								
+					],
 					'lavender' => [
 						'hex' => 'E6E6FA',
 						'rgb' => [ 'red' => '230', 'green' => '230', 'blue' => '250' ],
@@ -1383,7 +1496,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'FAFAD2',
 						'rgb' => [ 'red' => '250', 'green' => '250', 'blue' => '210' ],
 						'hsl' => [ 'hue' => '60', 'saturation' => '80', 'lightness' => '90' ],
-					],				
+					],
 					'lightgreen' => [
 						'hex' => '90EE90',
 						'rgb' => [ 'red' => '144', 'green' => '238', 'blue' => '144' ],
@@ -1443,7 +1556,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'FAF0E6',
 						'rgb' => [ 'red' => '250', 'green' => '240', 'blue' => '230' ],
 						'hsl' => [ 'hue' => '30', 'saturation' => '67', 'lightness' => '94' ],
-					],					
+					],
 					'maroon' => [
 						'hex' => '800000',
 						'rgb' => [ 'red' => '128', 'green' => '0', 'blue' => '0' ],
@@ -1528,7 +1641,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => '6B8E23',
 						'rgb' => [ 'red' => '107', 'green' => '142', 'blue' => '35' ],
 						'hsl' => [ 'hue' => '80', 'saturation' => '60', 'lightness' => '35' ],
-					],					
+					],
 					'orangered' => [
 						'hex' => 'FF4500',
 						'rgb' => [ 'red' => '255', 'green' => '69', 'blue' => '0' ],
@@ -1573,7 +1686,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'CD853F',
 						'rgb' => [ 'red' => '205', 'green' => '133', 'blue' => '63' ],
 						'hsl' => [ 'hue' => '30', 'saturation' => '59', 'lightness' => '53' ],
-					],				
+					],
 					'plum' => [
 						'hex' => 'DDA0DD',
 						'rgb' => [ 'red' => '221', 'green' => '160', 'blue' => '221' ],
@@ -1583,7 +1696,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'B0E0E6',
 						'rgb' => [ 'red' => '176', 'green' => '224', 'blue' => '230' ],
 						'hsl' => [ 'hue' => '187', 'saturation' => '52', 'lightness' => '80' ],
-					],				
+					],
 					'rosybrown' => [
 						'hex' => 'BC8F8F',
 						'rgb' => [ 'red' => '188', 'green' => '143', 'blue' => '143' ],
@@ -1603,7 +1716,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'FA8072',
 						'rgb' => [ 'red' => '250', 'green' => '128', 'blue' => '114' ],
 						'hsl' => [ 'hue' => '6', 'saturation' => '93', 'lightness' => '71' ],
-					],							
+					],
 					'sandybrown' => [
 						'hex' => 'F4A460',
 						'rgb' => [ 'red' => '244', 'green' => '164', 'blue' => '96' ],
@@ -1623,7 +1736,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => 'A0522D',
 						'rgb' => [ 'red' => '160', 'green' => '82', 'blue' => '45' ],
 						'hsl' => [ 'hue' => '19', 'saturation' => '56', 'lightness' => '40' ],
-					],				
+					],
 					'skyblue' => [
 						'hex' => '87CEEB',
 						'rgb' => [ 'red' => '135', 'green' => '206', 'blue' => '235' ],
@@ -1653,7 +1766,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => '00FF7F',
 						'rgb' => [ 'red' => '0', 'green' => '255', 'blue' => '127' ],
 						'hsl' => [ 'hue' => '150', 'saturation' => '100', 'lightness' => '50' ],
-					],				
+					],
 					'steelblue' => [
 						'hex' => '4682B4',
 						'rgb' => [ 'red' => '70', 'green' => '130', 'blue' => '180' ],
@@ -1683,12 +1796,12 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => '40E0D0',
 						'rgb' => [ 'red' => '64', 'green' => '224', 'blue' => '208' ],
 						'hsl' => [ 'hue' => '174', 'saturation' => '72', 'lightness' => '56' ],
-					],						
+					],
 					'wheat' => [
 						'hex' => 'F5DEB3',
 						'rgb' => [ 'red' => '245', 'green' => '222', 'blue' => '179' ],
 						'hsl' => [ 'hue' => '39', 'saturation' => '77', 'lightness' => '83' ],
-					],				
+					],
 					'whitesmoke' => [
 						'hex' => 'F5F5F5',
 						'rgb' => [ 'red' => '245', 'green' => '245', 'blue' => '245' ],
@@ -1698,7 +1811,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 						'hex' => '9ACD32',
 						'rgb' => [ 'red' => '154', 'green' => '205', 'blue' => '50' ],
 						'hsl' => [ 'hue' => '80', 'saturation' => '61', 'lightness' => '50' ],
-					],					
+					],
 				];
 			} else {
 				$extended_colors = [];
@@ -1707,7 +1820,7 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 			$colors = array_merge( $base_colors, $extended_colors );
 
 			return $colors;
-		}		
+		}
 
 		/**
 		 * Get closest word color match of a given color.
@@ -1734,9 +1847,90 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 					if ( $total_diff < 0 || $total_diff > $diff ) {
 					  $total_diff                     = $diff;
 					  $this->closets_word_color_match = $word_color;
-					}					
+					}
 				}
 			}
+		}
+
+		/**
+		 * Calculate the brightness of a color.
+		 *
+		 * @access protected
+		 * @since 3.6.0
+		 * @return integer brightness level.
+		 */
+		protected function calc_color_brightness() {
+			$brightness_level = 150;
+			if ( ! is_string( $this->color ) ) {
+				return $brightness_level;
+			}
+
+			if ( in_array( strtolower( $this->color ), [ 'black', 'navy', 'purple', 'maroon', 'indigo', 'darkslategray', 'darkslateblue', 'darkolivegreen', 'darkgreen', 'darkblue' ], true ) ) {
+
+				$brightness_level = 0;
+
+			} elseif ( 0 === strpos( $this->color, '#' ) || 0 === strpos( $this->color, 'rgb' ) || ctype_xdigit( $this->color ) ) {
+
+				$brightness_level = sqrt( pow( $this->red, 2 ) * 0.299 + pow( $this->green, 2 ) * 0.587 + pow( $this->blue, 2 ) * 0.114 );
+
+			}
+
+			return (int) round( $brightness_level );
+		}
+
+		/**
+		 * Figure out if a color is transparent or not.
+		 *
+		 * @since 3.6.0
+		 * @return bool
+		 */
+		public function is_color_transparent() {
+			if ( 'transparent' === $this->color ) {
+				return true;
+			}
+			return ( 0 === $this->alpha );
+		}
+
+		/**
+		 * Adjusts brightness of the $hex and rgba colors.
+		 *
+		 * @since 3.6.0
+		 * @param   int    $steps A value between -255 (darken) and 255 (lighten).
+		 * @return  string        Returns hex color or rgba, depending on input.
+		 */
+		public function adjust_brightness( $steps ) {
+			$lightness = absint( round( $this->lightness + ( $steps / 2.55 ) ) );
+			$lightness = max( 0, min( $lightness, 100 ) );
+			return $this->get_new( 'lightness', $lightness )->to_css( $this->mode );
+		}
+
+		/**
+		 * Determines if a color needs adjusting or not.
+		 *
+		 * @since 3.6.0
+		 * @access public
+		 * @return bool
+		 */
+		public function is_needs_adjustment() {
+			if ( '#ffffff' === $this->color || $this->is_color_transparent() ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		/**
+		 * Convert color to hsl.
+		 *
+		 * @since 3.6.0
+		 * @access public
+		 */
+		public function to_hsl() {
+			return [
+				'hue' => $this->hue,
+				'sat' => $this->saturation,
+				'lum' => $this->lightness,
+			];
 		}
 
 		/**

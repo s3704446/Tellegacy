@@ -141,35 +141,51 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_top' ) ) {
-					this.addCssProperty( selector, 'padding-top',  this.values.wrapper_padding_top, true );
+					this.addCssProperty( selector, 'padding-top',  _.fusionGetValueWithUnit( this.values.wrapper_padding_top ), true );
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_bottom' ) ) {
-					this.addCssProperty( selector, 'padding-bottom',  this.values.wrapper_padding_bottom, true );
+					this.addCssProperty( selector, 'padding-bottom',  _.fusionGetValueWithUnit( this.values.wrapper_padding_bottom ), true );
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_left' ) ) {
-					this.addCssProperty( selector, 'padding-left',  this.values.wrapper_padding_left, true );
+					this.addCssProperty( selector, 'padding-left',  _.fusionGetValueWithUnit( this.values.wrapper_padding_left ), true );
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_right' ) ) {
-					this.addCssProperty( selector, 'padding-right',  this.values.wrapper_padding_right, true );
+					this.addCssProperty( selector, 'padding-right',  _.fusionGetValueWithUnit( this.values.wrapper_padding_right ), true );
 				}
 
 				if ( !this.isDefault( 'border_bottom' ) ) {
-					this.addCssProperty( selector, 'border-bottom-width',  this.values.border_bottom, true );
+					this.addCssProperty( selector, 'border-bottom-width',  _.fusionGetValueWithUnit( this.values.border_bottom ), true );
 				}
 
 				if ( !this.isDefault( 'border_top' ) ) {
-					this.addCssProperty( selector, 'border-top-width',  this.values.border_top, true );
+					this.addCssProperty( selector, 'border-top-width',  _.fusionGetValueWithUnit( this.values.border_top ), true );
 				}
 
 				if ( !this.isDefault( 'border_left' ) ) {
-					this.addCssProperty( selector, 'border-left-width',  this.values.border_left, true );
+					this.addCssProperty( selector, 'border-left-width',  _.fusionGetValueWithUnit( this.values.border_left ), true );
 				}
 
 				if ( !this.isDefault( 'border_right' ) ) {
-					this.addCssProperty( selector, 'border-right-width',  this.values.border_right, true );
+					this.addCssProperty( selector, 'border-right-width',  _.fusionGetValueWithUnit( this.values.border_right ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_top_left' ) ) {
+					this.addCssProperty( selector, 'border-top-left-radius',  _.fusionGetValueWithUnit( this.values.border_radius_top_left ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_top_right' ) ) {
+					this.addCssProperty( selector, 'border-top-right-radius',  _.fusionGetValueWithUnit( this.values.border_radius_top_right ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_bottom_right' ) ) {
+					this.addCssProperty( selector, 'border-bottom-right-radius',  _.fusionGetValueWithUnit( this.values.border_radius_bottom_right ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_bottom_left' ) ) {
+					this.addCssProperty( selector, 'border-bottom-left-radius',  _.fusionGetValueWithUnit( this.values.border_radius_bottom_left ), true );
 				}
 
 				selector = [ this.baseSelector + ' span:not(.sharingbox-shortcode-icon-separator)' ];
@@ -299,7 +315,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' !== values.backgroundcolor ) {
 					sharingboxShortcode.style = 'background-color:' + values.backgroundcolor + ';';
 
-					if ( 'transparent' === values.backgroundcolor || 0 === jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( 'transparent' === values.backgroundcolor || 0 === jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						sharingboxShortcode.style += 'padding:0;';
 					}
 				}

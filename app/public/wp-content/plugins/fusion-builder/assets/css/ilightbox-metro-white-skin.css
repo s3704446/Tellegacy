@@ -38,6 +38,9 @@
   left: 8px;
   height: 25px;
 }
+.admin-bar:not(.isMobile) .ilightbox-toolbar.metro-white {
+  top: 40px;
+}
 .ilightbox-toolbar.metro-white a {
   width: 27px;
   height: 25px;

@@ -459,7 +459,7 @@ if ( fusion_is_element_enabled( 'fusion_checklist' ) ) {
 								'label'       => esc_html__( 'Checklist Icon Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the checklist icon.', 'fusion-builder' ),
 								'id'          => 'checklist_icons_color',
-								'default'     => '#ffffff',
+								'default'     => 'var(--awb-color1)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -480,7 +480,7 @@ if ( fusion_is_element_enabled( 'fusion_checklist' ) ) {
 								'label'           => esc_html__( 'Checklist Icon Circle Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the color of the checklist icon circle background.', 'fusion-builder' ),
 								'id'              => 'checklist_circle_color',
-								'default'         => '#65bc7b',
+								'default'         => 'var(--awb-color4)',
 								'type'            => 'color-alpha',
 								'soft_dependency' => true,
 								'css_vars'        => [
@@ -494,7 +494,7 @@ if ( fusion_is_element_enabled( 'fusion_checklist' ) ) {
 								'label'       => esc_html__( 'Checklist Text Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the checklist text.', 'fusion-builder' ),
 								'id'          => 'checklist_text_color',
-								'default'     => $fusion_settings->get( 'body_typography', 'color' ),
+								'default'     => 'var(--awb-color8)',
 								'type'        => 'color-alpha',
 								'css_vars'    => [
 									[
@@ -563,7 +563,7 @@ if ( fusion_is_element_enabled( 'fusion_checklist' ) ) {
 								'label'           => esc_html__( 'Divider Line Color', 'fusion-builder' ),
 								'description'     => esc_html__( 'Controls the color of the divider lines.', 'fusion-builder' ),
 								'id'              => 'checklist_divider_color',
-								'default'         => $fusion_settings->get( 'sep_color' ),
+								'default'         => 'var(--awb-color3)',
 								'type'            => 'color-alpha',
 								'soft_dependency' => true,
 								'css_vars'        => [
@@ -630,7 +630,7 @@ function fusion_element_checklist() {
 				'preview'       => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-checklist-preview.php',
 				'preview_id'    => 'fusion-builder-block-module-checklist-preview-template',
 				'child_ui'      => true,
-				'help_url'      => 'https://theme-fusion.com/documentation/fusion-builder/elements/checklist-element/',
+				'help_url'      => 'https://theme-fusion.com/documentation/avada/elements/checklist-element/',
 				'params'        => [
 					[
 						'type'        => 'tinymce',
@@ -649,7 +649,7 @@ function fusion_element_checklist() {
 					[
 						'type'        => 'colorpickeralpha',
 						'heading'     => esc_attr__( 'Checklist Icon Color', 'fusion-builder' ),
-						'description' => esc_attr__( 'Global setting for all list items.  Controls the color of the checklist icon.', 'fusion-builder' ),
+						'description' => esc_attr__( 'Global setting for all list items. Controls the color of the checklist icon.', 'fusion-builder' ),
 						'param_name'  => 'iconcolor',
 						'value'       => '',
 						'default'     => $fusion_settings->get( 'checklist_icons_color' ),

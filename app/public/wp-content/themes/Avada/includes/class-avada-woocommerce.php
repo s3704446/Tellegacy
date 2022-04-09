@@ -1261,7 +1261,16 @@ class Avada_Woocommerce {
 			return;
 		}
 
-		if ( fusion_is_shop( $query->get( 'page_id' ) ) || $query->is_post_type_archive( 'product' ) || $query->is_tax( get_object_taxonomies( 'product' ) ) ) {
+		$display_type = '';
+		if ( fusion_is_shop( $query->get( 'page_id' ) ) ) {
+			$display_type = get_option( 'woocommerce_shop_page_display', '' );
+		} elseif ( $query->is_tax( get_object_taxonomies( 'product' ) ) ) {
+			$parent_id    = get_queried_object_id();
+			$display_type = get_term_meta( $parent_id, 'display_type', true );
+			$display_type = '' === $display_type ? get_option( 'woocommerce_category_archive_display', '' ) : $display_type;
+		}
+
+		if ( 'subcategories' !== $display_type && ( fusion_is_shop( $query->get( 'page_id' ) ) || $query->is_post_type_archive( 'product' ) || $query->is_tax( get_object_taxonomies( 'product' ) ) ) ) {
 
 			if ( Avada()->settings->get( 'woocommerce_avada_ordering' ) || Avada()->settings->get( 'woocommerce_toggle_grid_list' ) ) {
 				remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30 );

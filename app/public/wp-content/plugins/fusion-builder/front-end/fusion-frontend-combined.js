@@ -522,6 +522,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			FusionPageBuilderApp.clearBuilderLayout();
 			FusionPageBuilderApp.$el.find( '.fusion_builder_container' ).remove();
 
+			// Try to make the shortcode if the content does not contain them.
+			data = FusionPageBuilderApp.validateContent( data );
+
 			// Reset models with new elements
 			FusionPageBuilderApp.createBuilderLayout( data );
 		},
@@ -1725,7 +1728,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			if ( '' !== this.formData.form_placeholder_color ) {
 				placeholderColor = this.formData.form_placeholder_color;
 			} else if ( ! this.isDefault( 'form_text_color' ) ) {
-				placeholderColor = jQuery.Color( this.formData.form_text_color ).alpha( 0.5 ).toRgbaString();
+				placeholderColor = jQuery.AWB_Color( this.formData.form_text_color ).alpha( 0.5 ).toRgbaString();
 			}
 
 			if ( placeholderColor ) {
@@ -1810,7 +1813,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			if (!this.isDefault('form_focus_border_color')) {
-				hoverColor = jQuery.Color( this.formData.form_focus_border_color ).alpha( 0.5 ).toRgbaString();
+				hoverColor = jQuery.AWB_Color( this.formData.form_focus_border_color ).alpha( 0.5 ).toRgbaString();
 
 				selectors = [
 					this.baseSelector + ' input:not([type="submit"]):focus',
@@ -1882,6 +1885,859 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'head' ).append( '<style id="fusion-form-style-block">' + css + '</style>' );
+		}
+	} );
+}( jQuery ) );
+;/* global FusionApp, FusionPageBuilderApp, FusionEvents */
+var FusionPageBuilder = FusionPageBuilder || {};
+
+( function() {
+
+	FusionPageBuilder.offCanvasStyles = Backbone.Model.extend( {
+
+		/**
+		 * Off Canvas Live editor preview initialization.
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		initialize: function() {
+			const 	body 				= jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ),
+					ocID				= body.find( '.awb-off-canvas-wrap' ).attr( 'data-id' );
+
+			this.baseSelector = '.awb-off-canvas-wrap#awb-oc-' + ocID;
+			this.dynamic_css  = {};
+			this.options     = this.filterOptions();
+			this.buildStyles();
+
+			// Remove saved styles.
+			body.find( '#awb-off-canvas-style-block-' + ocID ).remove();
+
+			this.listenTo( FusionEvents, 'awb-off-canvas-styles', this.buildStyles );
+			this.listenTo( FusionEvents, 'awb-off-canvas-attr', this.buildAttr );
+			this.listenTo( FusionEvents, 'awb-off-canvas-custom-close-button', this.customCloseButton );
+			this.listenTo( FusionEvents, 'awb-off-canvas-enter-animation', this.enterAnimation );
+			this.listenTo( FusionEvents, 'awb-off-canvas-exit-animation', this.exitAnimation );
+
+			this.listenTo( FusionEvents, 'fusion-builder-loaded', this.buildStyles );
+			this.listenTo( FusionEvents, 'fusion-builder-loaded', this.buildAttr );
+			this.listenTo( FusionEvents, 'fusion-builder-loaded', this.customCloseButton );
+		},
+
+		/**
+		 * Array with animations without directions.
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		animationsWithoutDirection: [ 'flash', 'rubberBand', 'shake', 'flipinx', 'flipiny', 'lightspeedin', 'flipOutX', 'flipOutY', 'lightSpeedOut' ],
+
+		/**
+		 * Modify options mostly for sliding bar type.
+		 *
+		 * @since 3.6
+		 * @return {Object} Modified options object.
+		 */
+		filterOptions: function() {
+			const options = FusionApp.data.postMeta._fusion;
+			const filteredOptions = Object.assign( {}, options );
+
+			if ( 'sliding-bar' === options.type ) {
+				filteredOptions.type = 'sliding-bar';
+				filteredOptions.enter_animation = filteredOptions.sb_enter_animation;
+				filteredOptions.enter_animation_speed = filteredOptions.sb_enter_animation_speed;
+				filteredOptions.exit_animation = filteredOptions.sb_exit_animation;
+				filteredOptions.exit_animation_speed = filteredOptions.sb_exit_animation_speed;
+
+				if ( 'left' === filteredOptions.position || !filteredOptions.position ) {
+					filteredOptions.height = 'full';
+					filteredOptions.width = options.width || 400;
+					filteredOptions.enter_animation_direction = 'left';
+					filteredOptions.exit_animation_direction = 'left';
+					filteredOptions.vertical_position = 'flex-start';
+					if ( this.isRTL() ) {
+						filteredOptions.horizontal_position = 'flex-end';
+					} else {
+						filteredOptions.horizontal_position = 'flex-start';
+					}
+				}
+
+				if ( 'right' === filteredOptions.position ) {
+					filteredOptions.height = 'full';
+					filteredOptions.width = options.width || 400;
+					filteredOptions.enter_animation_direction = 'right';
+					filteredOptions.exit_animation_direction = 'right';
+					filteredOptions.vertical_position = 'flex-start';
+					if ( this.isRTL() ) {
+						filteredOptions.horizontal_position = 'flex-start';
+					} else {
+						filteredOptions.horizontal_position = 'flex-end';
+					}
+				}
+
+				if ( 'top' === filteredOptions.position ) {
+					const height = filteredOptions.sb_height || 'auto';
+					filteredOptions.width = '100vw';
+					filteredOptions.height = 'custom';
+					filteredOptions.custom_height = height;
+					filteredOptions.enter_animation_direction = 'down';
+					filteredOptions.exit_animation_direction = 'up';
+					filteredOptions.vertical_position = 'flex-start';
+					filteredOptions.horizontal_position = 'flex-start';
+				}
+
+				if ( 'bottom' === filteredOptions.position ) {
+					const height = filteredOptions.sb_height || 'auto';
+					filteredOptions.width = '100vw';
+					filteredOptions.height = 'custom';
+					filteredOptions.custom_height = height;
+					filteredOptions.enter_animation_direction = 'up';
+					filteredOptions.exit_animation_direction = 'down';
+					filteredOptions.vertical_position = 'flex-end';
+					filteredOptions.horizontal_position = 'flex-start';
+				}
+				return this.parseOptions( filteredOptions );
+			}
+
+			return this.parseOptions( options );
+		},
+
+		/**
+		 * Merge default options with current options.
+		 * To ensure the preview works as same as the front-end.
+		 * @since 3.6
+		 * @param {Object} options - The options object.
+		 * @return {Object} New options object with default values.
+		 */
+		parseOptions( options ) {
+			const defaults = {
+				// General.
+				'type': 'popup',
+				'width': '800',
+				'width_medium': '',
+				'width_small': '',
+				'height': 'fit',
+				'custom_height': '',
+				'custom_height_medium': '',
+				'custom_height_small': '',
+				'horizontal_position': 'center',
+				'horizontal_position_medium': '',
+				'horizontal_position_small': '',
+				'vertical_position': 'center',
+				'vertical_position_medium': '',
+				'vertical_position_small': '',
+				'content_layout': 'column',
+				'align_content': 'flex-start',
+				'valign_content': 'flex-start',
+				'content_wrap': 'wrap',
+				'enter_animation': '',
+				'enter_animation_direction': 'static',
+				'enter_animation_speed': 0.5,
+				'exit_animation': '',
+				'exit_animation_direction': 'static',
+				'exit_animation_speed': 0.5,
+
+				'off_canvas_state': 'closed',
+				'sb_height': '',
+				'position': 'left',
+				'transition': 'overlap',
+
+				'sb_enter_animation': 'slideShort',
+				'sb_enter_animation_speed': 0.5,
+				'sb_exit_animation': 'slideShort',
+				'sb_exit_animation_speed': 0.5,
+
+				// Design.
+				'background_color': '#ffffff',
+				'background_image': '',
+				'background_position': 'left top',
+				'background_repeat': 'repeat',
+				'background_size': '',
+				'background_custom_size': '',
+				'background_blend_mode': 'none',
+				'oc_scrollbar': 'default',
+				'oc_scrollbar_background': '#f2f3f5',
+				'oc_scrollbar_handle_color': '#65bc7b',
+				'margin': '',
+				'padding': '',
+				'box_shadow': 'no',
+				'box_shadow_position': '',
+				'box_shadow_blur': '0',
+				'box_shadow_spread': '0',
+				'box_shadow_color': '',
+				'border_radius': '',
+				'border_width': '',
+				'border_color': '',
+
+				// Overlay.
+				'overlay': 'yes',
+				'overlay_z_index': '',
+				'overlay_close_on_click': 'yes',
+				'overlay_page_scrollbar': 'yes',
+				'overlay_background_color': 'rgba(0,0,0,0.8)',
+				'overlay_background_image': '',
+				'overlay_background_position': 'left top',
+				'overlay_background_repeat': 'repeat',
+				'overlay_background_size': '',
+				'overlay_background_custom_size': '',
+				'overlay_background_blend_mode': 'none',
+
+				// close button.
+				'close_button': 'yes',
+				'close_on_esc': 'yes',
+				'close_button_position': 'right',
+				'close_button_margin': {},
+				'close_button_color': '',
+				'close_button_color_hover': '',
+				'close_icon_size': '16',
+				'close_button_custom_icon': ''
+			};
+
+			return Object.assign( defaults, options );
+		},
+
+		/**
+		 * Adds CSS property to object.
+		 *
+		 * @since  3.2
+		 * @param  {String} selectors - The CSS selectors.
+		 * @param  {String} property - The CSS property.
+		 * @param  {String} value - The CSS property value.
+		 * @param  {Bool}   important - Should have important tag.
+		 * @return {void}
+		 */
+		addCssProperty: function ( selectors, property, value, important ) {
+
+			if ( 'object' === typeof selectors ) {
+				selectors = Object.values( selectors );
+			}
+
+			if ( 'object' === typeof selectors ) {
+				selectors = selectors.join( ',' );
+			}
+
+			if ( 'object' !== typeof this.dynamic_css[ selectors ] ) {
+				this.dynamic_css[ selectors ] = {};
+			}
+
+			if ( 'undefined' !== typeof important && important ) {
+				value += ' !important';
+			}
+			if ( 'undefined' === typeof this.dynamic_css[ selectors ][ property ] || ( 'undefined' !== typeof important && important ) || ! this.dynamic_css[ selectors ][ property ].includes( 'important' ) ) {
+				this.dynamic_css[ selectors ][ property ] = value;
+			}
+		},
+
+		/**
+		 * Parses CSS.
+		 *
+		 * @since  3.2
+		 * @return {String}
+		 */
+		parseCSS: function () {
+			var css = '';
+			if ( 'object' !== typeof this.dynamic_css ) {
+				return '';
+			}
+
+			_.each( this.dynamic_css, function ( properties, selector ) {
+				if ( 'object' === typeof properties ) {
+					css += selector + '{';
+					_.each( properties, function ( value, property ) {
+						css += property + ':' + value + ';';
+					} );
+					css += '}';
+				}
+			} );
+
+			return css;
+		},
+
+		/**
+		 * Checks if param has got default value or not.
+		 *
+		 * @since  3.2
+		 * @param  {String} param - The param.
+		 * @return {Bool}
+		 */
+		isDefault: function( param, subset ) {
+			if ( 'string' === typeof subset ) {
+				return 'undefined' === typeof this.options[ param ] || 'undefined' === typeof this.options[ param ][ subset ] || '' === this.options[ param ][ subset ];
+			}
+			return 'undefined' === typeof this.options[ param ] || '' === this.options[ param ];
+		},
+
+		/**
+		 * Checks if website using RTL language.
+		 *
+		 * @since  3.6
+		 * @return {Bool}
+		 */
+		isRTL: function () {
+			return jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ).hasClass( 'rtl' );
+		},
+
+		/**
+		 * Get CSS from spacing fields.
+		 * used for margin, padding, position, etc.
+		 * @since 3.6
+		 * @param {Object} options - The options object.
+		 * @param {String} key - options key.
+		 * @param {String} prop - CSS property, if empty key will used instead.
+		 * @return {String} CSS code.
+		 */
+		getSpacing: function( options, key, prop = '', empty ) {
+			if ( !options[ key ] && 'object' !== typeof options[ key ] ) {
+				return '';
+			}
+			prop = prop || key;
+			let prefix = '';
+
+			if ( 'margin' === prop || 'padding' === prop ) {
+				prefix = prop + '-';
+			}
+			let css = '';
+			const keys = [ 'top', 'right', 'bottom', 'left' ];
+			empty = empty ? '' : 0;
+
+			keys.forEach( ( k ) => {
+				const v = options[ key ][ k ] || empty;
+				if ( '' !== v ) {
+					css += `${prefix}${k}: ${_.fusionGetValueWithUnit( v )};`;
+				}
+			} );
+
+			return css;
+		},
+
+		/**
+		 * Get CSS code for box shadow.
+		 *
+		 * @since 3.6
+		 * @param {Object} options - The options object.
+		 * @return {String} CSS code.
+		 */
+		getShadow( options ) {
+			if ( 'yes' !== options.box_shadow ) {
+				return '';
+			}
+			let 	h 		= '0',
+					v 		= '0';
+			const 	blur 	= options.box_shadow_blur || '0',
+					spread	= options.box_shadow_spread || '0',
+					color	= options.box_shadow_color || '';
+			if ( options.box_shadow_position && 'object' === typeof options.box_shadow_position ) {
+				h = options.box_shadow_position.horizontal || h;
+				v = options.box_shadow_position.vertical || v;
+			}
+
+			return `box-shadow:${_.fusionGetValueWithUnit( h )} ${_.fusionGetValueWithUnit( v )} ${_.fusionGetValueWithUnit( blur )} ${_.fusionGetValueWithUnit( spread )} ${color};`;
+		},
+
+		/**
+		 * Get CSS code for borders including border radius.
+		 *
+		 * @since 3.6
+		 * @param {Object} options - The options object.
+		 * @return {String} CSS code.
+		 */
+		getBorder( options ) {
+			let css = '';
+
+			// Border radius.
+			if ( options.border_radius && 'object' === typeof options.border_radius ) {
+				const br = options.border_radius;
+				// ensure preview works when delete value.
+				if ( !br.top_left ) {
+					br.top_left = '';
+				}
+				if ( !br.top_right ) {
+					br.top_right = '';
+				}
+				if ( !br.bottom_right ) {
+					br.bottom_right = '';
+				}
+				if ( !br.bottom_left ) {
+					br.bottom_left = '';
+				}
+				// loop through border radius.
+				Object.keys( br ).forEach( ( r ) => {
+					const v = br[ r ] || 0;
+					css += `border-${r.replace( '_', '-' )}-radius:${_.fusionGetValueWithUnit( v )};`;
+				} );
+			}
+
+			// Border width.
+			if ( options.border_width && 'object' === typeof options.border_width ) {
+				const bw = options.border_width;
+				// ensure preview works when delete value.
+				if ( !bw.top ) {
+					bw.top = '';
+				}
+				if ( !bw.right ) {
+					bw.right = '';
+				}
+				if ( !bw.bottom ) {
+					bw.bottom = '';
+				}
+				if ( !bw.left ) {
+					bw.left = '';
+				}
+				Object.keys( bw ).forEach( ( b ) => {
+					const v = bw[ b ] || 0;
+					css += `border-${b}-width:${_.fusionGetValueWithUnit( v )};`;
+				} );
+			}
+			// Border color.
+			if ( options.border_color ) {
+				css += `border-color: ${options.border_color};`;
+			}
+			return css;
+		},
+
+		/**
+		 * Build CSS style block and add it to the head.
+		 *
+		 * @since 3.6
+		 * @return {void} CSS code.
+		 */
+		buildStyles: function() {
+			var selectors,
+				media,
+				css = '';
+
+			this.dynamic_css = {};
+
+			const options = this.filterOptions();
+			selectors = [ this.baseSelector ];
+			// remove opacity.
+			this.addCssProperty( selectors, 'opacity',  1, true );
+
+			// remove wrapper margin for push transition.
+			this.addCssProperty( [ '#wrapper' ], 'margin-left', '0', true );
+			this.addCssProperty( [ '#wrapper' ], 'margin-right', '0', true );
+
+			// Wrap styles.
+			if ( options.horizontal_position ) {
+				this.addCssProperty( selectors, 'justify-content',  options.horizontal_position );
+			}
+			if ( options.vertical_position ) {
+				this.addCssProperty( selectors, 'align-items',  options.vertical_position );
+			}
+			if ( options.overlay_background_color ) {
+				this.addCssProperty( selectors, 'background-color',  options.overlay_background_color );
+			}
+
+			if ( options.overlay_background_image && 'yes' === options.overlay ) {
+				let overlayBgImg = options.overlay_background_image;
+				if ( _.isObject( overlayBgImg ) ) {
+					overlayBgImg = overlayBgImg.url;
+				}
+				this.addCssProperty( selectors, 'background-image',  `url(${overlayBgImg})` );
+				if ( options.overlay_background_position ) {
+					this.addCssProperty( selectors, 'background-position',  options.overlay_background_position );
+				}
+				if ( options.overlay_background_repeat ) {
+					this.addCssProperty( selectors, 'background-repeat',  options.overlay_background_repeat );
+				}
+				if ( 'none' !== options.overlay_background_blend_mode ) {
+					this.addCssProperty( selectors, 'background-blend-mode',  options.overlay_background_blend_mode );
+				}
+				if ( options.overlay_background_size ) {
+					if ( 'custom' === options.overlay_background_size ) {
+						const width = options.overlay_background_custom_size && options.overlay_background_custom_size.width ? _.fusionGetValueWithUnit( options.overlay_background_custom_size.width ) : '';
+						const height = options.overlay_background_custom_size && options.overlay_background_custom_size.height ? _.fusionGetValueWithUnit( options.overlay_background_custom_size.height ) : '';
+
+						this.addCssProperty( selectors, 'background-size',  `${width} ${height}` );
+					} else {
+						this.addCssProperty( selectors, 'background-size',  options.overlay_background_size );
+					}
+				}
+			} else {
+				this.addCssProperty( selectors, 'background-image',  'none' );
+			}
+
+			// off canvas styles.
+			const offCanvasSelector = this.baseSelector + ' .awb-off-canvas';
+			selectors = [ offCanvasSelector ];
+			if ( options.width ) {
+				this.addCssProperty( selectors, 'width',  _.fusionGetValueWithUnit( options.width ) );
+			}
+			if ( 'full' === options.height ) {
+				this.addCssProperty( selectors, 'height',  '100vh' );
+			} else if ( 'custom' === options.height && options.custom_height ) {
+				if ( options.custom_height ) {
+					this.addCssProperty( selectors, 'height',  _.fusionGetValueWithUnit( options.custom_height ) );
+				}
+			} else {
+				this.addCssProperty( selectors, 'height',  'auto' );
+			}
+
+			const offCanvasInnerSelector = this.baseSelector + ' .awb-off-canvas-inner';
+			selectors = [ offCanvasInnerSelector ];
+
+			if ( options.background_color ) {
+				this.addCssProperty( selectors, 'background-color',  options.background_color );
+			}
+
+			if ( options.background_image ) {
+				let bgImg = options.background_image;
+				if ( _.isObject( bgImg ) ) {
+					bgImg = bgImg.url;
+				}
+				this.addCssProperty( selectors, 'background-image',  `url(${bgImg})` );
+				if ( options.background_position ) {
+					this.addCssProperty( selectors, 'background-position',  options.background_position );
+				}
+				if ( options.background_repeat ) {
+					this.addCssProperty( selectors, 'background-repeat',  options.background_repeat );
+				}
+				if ( 'none' !== options.background_blend_mode ) {
+					this.addCssProperty( selectors, 'background-blend-mode',  options.background_blend_mode );
+				}
+				if ( options.background_size ) {
+					if ( 'custom' === options.background_size ) {
+						const width = options.background_custom_size && options.background_custom_size.width ? _.fusionGetValueWithUnit( options.background_custom_size.width ) : '';
+						const height = options.background_custom_size && options.background_custom_size.height ? _.fusionGetValueWithUnit( options.background_custom_size.height ) : '';
+
+						this.addCssProperty( selectors, 'background-size',  `${width} ${height}` );
+					} else {
+						this.addCssProperty( selectors, 'background-size',  options.background_size );
+					}
+				}
+			} else {
+				this.addCssProperty( selectors, 'background-image',  'none' );
+			}
+
+			selectors = [ this.baseSelector + ' .off-canvas-content .fusion-builder-live-editor' ];
+			this.addCssProperty( selectors, 'height',  '100%' );
+			this.addCssProperty( selectors, 'width',  '100%' );
+
+			// Prepare the container.
+			selectors = [ this.baseSelector + ' .off-canvas-content #fusion_builder_container' ];
+			this.addCssProperty( selectors, 'height',  '100%' );
+			this.addCssProperty( selectors, 'width',  '100%' );
+			this.addCssProperty( selectors, 'display',  'flex' );
+			this.addCssProperty( selectors, 'flex-wrap',  'wrap' );
+			this.addCssProperty( selectors, 'flex-direction',  'column' );
+
+			//Flex Alignment options.
+			if ( options.content_layout && 'block' !== options.content_layout ) {
+				this.addCssProperty( selectors, 'flex-direction',  options.content_layout );
+				this.addCssProperty( selectors, 'justify-content',  options.align_content );
+			}
+			if ( options.content_layout && 'block' === options.content_layout ) {
+				this.addCssProperty( selectors, 'display',  options.content_layout );
+			}
+			if ( options.valign_content && 'row' === options.content_layout ) {
+				this.addCssProperty( selectors, 'align-items',  options.valign_content );
+			}
+			if ( options.content_wrap && 'row' === options.content_layout ) {
+				this.addCssProperty( selectors, 'flex-wrap',  options.content_wrap );
+			}
+			if ( 'column' === options.content_layout ) {
+				this.addCssProperty( selectors, 'flex-wrap',  'nowrap' );
+			}
+
+			// Fix close button z-index in LE.
+			selectors = [ this.baseSelector + ' .off-canvas-content:hover' ];
+			this.addCssProperty( selectors, 'z-index',  '30' );
+
+			// Close button.
+			selectors = [ offCanvasSelector + ' .off-canvas-close' ];
+			if ( 'no' === options.close_button ) {
+				this.addCssProperty( selectors, 'display', 'none' );
+			}
+			if ( 'undefined' === typeof options.close_button_margin.top || '' === options.close_button_margin.top ) {
+				this.addCssProperty( selectors, 'margin-top', '20px' );
+			}
+			if ( 'left' === options.close_button_position ) {
+				this.addCssProperty( selectors, 'right', 'auto' );
+				this.addCssProperty( selectors, 'left', '0' );
+				if ( 'undefined' === typeof options.close_button_margin.right || '' === options.close_button_margin.right ) {
+					this.addCssProperty( selectors, 'margin-right', '0' );
+				}
+				if ( 'undefined' === typeof options.close_button_margin.left || '' === options.close_button_margin.left ) {
+					this.addCssProperty( selectors, 'margin-left', '20px' );
+				}
+			} else {
+				this.addCssProperty( selectors, 'left', 'auto' );
+				this.addCssProperty( selectors, 'right', '0' );
+				if ( 'undefined' === typeof options.close_button_margin.right || '' === options.close_button_margin.right ) {
+					this.addCssProperty( selectors, 'margin-right', '20px' );
+				}
+				if ( 'undefined' === typeof options.close_button_margin.left || '' === options.close_button_margin.left ) {
+					this.addCssProperty( selectors, 'margin-left', '0' );
+				}
+			}
+			if ( options.close_button_color ) {
+				this.addCssProperty( selectors, 'color',  options.close_button_color );
+			}
+			if ( options.close_icon_size ) {
+				this.addCssProperty( selectors, 'font-size',  options.close_icon_size + 'px' );
+			}
+
+			selectors = [ offCanvasSelector + ' .off-canvas-close:hover' ];
+			if ( options.close_button_color_hover ) {
+				this.addCssProperty( selectors, 'color',  options.close_button_color_hover );
+			}
+
+			// Hide close button in wire frame mode.
+			selectors = [ '.fusion-builder-ui-wireframe ' + offCanvasSelector + ' .off-canvas-close', offCanvasSelector + '.is-empty .off-canvas-close'  ];
+			this.addCssProperty( selectors, 'display',  'none' );
+
+			// custom scrollbar.
+			if ( 'custom' === options.oc_scrollbar ) {
+				selectors = [ offCanvasInnerSelector + ' .off-canvas-content' ];
+				const scrollbarBg = options.oc_scrollbar_background || '#f2f3f5';
+				const scrollbarHandleColor = options.oc_scrollbar_handle_color || '#65bc7b';
+				// Firefox.
+				this.addCssProperty( selectors, 'scrollbar-width',  'thin' );
+				this.addCssProperty( selectors, 'scrollbar-color',  scrollbarHandleColor + ' ' + scrollbarBg );
+
+				// Chrome, Safari, Edge.
+				this.addCssProperty( [ offCanvasInnerSelector + ' .off-canvas-content::-webkit-scrollbar' ], 'width',  '10px' );
+				this.addCssProperty( [ offCanvasInnerSelector + ' .off-canvas-content::-webkit-scrollbar-track' ], 'background',  scrollbarBg );
+				this.addCssProperty( [ offCanvasInnerSelector + ' .off-canvas-content::-webkit-scrollbar-thumb' ], 'background',  scrollbarHandleColor );
+			}
+			// hidden scrollbar.
+			if ( 'hidden' === options.oc_scrollbar ) {
+				selectors = [ offCanvasInnerSelector + ' .off-canvas-content' ];
+				// Firefox.
+				this.addCssProperty( selectors, 'scrollbar-width',  'none' );
+
+				// Chrome, Safari, Edge.
+				this.addCssProperty( [ offCanvasInnerSelector + ' .off-canvas-content::-webkit-scrollbar' ], 'display',  'none' );
+			}
+
+			css = this.parseCSS();
+			css += this.getSpacing( options, 'margin' ) ? `${offCanvasSelector} { ${this.getSpacing( options, 'margin' )} }` : '';
+			css += this.getSpacing( options, 'padding' ) ? `${this.baseSelector} .off-canvas-content { ${this.getSpacing( options, 'padding' )} }` : '';
+			css += this.getSpacing( options, 'close_button_margin' ) ? `${offCanvasSelector} .off-canvas-close { ${this.getSpacing( options, 'close_button_margin', 'margin', true )} }` : '';
+			css += this.getShadow( options ) ? `${offCanvasInnerSelector} { ${this.getShadow( options )} }` : '';
+			css += this.getBorder( options ) ? `${offCanvasInnerSelector} { ${this.getBorder( options )} }` : '';
+
+			if ( 'sliding-bar' !== options.type ) {
+				// Horizontal position responsive styles.
+				_.each( [ 'medium', 'small' ], function( size ) {
+					var key = 'horizontal_position_' + size;
+					media = '@media only screen and (max-width:' + FusionApp.settings[ 'visibility_' + size ] + 'px)';
+
+					if ( '' === options[ key ] ) {
+						return;
+					}
+
+					this.dynamic_css = {};
+					this.addCssProperty( [ this.baseSelector ], 'justify-content', options[ key ] );
+					css += media + '{' + this.parseCSS() + '}';
+				}, this );
+
+				// vertical position responsive styles.
+				_.each( [ 'medium', 'small' ], function( size ) {
+					var key = 'vertical_position_' + size;
+					media = '@media only screen and (max-width:' + FusionApp.settings[ 'visibility_' + size ] + 'px)';
+
+					if ( '' === options[ key ] ) {
+						return;
+					}
+
+					this.dynamic_css = {};
+					this.addCssProperty( [ this.baseSelector ], 'align-items', options[ key ] );
+					css += media + '{' + this.parseCSS() + '}';
+				}, this );
+
+				// Height responsive styles.
+				if ( 'custom' === options.height ) {
+					_.each( [ 'medium', 'small' ], function( size ) {
+						var key = 'custom_height_' + size;
+						media = '@media only screen and (max-width:' + FusionApp.settings[ 'visibility_' + size ] + 'px)';
+
+						if ( '' === options[ key ] ) {
+							return;
+						}
+
+						this.dynamic_css = {};
+						this.addCssProperty( [ this.baseSelector + ' .awb-off-canvas' ], 'height', _.fusionGetValueWithUnit( options[ key ] ) );
+						css += media + '{' + this.parseCSS() + '}';
+					}, this );
+				}
+			}
+
+			// Width responsive styles.
+			_.each( [ 'medium', 'small' ], function( size ) {
+				var key = 'width_' + size;
+				media = '@media only screen and (max-width:' + FusionApp.settings[ 'visibility_' + size ] + 'px)';
+
+				if ( '' === options[ key ] ) {
+					return;
+				}
+
+				this.dynamic_css = {};
+				this.addCssProperty( [ this.baseSelector + ' .awb-off-canvas' ], 'width', _.fusionGetValueWithUnit( options[ key ] ) );
+				css += media + '{' + this.parseCSS() + '}';
+			}, this );
+
+			// Add attribute to the option.
+			const value = jQuery( '[data-option-id="content_layout"]' ).find( 'input#content_layout' ).val();
+			jQuery( '[data-option-id="content_layout"]' ).attr( 'data-direction', value );
+
+			if ( jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'head' ).find( '#awb-off-canvas-style-block' ).length ) {
+				jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'head' ).find( '#awb-off-canvas-style-block' ).html( css );
+				return;
+			}
+
+			jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'head' ).prepend( '<style id="awb-off-canvas-style-block">' + css + '</style>' );
+
+		},
+
+		/**
+		 * build attributes.
+		 *
+		 * @since 3.6
+		 * @return {String} CSS code.
+		 */
+		buildAttr: function() {
+			const body = jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' );
+			const options = this.filterOptions();
+
+			// Wrap Classes.
+			let wrapClasses = 'awb-off-canvas-wrap awb-show';
+			if ( '' !== options.css_class ) {
+				wrapClasses += ' ' + options.css_class;
+			}
+			if ( '' !== options.type ) {
+				wrapClasses += ' type-' + options.type;
+			}
+
+			if ( 'sliding-bar' === options.type ) {
+				if ( !options.position ) {
+					options.position = 'left';
+				}
+				wrapClasses += ' position-' + options.position;
+			}
+
+			if ( 'no' === options.overlay ) {
+				wrapClasses += ' overlay-disabled';
+			}
+			body.find( this.baseSelector ).removeClass().addClass( wrapClasses );
+
+			// remove is empty class.
+			body.find( this.baseSelector + ' .awb-off-canvas-inner' ).removeClass( 'hidden-scrollbar' );
+			if ( 1 < FusionPageBuilderApp.collection.length ) {
+				body.find( this.baseSelector + ' .awb-off-canvas-inner' ).removeClass( 'is-empty' );
+			}
+
+		},
+
+		/**
+		 * Custom close button.
+		 *
+		 * @since 3.6
+		 * @return {void}.
+		 */
+		customCloseButton: function() {
+			const options = this.filterOptions();
+
+			const 	body 				= jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' );
+			let		closeButton 		= body.find( '.off-canvas-close' );
+			if ( ! closeButton.length ) {
+				body.find( '.awb-off-canvas' ).prepend( '<span class="off-canvas-close"></span>' );
+				closeButton = body.find( '.off-canvas-close' );
+			}
+			let cls = 'off-canvas-close';
+			if ( options.close_button_custom_icon ) {
+				cls +=  ' ' + _.fusionFontAwesome( options.close_button_custom_icon );
+			} else {
+				cls += ' awb-icon-close';
+			}
+			closeButton.removeClass().addClass( cls );
+		},
+
+		/**
+		 * Capitalize string.
+		 *
+		 * @since 3.6
+		 * @return {String} The capitalized string.
+		 */
+		capitalize: function ( string ) {
+			return string.charAt( 0 ).toUpperCase() + string.slice( 1 );
+		},
+
+		/**
+		 * Enter animation preview.
+		 *
+		 * @since 3.6
+		 * @param {String} string
+		 * @return {void}
+		 */
+		enterAnimation: function() {
+			const 	body 				= jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ),
+					offCanvas			= body.find( '.awb-off-canvas' ),
+					options 			= this.filterOptions();
+
+			let     animation = options.enter_animation;
+			const   animationDirection = options.enter_animation_direction && 'static' !== options.enter_animation_direction ? this.capitalize( options.enter_animation_direction ) : '',
+			animationSpeed = options.enter_animation_speed || 1;
+
+			if ( animation ) {
+				if ( ! this.animationsWithoutDirection.includes( animation ) ) {
+					animation = animation + 'In' + animationDirection;
+				}
+				offCanvas.addClass( 'fusion-animated ' + animation );
+				offCanvas.attr( 'data-animation-type', animation );
+				offCanvas.css( {
+					'visibility': 'visible',
+					'animation-duration': animationSpeed + 's'
+				} );
+			}
+			offCanvas.addClass( 'fusion-animated ' + animation );
+
+			offCanvas.on( 'animationend', function() {
+				const   el = jQuery( this );
+
+				if ( el.attr( 'data-animation-type' ) ) {
+					el.removeClass( 'fusion-animated' ).removeClass( el.attr( 'data-animation-type' ) ).removeAttr( 'data-animation-type' );
+				}
+			} );
+		},
+
+		/**
+		 * Exit animation preview.
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		exitAnimation: function() {
+			const 	body 				= jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ),
+					offCanvas			= body.find( '.awb-off-canvas' ),
+					options 			= this.filterOptions();
+
+			let     animation = options.exit_animation;
+			const   animationDirection = options.exit_animation_direction && 'static' !== options.exit_animation_direction ? this.capitalize( options.exit_animation_direction ) : '',
+			animationSpeed = options.enter_animation_speed || 1;
+
+			if ( animation ) {
+				if ( ! this.animationsWithoutDirection.includes( animation ) ) {
+					animation = animation + 'Out' + animationDirection;
+				}
+				offCanvas.addClass( 'fusion-animated ' + animation );
+				offCanvas.attr( 'data-animation-type', animation );
+				offCanvas.css( {
+					'visibility': 'visible',
+					'animation-duration': animationSpeed + 's'
+				} );
+			}
+			offCanvas.addClass( 'fusion-animated ' + animation );
+
+			offCanvas.on( 'animationend', function() {
+				const   el = jQuery( this );
+				setTimeout( () => {
+					if ( el.attr( 'data-animation-type' ) ) {
+						el.removeClass( 'fusion-animated' ).removeClass( el.attr( 'data-animation-type' ) ).removeAttr( 'data-animation-type' );
+					}
+				}, 500 );
+
+			} );
 		}
 	} );
 }( jQuery ) );
@@ -3149,6 +4005,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							}
 						} else if ( 'object' !== typeof paramObject && jQuery( '.font_family #' + param ).length ) {
 							paramObject = elementMap.params[ jQuery( '.font_family #' + param ).closest( '.fusion-builder-option' ).attr( 'data-option-id' ) ];
+							if ( 'object' === typeof paramObject && 'string' === typeof paramObject.heading ) {
+								paramTitle = paramObject.heading;
+							}
+						} else if (  'object' !== typeof paramObject && jQuery( '.typography [name="' + param + '"]' ).length ) {
+							paramObject = elementMap.params[ jQuery( '.typography [name="' + param + '"]' ).closest( '.fusion-builder-option' ).attr( 'data-option-id' ) ];
 							if ( 'object' === typeof paramObject && 'string' === typeof paramObject.heading ) {
 								paramTitle = paramObject.heading;
 							}
@@ -4799,9 +5660,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var borderRadius;
 
 				// Alpha related checks.
-				this.values.alpha_background_color     = jQuery.Color( this.values.background_color ).alpha();
-				this.values.alpha_gradient_start_color = jQuery.Color( this.values.gradient_start_color ).alpha();
-				this.values.alpha_gradient_end_color   = jQuery.Color( this.values.gradient_end_color ).alpha();
+				this.values.alpha_background_color     = jQuery.AWB_Color( this.values.background_color ).alpha();
+				this.values.alpha_gradient_start_color = jQuery.AWB_Color( this.values.gradient_start_color ).alpha();
+				this.values.alpha_gradient_end_color   = jQuery.AWB_Color( this.values.gradient_end_color ).alpha();
 
 				if ( '' !== this.values.margin_bottom ) {
 					this.values.margin_bottom = _.fusionGetValueWithUnit( this.values.margin_bottom );
@@ -7506,7 +8367,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				// If no blend mode is defined, check if we should set to overlay.
 				if ( 'undefined' === typeof params.background_blend_mode && '' !== values.background_color  ) {
-					alphaBackgroundColor = jQuery.Color( values.background_color ).alpha();
+					alphaBackgroundColor = jQuery.AWB_Color( values.background_color ).alpha();
 					if ( 1 > alphaBackgroundColor && 0 !== alphaBackgroundColor && ( '' !== params.background_image || '' !== params.video_bg ) ) {
 						params.background_blend_mode = 'overlay';
 					}
@@ -7638,7 +8499,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @return {void}
 			 */
 			setExtraValues: function() {
-				this.values.alpha_background_color = jQuery.Color( this.values.background_color ).alpha();
+				this.values.alpha_background_color = jQuery.AWB_Color( this.values.background_color ).alpha();
 			},
 
 			contentStyle: function() {
@@ -7685,7 +8546,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			parallaxAttr: function() {
 				var attr 			= {},
-					bgColorAlpha 	= jQuery.Color( this.values.background_color ).alpha();
+					bgColorAlpha 	= jQuery.AWB_Color( this.values.background_color ).alpha();
 
 				attr[ 'class' ] = 'fusion-bg-parallax';
 
@@ -7977,7 +8838,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					overlayStyle += 'background-image:' + _.getGradientString( this.values ) + ';';
 				}
 
-				if ( '' !== this.values.background_color && 1 > jQuery.Color( this.values.background_color ).alpha() ) {
+				if ( '' !== this.values.background_color && 1 > jQuery.AWB_Color( this.values.background_color ).alpha() ) {
 					overlayStyle += 'background-color:' + this.values.background_color + ';';
 				}
 
@@ -9373,18 +10234,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				this.remove();
 
 			}
-		} );
-	} );
-}( jQuery ) );
-;var FusionPageBuilder = FusionPageBuilder || {};
-
-( function() {
-
-	jQuery( document ).ready( function() {
-
-		// Builder Container View
-        FusionPageBuilder.DemoImportModalView = FusionPageBuilder.StudioImportModalView.extend( {
-			template: FusionPageBuilder.template( jQuery( '#fusion-builder-demo-import-modal' ).html() )
 		} );
 	} );
 }( jQuery ) );
@@ -12488,7 +13337,7 @@ FusionPageBuilder.options.fusionDynamicData = {
 		}
 	}
 };
-;/* global FusionApp, FusionPageBuilderViewManager, FusionEvents, fusionAllElements, FusionPageBuilderApp, fusionBuilderText, fusionGlobalManager, fusionBuilderInsertIntoEditor, openShortcodeGenerator */
+;/* global FusionApp, FusionPageBuilderViewManager, FusionEvents, fusionAllElements, FusionPageBuilderApp, fusionBuilderText, fusionGlobalManager, fusionBuilderInsertIntoEditor, openShortcodeGenerator, awbPalette */
 /* eslint no-unused-vars: 0 */
 /* eslint no-alert: 0 */
 /* eslint no-empty-function: 0 */
@@ -12848,7 +13697,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			// Fix range with default value not triggering properly.
-			if ( $target.is( '.fusion-slider-input.fusion-with-default' ) ) {
+			if ( $target.is( '.fusion-slider-input.fusion-with-default' ) || $target.is( '.awb-ignore' ) ) {
 				return;
 			}
 
@@ -12908,10 +13757,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 * @return {void}
 		 */
 		getParamName: function( $target, $option ) {
-			var paramName  = $option.data( 'option-id' );
+			var paramName = $option.data( 'option-id' ),
+				$wrapper  = $target.closest( '.fusion-builder-option' );
 
 			// Non single dimension fields or font family input.
-			if ( $target.closest( '.fusion-builder-option' ).hasClass( 'font_family' ) || ( $target.closest( '.fusion-builder-option.dimension' ).length && ! $target.closest( '.single-builder-dimension' ).length ) ) {
+			if ( $wrapper.hasClass( 'typography' ) || ( $wrapper.hasClass( 'dimension' ) && ! $target.closest( '.single-builder-dimension' ).length ) ) {
 				paramName = $target.attr( 'name' );
 			}
 
@@ -12943,7 +13793,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			// Escape input fields.
 			if ( $target.is( 'input' ) && '' !== paramValue ) {
-				if ( ! $target.hasClass( 'fusion-builder-upload-field' ) && ! $target.is( '#generator_element_content' ) && ! $target.is( '#generator_multi_child_content' ) && false === $target.closest( 'li' ).data( 'dynamic' ) ) {
+				if ( ! $target.hasClass( 'fusion-builder-upload-field' ) && ! $target.hasClass( 'awb-typo-input' ) && ! $target.is( '#generator_element_content' ) && ! $target.is( '#generator_multi_child_content' ) && false === $target.closest( 'li' ).data( 'dynamic' ) ) {
 					paramValue = _.escape( paramValue );
 				}
 			}
@@ -13099,6 +13949,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			// Trigger temporary active state if exists.
 			this.triggerTemporaryState( $option );
 
+			// Trigger Option change for any other option to listen for it.
+			FusionEvents.trigger( 'awb-options-change-' + paramName, paramValue, this.model.get( 'cid' ) );
+
 			if ( 'generated_element' === this.model.get( 'type' ) ) {
 				return;
 			}
@@ -13121,6 +13974,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			// JS trigger for option specific refreshes.
 			this._refreshJs( paramName );
+
 
 			// Trigger active states.
 			this.triggerActiveStates();
@@ -13175,9 +14029,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			var self = this;
 
 			// Close colorpickers before saving
-			this.$el.find( '.wp-color-picker' ).each( function() {
-				if ( jQuery( this ).closest( '.wp-picker-active' ).length ) {
-					jQuery( this ).wpColorPicker( 'close' );
+			this.$el.find( '.fusion-color-created' ).each( function() {
+				if ( 'undefined' !== typeof jQuery( this ).awbColorPicker( 'instance' ) ) {
+					jQuery( this ).awbColorPicker( 'close' );
 				}
 			} );
 
@@ -13274,7 +14128,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			if ( 'undefined' === typeof $element && ( ( tabId && true === this.tabsRendered ) || ( 'undefined' !== typeof this.tabsRendered[ tabId ] && this.tabsRendered[ tabId ] ) || true === this.tabsRendered ) ) {
 				return;
 			}
-
 			this.optionDynamicData( $thisEl );
 			this.textFieldPlaceholder( $thisEl );
 			this.optionDateTimePicker( $thisEl );
@@ -13297,8 +14150,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			this.optionSortable( $thisEl );
 			this.optionSortableText( $thisEl );
 			this.optionConnectedSortable( $thisEl );
-			this.optionFontFamily( $thisEl );
 			this.optionAjaxSelect( $thisEl );
+			this.optionFocusImage( $thisEl );
+			this.optionTypography( $thisEl );
 
 			// TODO: fix for WooCommerce element.
 			if ( 'fusion_woo_shortcodes' === this.model.get( 'element_type' ) ) {
@@ -13373,7 +14227,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			setTimeout( function() {
-				$thisEl.find( 'select, input, textarea, radio' ).filter( ':eq(0)' ).not( '[data-placeholder]' ).focus();
+				$thisEl.find( 'select, input, textarea, radio' ).filter( ':eq(0)' ).not( '[data-placeholder], .awb-color-picker' ).focus();
 			}, 1 );
 
 			// If rendering a specific tab, save this fact to prevent reinit.
@@ -13835,6 +14689,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				optionType = false,
 				oldValue,
 				$target,
+				validColorValue,
 				values,
 				$datePicker,
 				$timePicker;
@@ -13854,14 +14709,17 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			switch ( optionType ) {
 			case 'colorpicker':
 			case 'colorpickeralpha':
-				$target = $option.find( '.fusion-builder-color-picker-hex' );
+				$target = $option.find( '.awb-color-picker' );
 				if ( $target.length ) {
-					$target.data( 'default', value ).trigger( 'change' );
+					if ( 'undefined' === typeof $target.awbColorPicker( 'instance' ) ) {
+						break;
+					}
+					$target.awbColorPicker( 'instance' ).defaultColor( value );
+
 					if ( '' === $target.val() ) {
-						$target.addClass( 'fusion-default-changed fusion-using-default' );
-						if ( $target.hasClass( 'wp-color-picker' ) ) {
-							$target.wpColorPicker( 'color', value );
-						}
+						// Refresh the preview to global color.
+						$target.awbColorPicker( 'color', value );
+						$target.awbColorPicker( 'color', '' );
 					}
 				}
 				break;
@@ -13883,7 +14741,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 		paramChanged: function( param, value ) {
 			var self       = this,
-				$option    = 0 < this.$el.find( 'li[data-option-id="' + param + '"]' ).length ? this.$el.find( 'li[data-option-id="' + param + '"]' ) : this.$el.find( '#' + param ).closest( '.fusion-builder-option' ),
+				$option    = 0 < this.$el.find( 'li[data-option-id="' + param + '"]' ).length ? this.$el.find( 'li[data-option-id="' + param + '"]' ) : this.$el.find( '[name=' + param + ']' ).closest( '.fusion-builder-option' ),
 				optionType = false,
 				$target,
 				values,
@@ -14052,7 +14910,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				self.reRender();
 				break;
 			default:
-				$option.find( '#' + param ).val( value ).trigger( 'change' );
+				$option.find( '[name=' + param + ']' ).val( value ).trigger( 'change' );
 				break;
 			}
 
@@ -14083,10 +14941,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionConnectedSortable );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionDynamicData );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionTypographyField );
-	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionFontFamilyField );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionColumnWidth );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionFormOptions );
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionLogics );
+	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.options.fusionImageFocusPoint );
 
 	// Active states.
 	_.extend( FusionPageBuilder.ElementSettingsView.prototype, FusionPageBuilder.fusionActiveStates );
@@ -14427,8 +15285,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						wp.mediaWidgets.handleWidgetAdded( event, $el );
 					}
 
-					this.$el.find( '.widget-inside' ).show();
-
+					this.$el.find( '.widget-inside' ).css( 'display', 'block' );
 					if ( this.$el.find( '.wp-editor-area' ).length ) {
 						setTimeout( function() {
 							wp.textWidgets.widgetControls[ 'text-' + self.cid ].initializeEditor();
@@ -14458,7 +15315,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					this.setFormValues( widgetClassName );
 					setTimeout( function() {
-						$el.find( '.widget-inside' ).show();
+						$el.find( '.widget-inside' ).css( 'display', 'block' );
 					}, 100 );
 				}
 			},
@@ -15068,6 +15925,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				// Forms.
 				if ( 'fusion_template' === type && 'string' === typeof FusionApp.data.postDetails.post_type && 'fusion_form' === FusionApp.data.postDetails.post_type ) {
 					type = 'forms';
+				}
+
+				// Off Canvas.
+				if ( 'fusion_template' === type && 'string' === typeof FusionApp.data.postDetails.post_type && 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) {
+					type = 'awb_off_canvas';
 				}
 
 				if ( 'object' === typeof FusionPageBuilderApp.studio.studioData && null !== FusionPageBuilderApp.studio.studioData && 'undefined' !== typeof FusionPageBuilderApp.studio.studioData[ type ] ) {
@@ -18732,6 +19594,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				this.$el.addClass( 'fusion-builder-scheme-' + colorScheme );
 
+				this.$el.addClass( 'fusion-post-' + FusionApp.data.postDetails.post_type );
+
+				// Add is-empty class to remove close icon in Off Canvas.
+				if ( 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) {
+					jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ).find( '.awb-off-canvas' ).addClass( 'is-empty' );
+				}
+
 				this.$el.find( '#video-dialog' ).dialog( {
 					dialogClass: 'fusion-builder-dialog fusion-video-dialog',
 					autoOpen: false,
@@ -18747,13 +19616,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * Calculate color scheme depend on hex color.
 			 *
 			 * @since 2.0.0
-			 * @param {string} hexColor - The hex color code to calculate color scheme against.
+			 * @param {string} color - The hex color code to calculate color scheme against.
 			 * @return {string}
 			 */
-			getColorScheme: function( hexColor ) {
-				hexColor = 'string' !== typeof hexColor ? '#ffffff' : hexColor;
-				hexColor = hexColor.replace( '#', '' );
-				return ( parseInt( hexColor, 16 ) > 0xffffff / 2 ) ? 'light' : 'dark';
+			getColorScheme: function( color ) {
+				return 0.5 < jQuery.AWB_Color( color ).lightness() ? 'light' : 'dark';
 			},
 
 			/**
@@ -18871,6 +19738,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			removeBlankPageHelper: function( event ) {
 				if ( event ) {
 					event.preventDefault();
+				}
+
+				// Remove is-empty class to add back close icon in Off Canvas.
+				if ( 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) {
+					jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ).find( '.awb-off-canvas' ).removeClass( 'is-empty' );
 				}
 
 				FusionPageBuilderViewManager.removeView( this.model.get( 'cid' ) );
@@ -20526,6 +21398,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					event.preventDefault();
 				}
 
+				// Off canvas.
+				category = 'undefined' !== typeof FusionApp.data.postDetails.post_type && 'awb_off_canvas' === FusionApp.data.postDetails.post_type ? FusionApp.data.postDetails.post_type : category;
+
 				if ( 'string' === typeof FusionApp.data.template_category ) {
 					category = FusionApp.data.template_category;
 				}
@@ -21072,6 +21947,18 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 			}
 
+		} );
+	} );
+}( jQuery ) );
+;var FusionPageBuilder = FusionPageBuilder || {};
+
+( function() {
+
+	jQuery( document ).ready( function() {
+
+		// Builder Container View
+        FusionPageBuilder.DemoImportModalView = FusionPageBuilder.StudioImportModalView.extend( {
+			template: FusionPageBuilder.template( jQuery( '#fusion-builder-demo-import-modal' ).html() )
 		} );
 	} );
 }( jQuery ) );
@@ -22128,7 +23015,7 @@ _.mixin( {
 
 		// Trim the value.
 		value = 'undefined' === typeof value ? '' : value;
-		value = value.trim();
+		value = value.toString().trim();
 		if ( -1 !== jQuery.inArray( value, [ 'auto', 'inherit', 'initial' ] ) ) {
 			return value;
 		}
@@ -22236,7 +23123,7 @@ _.mixin( {
 		masonryColumnSpacing = ( parseFloat( data.blog_grid_column_spacing ) ) + 'px';
 
 		// Calculate the correct size of the image wrapper container, based on orientation and column spacing.
-		if ( 'transparent' !== data.timeline_color && 0 !== jQuery.Color( data.timeline_color ).alpha() ) {
+		if ( 'transparent' !== data.timeline_color && 0 !== jQuery.AWB_Color( data.timeline_color ).alpha() ) {
 
 			masonryColumnOffset = ' - ' + ( parseFloat( data.blog_grid_column_spacing ) / 2 ) + 'px';
 			if ( 'string' === typeof data.element_orientation_class && -1 !== data.element_orientation_class.indexOf( 'fusion-element-portrait' ) ) {
@@ -22655,7 +23542,7 @@ _.mixin( {
 	 * @return {string}
 	 */
 	fusionAutoCalculateAccentColor: function( color ) {
-		var colorObj  = jQuery.Color( color ),
+		var colorObj  = jQuery.AWB_Color( color ),
 			lightness = parseInt( colorObj.lightness() * 100, 10 );
 
 		if ( 0 < lightness ) { // Not black.
@@ -23801,8 +24688,8 @@ _.mixin( {
 	 */
 	getGradientString: function( values, type ) {
 		var gradientString          = '',
-			alphaGradientStartColor = jQuery.Color( values.gradient_start_color ).alpha(),
-			alphaGradientEndColor   = jQuery.Color( values.gradient_end_color ).alpha(),
+			alphaGradientStartColor = jQuery.AWB_Color( values.gradient_start_color ).alpha(),
+			alphaGradientEndColor   = jQuery.AWB_Color( values.gradient_end_color ).alpha(),
 			isGradientColor         = ( ! _.isEmpty( values.gradient_start_color ) && 0 !== alphaGradientStartColor ) || ( ! _.isEmpty( values.gradient_end_color ) && 0 !== alphaGradientEndColor ) ? true : false;
 
 		if ( isGradientColor ) {
@@ -23846,8 +24733,8 @@ _.mixin( {
 		var gradientString          = '',
 			gradientStart           = 'string' === typeof values.gradient_start_color && '' !== values.gradient_start_color ? values.gradient_start_color : 'rgba(255,255,255,0)',
 			gradientEnd             = 'string' === typeof values.gradient_end_color && '' !== values.gradient_end_color ? values.gradient_end_color : 'rgba(255,255,255,0)',
-			alphaGradientStartColor = jQuery.Color( gradientStart ).alpha(),
-			alphaGradientEndColor   = jQuery.Color( gradientEnd ).alpha(),
+			alphaGradientStartColor = jQuery.AWB_Color( gradientStart ).alpha(),
+			alphaGradientEndColor   = jQuery.AWB_Color( gradientEnd ).alpha(),
 			isGradientColor         = 0 !== alphaGradientStartColor || 0 !== alphaGradientEndColor;
 
 		if ( isGradientColor ) {
@@ -23925,13 +24812,19 @@ _.mixin( {
 			weight    = '';
 
 		if ( 'string' === typeof values[ 'fusion_font_family_' + param_id ] && '' !== values[ 'fusion_font_family_' + param_id ] ) {
-			if ( values[ 'fusion_font_family_' + param_id ].includes( '\'' ) || 'inherit' === values[ 'fusion_font_family_' + param_id ] ) {
+			if ( values[ 'fusion_font_family_' + param_id ].includes( 'var(' ) ) {
+				style[ 'font-family' ] = values[ 'fusion_font_family_' + param_id ];
+				if ( 'object' === typeof window.awbTypographySelect ) {
+					style[ 'font-weight' ] = window.awbTypographySelect.getVarString( values[ 'fusion_font_family_' + param_id ], 'font-weight' );
+					style[ 'font-style' ]  = window.awbTypographySelect.getVarString( values[ 'fusion_font_family_' + param_id ], 'font-style' );
+				}
+			} else if ( values[ 'fusion_font_family_' + param_id ].includes( '\'' ) || 'inherit' === values[ 'fusion_font_family_' + param_id ] ) {
 				style[ 'font-family' ] = values[ 'fusion_font_family_' + param_id ];
 			} else {
 				style[ 'font-family' ] = '\'' + values[ 'fusion_font_family_' + param_id ] + '\'';
 			}
 
-			if ( 'string' === typeof values[ 'fusion_font_variant_' + param_id ] && '' !== values[ 'fusion_font_variant_' + param_id ] ) {
+			if ( 'string' === typeof values[ 'fusion_font_variant_' + param_id ] && '' !== values[ 'fusion_font_variant_' + param_id ] && 'undefined' === typeof style[ 'font-weight' ] ) {
 				weight = values[ 'fusion_font_variant_' + param_id ].replace( 'italic', '' );
 				if ( weight !== values[ 'fusion_font_variant_' + param_id ] ) {
 					style[ 'font-style' ] = 'italic';
@@ -25311,6 +26204,25 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			} );
 		},
 
+		woo_get_cart_total: function( args ) {
+
+			return jQuery.ajax( {
+				url: fusionAppConfig.ajaxurl,
+				type: 'get',
+				dataType: 'json',
+				data: {
+					action: 'ajax_dynamic_data_default_callback',
+					callback: FusionApp.data.dynamicOptions[ args.data ].callback[ 'function' ],
+					args: args,
+					fusion_load_nonce: fusionAppConfig.fusion_load_nonce,
+					post_id: FusionApp.getDynamicPost( 'post_id' )
+				}
+			} )
+			.done( function( response ) {
+				FusionPageBuilderApp.dynamicValues.setValue( args, response.content );
+			} );
+		},
+
 		defaultDynamicCallback: function( args ) {
 			return jQuery.ajax( {
 				url: fusionAppConfig.ajaxurl,
@@ -25431,7 +26343,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					parallaxStyles       = _.getGradientString( values, 'parallax' );
 					fadedStyles          = _.getGradientString( values, 'fade' );
 					overlayStyles        = _.getGradientString( values );
-					alphaBackgroundColor = jQuery.Color( values.background_color ).alpha();
+					alphaBackgroundColor = jQuery.AWB_Color( values.background_color ).alpha();
 
 					if ( '' === mainBGStyles && '' !== values.background_image && 'yes' !== values.fade ) {
 						mainBGStyles = 'url(\'' + values.background_image + '\')';
@@ -25460,7 +26372,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				case 'fusion_builder_column':
 				case 'fusion_builder_column_inner':
 					mainBGStyles         = _.getGradientString( values, 'column' );
-					alphaBackgroundColor = jQuery.Color( values.background_color ).alpha();
+					alphaBackgroundColor = jQuery.AWB_Color( values.background_color ).alpha();
 
 					if ( '' === mainBGStyles && '' !== values.background_image ) {
 						mainBGStyles = 'url(\'' + values.background_image + '\')';
@@ -27155,6 +28067,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			this.studio              = new FusionPageBuilder.Studio();
 			this.website             = new FusionPageBuilder.Website();
 			this.formStyles          = false;
+			this.offCanvasStyles     = false;
 
 			// Post contents
 			this.postContent = false;
@@ -27253,7 +28166,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				forms: {},
 				post_cards: {},
 				videos: {},
-				icons: {}
+				icons: {},
+				off_canvases: {}
 			};
 			this.listenTo( FusionEvents, 'fusion-content-preview-width', this.contentPreviewWidth );
 		},
@@ -27614,6 +28528,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			setTimeout( function() {
 				self.scrollingContainers();
 				self.maybeFormStyles();
+				self.maybeOfCanvasStyles();
 			}, 100 );
 		},
 
@@ -27764,6 +28679,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						self.scrollingContainers();
 						self.reRenderElements = true;
 						self.maybeFormStyles();
+						self.maybeOfCanvasStyles();
 
 						if ( 0 < FusionPageBuilderViewManager.countElementsByType( 'fusion_builder_next_page' ) ) {
 							FusionEvents.trigger( 'fusion-next-page' );
@@ -28700,7 +29616,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						if ( 'overlay_color' === key && '' !== shortcodeAttributes.named[ key ] && 'fusion_builder_container' === shortcodeName ) {
 							delete prefixedAttributes.params[ prefixedKey ];
 							alpha = ( 'undefined' !== typeof shortcodeAttributes.named.overlay_opacity ) ? shortcodeAttributes.named.overlay_opacity : 1;
-							prefixedAttributes.params.background_color = jQuery.Color( shortcodeAttributes.named[ key ] ).alpha( alpha ).toRgbaString();
+							prefixedAttributes.params.background_color = jQuery.AWB_Color( shortcodeAttributes.named[ key ] ).alpha( alpha ).toRgbaString();
 						}
 						if ( 'overlay_opacity' === key ) {
 							delete prefixedAttributes.params[ prefixedKey ];
@@ -29305,7 +30221,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 */
 		builderToShortcodes: function() {
 			var shortcode = '',
-				thisEl    = this;
+				thisEl    = this,
+				plugins   = 'object' === typeof FusionApp.data.plugins_active ? FusionApp.data.plugins_active : false,
+				referencedOffCanvases = {},
+				offCanvases;
 
 			// Reset the media map.
 			this.mediaMap = {
@@ -29314,7 +30233,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				forms: {},
 				post_cards: {},
 				videos: {},
-				icons: {}
+				icons: {},
+				off_canvases: {}
 			};
 
 			if ( FusionApp.data.is_fusion_element ) {
@@ -29358,6 +30278,19 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				} );
 
 				FusionApp.setPost( 'post_content', shortcode );
+			}
+
+			// Add referenced Off Canvases.
+			if ( false !== plugins && true === plugins.awb_studio ) {
+				offCanvases = 'undefined' !== typeof FusionApp.data.postMeta._fusion.off_canvases ? FusionApp.data.postMeta._fusion.off_canvases : [];
+
+				if ( 'object' === typeof offCanvases && Object.keys( offCanvases ).length ) {
+					_.each( offCanvases, function( key, value ) {
+						referencedOffCanvases[ key ] = true;
+					} );
+				}
+
+				this.mediaMap.off_canvases = referencedOffCanvases;
 			}
 
 			// If media map exists, add to post meta for saving.
@@ -30080,6 +31013,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 */
 		toggleTooltips: function() {
 
+			// Do nothing for Off Canvas.
+			if ( 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) {
+				return;
+			}
+
 			// Tooltips.
 			if ( 'undefined' !== typeof FusionApp && 'off' === FusionApp.preferencesData.tooltips ) {
 				jQuery( 'body' ).addClass( 'fusion-hide-all-tooltips' );
@@ -30120,7 +31058,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			// Transparent Header.
 			if ( 'undefined' !== typeof FusionApp && 'off' === FusionApp.preferencesData.transparent_header ) {
 				$html.removeClass( 'avada-header-color-not-opaque' );
-			} else if ( 1 > jQuery.Color( HeaderBGColor ).alpha() ) {
+			} else if ( 1 > jQuery.AWB_Color( HeaderBGColor ).alpha() ) {
 				$html.addClass( 'avada-header-color-not-opaque' );
 			}
 
@@ -30359,6 +31297,27 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			this.formStyles.buildStyles();
 		},
 
+		/**
+		 * If editing off canvas.
+		 *
+		 * @since 3.6
+		 * @return {void}
+		 */
+		maybeOfCanvasStyles: function() {
+
+			// Not editing a form then skip.
+			if ( 'awb_off_canvas' !== FusionApp.getPost( 'post_type' ) ) {
+				return;
+			}
+
+			if ( false === this.offCanvasStyles ) {
+				this.offCanvasStyles = new FusionPageBuilder.offCanvasStyles();
+				return;
+			}
+
+			this.offCanvasStyles.buildStyles();
+		},
+
 		contentPreviewWidth: function() {
 			if ( 'object' === typeof FusionApp && 'object' === typeof FusionApp.data && ( ( 'string' === typeof FusionApp.data.fusion_element_type && 'post_cards' === FusionApp.data.fusion_element_type ) || 'fusion_form' === FusionApp.data.postDetails.post_type ) && 'object' === typeof FusionApp.data.postMeta && 'object' === typeof FusionApp.data.postMeta._fusion && 'undefined' !== typeof FusionApp.data.postMeta._fusion.preview_width ) {
 				this.$el.find( '#fusion_builder_container' ).first().css( { width: parseInt( FusionApp.data.postMeta._fusion.preview_width ) + '%' } );
@@ -30483,10 +31442,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				strokeSize    = 11 * multiplicator;
 				fontSize      = 50 * multiplicator;
 
-				counterCircleShortcode[ 'data-percent' ]       = values.value;
+				counterCircleShortcode[ 'data-percent' ]       = this.sanitizePercentage( values.value );
 				counterCircleShortcode[ 'data-countdown' ]     = countdown;
-				counterCircleShortcode[ 'data-filledcolor' ]   = values.filledcolor;
-				counterCircleShortcode[ 'data-unfilledcolor' ] = values.unfilledcolor;
+				counterCircleShortcode[ 'data-filledcolor' ]   = jQuery.AWB_Color( values.filledcolor ).toRgbaString();
+				counterCircleShortcode[ 'data-unfilledcolor' ] = jQuery.AWB_Color( values.unfilledcolor ).toRgbaString();
 				counterCircleShortcode[ 'data-scale' ]         = scales;
 				counterCircleShortcode[ 'data-size' ]          = values.size.toString();
 				counterCircleShortcode[ 'data-speed' ]         = values.speed.toString();
@@ -30504,6 +31463,35 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				this.model.set( 'selectors', counterCircleWrapperShortcode );
 				this.model.set( 'childSelectors', counterCircleShortcode );
+			},
+
+			/**
+			 * Sanitize the percentage value, because this can come also from a
+			 * dynamic data which can be a string or a float.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values object.
+			 * @return {Object}
+			 */
+			sanitizePercentage: function( percentage ) {
+				percentage = parseFloat( percentage );
+
+				// percentage can be NaN if parseFloat failed.
+				if ( ! percentage ) {
+					percentage = 0;
+				}
+
+				percentage = Math.round( percentage );
+
+				if ( 0 > percentage ) {
+					percentage = 0;
+				}
+
+				if ( 100 < percentage ) {
+					percentage = 100;
+				}
+
+				return percentage;
 			}
 
 		} );
@@ -30849,7 +31837,7 @@ responsive = '';
 				selectors = [ this.baseSelector + ' .awb-imageframe-caption-container .awb-imageframe-caption-title' ];
 				// title color.
 				if ( ! this.isDefault( 'caption_title_color' ) ) {
-					this.addCssProperty( selectors, 'color', atts.values.caption_title_color );
+					this.addCssProperty( selectors, 'color', atts.values.caption_title_color, true );
 				}
 				// title size.
 				if ( ! this.isDefault( 'caption_title_size' ) ) {
@@ -31094,16 +32082,32 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @since 2.0.3
 			 * @return {void}
 			 */
-			initLightbox: function() {
-				var link = jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( this.$el.find( '.fusion-lightbox' ) );
+			initLightbox: function( remove ) {
+				var parentCid           = this.model.get( 'parent' ),
+					galleryLightboxName = 'iLightbox[awb_gallery_' + parentCid + ']',
+					galleryLightbox,
+					elements,
+					link;
+
+				if ( 'object' !== typeof jQuery( '#fb-preview' )[ 0 ].contentWindow.$ilInstances ) {
+					return;
+				}
+
+				galleryLightbox = jQuery( '#fb-preview' )[ 0 ].contentWindow.$ilInstances[ galleryLightboxName ];
+
+				if ( 'undefined' !== typeof remove && remove ) {
+					elements = this.$el.closest( '.fusion-gallery' ).find( '.fusion-builder-live-child-element:not([data-cid="' + this.model.get( 'cid' ) + '"]' ).find( '[data-rel="' + galleryLightboxName + '"]' );
+				} else {
+					elements = this.$el.closest( '.fusion-gallery' ).find( '[data-rel="' + galleryLightboxName + '"]' );
+				}
+
+				link = jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( elements );
 
 				if ( 'object' === typeof jQuery( '#fb-preview' )[ 0 ].contentWindow.avadaLightBox ) {
-					if ( 'undefined' !== typeof this.iLightbox ) {
-						this.iLightbox.destroy();
-					}
+					if ( 'undefined' !== typeof galleryLightbox ) {
+						galleryLightbox.destroy();
 
-					if ( link.length && ! link.find( '.fusion-builder-placeholder' ).length ) {
-						this.iLightbox = link.iLightBox( jQuery( '#fb-preview' )[ 0 ].contentWindow.avadaLightBox.prepare_options( 'single' ) );
+						link.iLightBox( jQuery( '#fb-preview' )[ 0 ].contentWindow.avadaLightBox.prepare_options( galleryLightboxName ) );
 					}
 				}
 			},
@@ -31115,7 +32119,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @return {void}
 			 */
 			beforeRemove: function() {
-				var parentView = FusionPageBuilderViewManager.getView( this.model.get( 'parent' ) );
+				var self = this,
+parentCid           = this.model.get( 'parent' ),
+					parentView          = FusionPageBuilderViewManager.getView( parentCid );
 
 				if ( 'undefined' !== typeof parentView.fusionIsotope ) {
 					parentView.fusionIsotope.remove( self.$el );
@@ -31130,6 +32136,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						parentView.fusionIsotope.reloadItems();
 					}
 				}, 100 );
+
+				self.initLightbox( true );
 			},
 
 			/**
@@ -31293,7 +32301,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			buildImagesAttr: function( values ) {
 				var imagesAttr = {},
-					cid        = this.model.get( 'cid' ),
 					imageId    = this.model.attributes.params.image_id,
 					parentView = FusionPageBuilderViewManager.getView( this.model.get( 'parent' ) ),
 					image      = 'undefined' !== typeof parentView.imageMap ? parentView.imageMap.images[ imageId ] : undefined,
@@ -31309,7 +32316,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				columnSpacing = 0;
 				isPortrait    = false;
 				isLandscape   = false;
-				borderColor   = jQuery.Color( values.bordercolor );
+				borderColor   = jQuery.AWB_Color( values.bordercolor );
 
 				imagesAttr = {};
 
@@ -31378,7 +32385,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						class: 'fusion-lightbox'
 					};
 
-					imagesAttr.link[ 'data-rel' ] = 'iLightbox[gallery-' + cid + ']';
+					imagesAttr.link[ 'data-rel' ] = 'iLightbox[awb_gallery_' + this.model.get( 'parent' ) + ']';
 
 					// TODO: fix
 					// if ( 'undefined' !== typeof image.image_data ) {
@@ -32566,7 +33573,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						style: 'background-color:' + parentValues.backgroundcolor + ';'
 					};
 
-				if ( 'clean' === parentValues.design && ( 'transparent' === parentValues.backgroundcolor || 0 === jQuery.Color( parentValues.backgroundcolor ).alpha() ) ) {
+				if ( 'clean' === parentValues.design && ( 'transparent' === parentValues.backgroundcolor || 0 === jQuery.AWB_Color( parentValues.backgroundcolor ).alpha() ) ) {
 					blockquoteAttr.style += 'margin: -25px;';
 				}
 
@@ -32817,35 +33824,51 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_top' ) ) {
-					this.addCssProperty( selector, 'padding-top',  this.values.wrapper_padding_top, true );
+					this.addCssProperty( selector, 'padding-top',  _.fusionGetValueWithUnit( this.values.wrapper_padding_top ), true );
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_bottom' ) ) {
-					this.addCssProperty( selector, 'padding-bottom',  this.values.wrapper_padding_bottom, true );
+					this.addCssProperty( selector, 'padding-bottom',  _.fusionGetValueWithUnit( this.values.wrapper_padding_bottom ), true );
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_left' ) ) {
-					this.addCssProperty( selector, 'padding-left',  this.values.wrapper_padding_left, true );
+					this.addCssProperty( selector, 'padding-left',  _.fusionGetValueWithUnit( this.values.wrapper_padding_left ), true );
 				}
 
 				if ( !this.isDefault( 'wrapper_padding_right' ) ) {
-					this.addCssProperty( selector, 'padding-right',  this.values.wrapper_padding_right, true );
+					this.addCssProperty( selector, 'padding-right',  _.fusionGetValueWithUnit( this.values.wrapper_padding_right ), true );
 				}
 
 				if ( !this.isDefault( 'border_bottom' ) ) {
-					this.addCssProperty( selector, 'border-bottom-width',  this.values.border_bottom, true );
+					this.addCssProperty( selector, 'border-bottom-width',  _.fusionGetValueWithUnit( this.values.border_bottom ), true );
 				}
 
 				if ( !this.isDefault( 'border_top' ) ) {
-					this.addCssProperty( selector, 'border-top-width',  this.values.border_top, true );
+					this.addCssProperty( selector, 'border-top-width',  _.fusionGetValueWithUnit( this.values.border_top ), true );
 				}
 
 				if ( !this.isDefault( 'border_left' ) ) {
-					this.addCssProperty( selector, 'border-left-width',  this.values.border_left, true );
+					this.addCssProperty( selector, 'border-left-width',  _.fusionGetValueWithUnit( this.values.border_left ), true );
 				}
 
 				if ( !this.isDefault( 'border_right' ) ) {
-					this.addCssProperty( selector, 'border-right-width',  this.values.border_right, true );
+					this.addCssProperty( selector, 'border-right-width',  _.fusionGetValueWithUnit( this.values.border_right ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_top_left' ) ) {
+					this.addCssProperty( selector, 'border-top-left-radius',  _.fusionGetValueWithUnit( this.values.border_radius_top_left ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_top_right' ) ) {
+					this.addCssProperty( selector, 'border-top-right-radius',  _.fusionGetValueWithUnit( this.values.border_radius_top_right ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_bottom_right' ) ) {
+					this.addCssProperty( selector, 'border-bottom-right-radius',  _.fusionGetValueWithUnit( this.values.border_radius_bottom_right ), true );
+				}
+
+				if ( !this.isDefault( 'border_radius_bottom_left' ) ) {
+					this.addCssProperty( selector, 'border-bottom-left-radius',  _.fusionGetValueWithUnit( this.values.border_radius_bottom_left ), true );
 				}
 
 				selector = [ this.baseSelector + ' span:not(.sharingbox-shortcode-icon-separator)' ];
@@ -32975,7 +33998,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' !== values.backgroundcolor ) {
 					sharingboxShortcode.style = 'background-color:' + values.backgroundcolor + ';';
 
-					if ( 'transparent' === values.backgroundcolor || 0 === jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( 'transparent' === values.backgroundcolor || 0 === jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						sharingboxShortcode.style += 'padding:0;';
 					}
 				}
@@ -33278,7 +34301,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @since 3.2
 			 * @return {Object}
 			 */
-			bgImageSeparators: [ 'grunge', 'music', 'waves_brush', 'paper', 'squares', 'circles', 'paint', 'grass', 'splash' ],
+			bgImageSeparators: [ 'grunge', 'music', 'waves_brush', 'paper', 'squares', 'circles', 'paint', 'grass', 'splash', 'custom' ],
 
 			/**
 			 * Runs after view DOM is patched.
@@ -33326,6 +34349,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				attributes.attrButton       = this.buildButtonAtts( atts.values );
 				attributes.attrRoundedSplit = this.buildRoundedSplitAtts( atts.values );
 				attributes.values           = atts.values;
+				attributes.custom_svg       = atts.values.custom_svg ? this.getCustomSvg( atts.values ).svg : '';
+				attributes.spacerHeight		= this.spacerHeight( atts.values );
 
 				return attributes;
 			},
@@ -33718,11 +34743,26 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				} else if ( 'waves' === values.divider_type ) {
 					attrSpacerHeight.style = 'padding-top:' + ( 162 / 1024 * 100 ) + '%;';
 				} else if ( -1 !== jQuery.inArray( values.divider_type, this.bgImageSeparators ) ) {
-					height = '' === values.divider_height && 1 < values.divider_repeat ? ( parseInt( this._getDefaultSepHeight()[ values.divider_type ] ) / values.divider_repeat ) + 'px' : this._getDefaultSepHeight()[ values.divider_type ]; // Aspect ratio height.
+					const defaultSepHeight = 'custom' === values.divider_type && values.custom_svg ? this.getCustomSvg( values ).height : this._getDefaultSepHeight()[ values.divider_type ];
+					height = '' === values.divider_height && 1 < values.divider_repeat ? ( parseInt( defaultSepHeight ) / values.divider_repeat ) + 'px' : defaultSepHeight; // Aspect ratio height.
 					attrSpacerHeight.style = 'height:' + height + ';';
 				}
 				return attrSpacerHeight;
 
+			},
+
+			/**
+			 * Spacer height.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values.
+			 * @return {String} Spacer height.
+			 */
+			spacerHeight( values ) {
+				const defaultSepHeight = 'custom' === values.divider_type && values.custom_svg ? this.getCustomSvg( values ).height : this._getDefaultSepHeight()[ values.divider_type ];
+				const height = '' === values.divider_height && 1 < values.divider_repeat ? ( parseInt( defaultSepHeight ) / values.divider_repeat ) + 'px' : defaultSepHeight; // Aspect ratio height.
+
+				return height;
 			},
 
 			/**
@@ -33798,15 +34838,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				};
 
 				if ( 'bigtriangle' === values.divider_type || 'slant' === values.divider_type || 'big-half-circle' === values.divider_type || 'clouds' === values.divider_type || 'curved' === values.divider_type ) {
-					attrSVG.style = 'fill:' + values.backgroundcolor + ';padding:0;';
+					attrSVG.style = 'padding:0;';
 				}
 				if ( 'slant' === values.divider_type && 'bottom' === values.divider_candy ) {
-					attrSVG.style = 'fill:' + values.backgroundcolor + ';padding:0;margin-bottom:-3px;display:block';
+					attrSVG.style = 'padding:0;margin-bottom:-3px;display:block';
 				}
 
-				if ( 'horizon' === values.divider_type || 'hills' === values.divider_type || 'hills_opacity' === values.divider_type || 'waves' === values.divider_type || 'waves_opacity' === values.divider_type ) {
-					attrSVG.style = 'fill:' + values.backgroundcolor;
-				}
+				attrSVG.fill = jQuery.AWB_Color( values.backgroundcolor ).toRgbaString();
 
 				return attrSVG;
 			},
@@ -33926,12 +34964,49 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			},
 
 			getDividerHeightResponsive: function( key, hash ) {
-				var keys = hash.keys();
-				var found_index = _.contains( keys, key );
+				var keys = hash.keys(),
+					found_index = _.contains( keys, key );
 				if ( false === found_index || 0 === found_index ) {
 					return '';
 				}
 				return keys[ found_index - 1 ];
+			},
+
+			/**
+			 * Get custom svg
+			 *
+			 * @since 7.6
+			 * @param {Object} values - The values.
+			 * @return {Object}
+			 */
+			getCustomSvg: function( values ) {
+				var svg = '';
+				const url = values.custom_svg;
+				if ( !url ) {
+					return {};
+				}
+
+				jQuery.ajax( {
+					url: url,
+					type: 'get',
+					dataType: 'html',
+					async: false,
+					success: function( data ) {
+						svg = data;
+					}
+				} );
+
+				svg = svg.replace( /fill="(.*?)"/ig, `fill="${jQuery.AWB_Color( values.backgroundcolor ).toRgbaString()}"` );
+
+				//get the default height
+				const rx = /viewBox="(.*?)"/g;
+				const matches = rx.exec( svg );
+
+				const height = matches ? matches[ 1 ].split( ' ' )[ 3 ] + 'px' : '65px';
+
+
+				return { svg, height };
+
 			}
 
 		} );
@@ -34836,7 +35911,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					}
 
 					if ( 'theme' === values.map_style ) {
-						colorObject = jQuery.Color( extras.primary_color );
+						colorObject = jQuery.AWB_Color( extras.primary_color );
 						rgb         = [ colorObject.red(), colorObject.green(), colorObject.blue() ];
 
 						mapStyle               = 'custom';
@@ -34852,7 +35927,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							infoboxTextColor = '#fff';
 						}
 					} else if ( 'custom' === values.map_style ) {
-						if ( 0 === jQuery.Color( values.overlay_color ).alpha() ) {
+						if ( 0 === jQuery.AWB_Color( values.overlay_color ).alpha() ) {
 							overlayColor = '';
 						}
 					}
@@ -34938,7 +36013,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						}
 					} );
 
-					colorObject     = jQuery.Color( overlayColor );
+					colorObject     = jQuery.AWB_Color( overlayColor );
 					overlayColorHSL = {
 						hue: colorObject.hue(),
 						sat: colorObject.saturation() * 100,
@@ -35050,7 +36125,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					if ( values.static_map_color ) {
 						rgb         = values.static_map_color.replace( '#', '' );
-						colorObject = jQuery.Color( values.static_map_color );
+						colorObject = jQuery.AWB_Color( values.static_map_color );
 						saturation  = ( colorObject.saturation() * 200 ) - 100;
 						lightness   = ( colorObject.lightness() * 200 ) - 100;
 
@@ -35727,14 +36802,16 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @return {Object}
 			 */
 			buildAttr: function( values ) {
-				var params = this.model.get( 'params' ),
-					attr = _.fusionVisibilityAtts( values.hide_on_mobile, {
+				var params           = this.model.get( 'params' ),
+					attr             = _.fusionVisibilityAtts( values.hide_on_mobile, {
 						class: 'fusion-button button-' + values.type + ' button-' + values.color + ' button-cid' + this.model.get( 'cid' ),
 						style: ''
 					} ),
-					sizeClass    = 'button-' + values.size,
-					stretchClass = 'fusion-button-span-' + values.stretch,
-					typeClass    = '';
+					sizeClass        = 'button-' + values.size,
+					stretchClass     = 'fusion-button-span-' + values.stretch,
+					typeClass        = '',
+					isDefaultStretch = ( 'undefined' !== typeof values.stretch && ( '' === values.stretch || 'default' === values.stretch ) ) || 'undefined' === typeof values.stretch,
+					marginRight, marginLeft;
 
 				attr[ 'class' ] += _.fusionGetStickyClass( values.sticky_display );
 
@@ -35783,6 +36860,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( 'undefined' !== typeof values.margin_left && '' !== values.margin_left ) {
 					attr.style += 'margin-left:' + values.margin_left + ';';
+				}
+
+				if ( ( ( 'undefined' !== typeof values.margin_right && '' !== values.margin_right ) || ( 'undefined' !== typeof values.margin_left && '' !== values.margin_left ) ) && ( ( ! isDefaultStretch && 'yes' === values.stretch ) || ( isDefaultStretch && 'yes' === fusionAllElements.fusion_button.defaults.stretch ) ) ) {
+					marginRight = 'undefined' !== typeof values.margin_right && '' !== values.margin_right ? ' - ' + values.margin_right : '';
+					marginLeft  = 'undefined' !== typeof values.margin_left && '' !== values.margin_left ? ' - ' + values.margin_left : '';
+
+					attr.style += 'width:calc(100%' + marginRight + marginLeft + ');';
 				}
 
 				if ( '' !== values[ 'class' ] ) {
@@ -36185,11 +37269,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		} );
 	} );
 }( jQuery ) );
-;/* global fusionAllElements, FusionApp, FusionPageBuilderApp */
+;/* global fusionAllElements, FusionApp, FusionPageBuilderApp, builderConfig */
 var FusionPageBuilder = FusionPageBuilder || {};
 
 ( function() {
-
 	jQuery( document ).ready( function() {
 
 		// Image Frame Element View.
@@ -36261,10 +37344,15 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					this.buildElementContent( atts );
 
+
 					atts.liftupClasses = this.buildLiftupClasses( atts );
 					atts.liftupStyles  = this.buildLiftupStyles( atts );
-					atts.marginStyles  = this.buildMarginStyles( atts );
 					atts.captionHtml   = this.generateCaption( atts );
+
+					//styles
+					atts.maskStyles        = this.buildMaskStyles( atts );
+					atts.aspectRatioStyles = this.buildAspectRatioStyles( atts );
+					atts.marginStyles      = this.buildMarginStyles( atts );
 
 					// Add min height sticky.
 					atts.stickyStyles = '' !== atts.values.sticky_max_width ? '<style>.fusion-sticky-container.fusion-sticky-transition .imageframe-cid' + this.model.get( 'cid' ) + '{ max-width:' + _.fusionGetValueWithUnit( atts.values.sticky_max_width ) + ' !important; }</style>' : false;
@@ -36292,6 +37380,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				// If caption style used then disable style type.
 				if ( -1 === jQuery.inArray( values.caption_style, [ 'off', 'above', 'below' ] ) ) {
+					values.style_type = 'none';
+				}
+
+				// If mask used disable style type.
+				if ( values.mask ) {
 					values.style_type = 'none';
 				}
 
@@ -36359,7 +37452,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					} ),
 					imgStyles,
 					styleColorVal = values.stylecolor ? values.stylecolor : '',
-					styleColor    = ( 0 === styleColorVal.indexOf( '#' ) ) ? jQuery.Color( styleColorVal ).alpha( 0.3 ).toRgbaString() : jQuery.Color( styleColorVal ).toRgbaString(),
+					styleColor    = ( 0 === styleColorVal.indexOf( '#' ) ) ? jQuery.AWB_Color( styleColorVal ).alpha( 0.3 ).toRgbaString() : jQuery.AWB_Color( styleColorVal ).toRgbaString(),
 					blur          = values.blur,
 					blurRadius    = ( parseInt( blur, 10 ) + 4 ) + 'px';
 
@@ -36375,15 +37468,18 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				imgStyles   = '';
 
-				if ( '' != values.bordersize && '0' != values.bordersize && '0px' !== values.bordersize ) {
-					imgStyles += 'border:' + values.bordersize + ' solid ' + values.bordercolor + ';';
-				}
+				// Border style only if not using mask.
+				if ( '' === values.mask ) {
+					if ( '' != values.bordersize && '0' != values.bordersize && '0px' !== values.bordersize ) {
+						imgStyles += 'border:' + values.bordersize + ' solid ' + values.bordercolor + ';';
+					}
 
-				if ( '0' != values.borderradius && '0px' !== values.borderradius ) {
-					imgStyles += '-webkit-border-radius:' + values.borderradius + ';-moz-border-radius:' + values.borderradius + ';border-radius:' + values.borderradius + ';';
+					if ( '0' != values.borderradius && '0px' !== values.borderradius ) {
+						imgStyles += '-webkit-border-radius:' + values.borderradius + ';-moz-border-radius:' + values.borderradius + ';border-radius:' + values.borderradius + ';';
 
-					if ( '50%' === values.borderradius || 100 < parseFloat( values.borderradius ) ) {
-						imgStyles += '-webkit-mask-image: -webkit-radial-gradient(circle, white, black);';
+						if ( '50%' === values.borderradius || 100 < parseFloat( values.borderradius ) ) {
+							imgStyles += '-webkit-mask-image: -webkit-radial-gradient(circle, white, black);';
+						}
 					}
 				}
 
@@ -36403,6 +37499,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					attr[ 'class' ] += ' element-bottomshadow';
 				}
 
+				if ( '' !== values.mask ) {
+					attr[ 'class' ] += ' has-mask';
+				}
+				if ( '' !== values.aspect_ratio ) {
+					attr[ 'class' ] += ' has-aspect-ratio';
+				}
+
 				if ( 'liftup' !== values.hover_type && -1 !== jQuery.inArray( values.caption_style, [ 'off', 'above', 'below' ] ) ) {
 					if ( ! this.isFlex ) {
 						if ( 'left' === values.align ) {
@@ -36415,8 +37518,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					attr[ 'class' ] += ' hover-type-' + values.hover_type;
 				}
 
-				if ( '' !== values.max_width ) {
-					attr.style += 'max-width:' + values.max_width + '';
+				if ( '' !== values.max_width && '' === values.aspect_ratio ) {
+					attr.style += 'max-width:' + _.fusionGetValueWithUnit( values.max_width ) + '';
+				}
+
+				// Caption style.
+				if ( -1 === jQuery.inArray( values.caption_style, [ 'off', 'above', 'below' ] ) ) {
+					attr[ 'class' ] += ' awb-imageframe-style awb-imageframe-style-' + values.caption_style;
 				}
 
 				// Caption style.
@@ -36495,6 +37603,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 				// eslint-disable-next-line no-useless-escape
 				src = values.element_content.match( /(src=["\'](.*?)["\'])/ );
+
 				if ( src && 1 < src.length ) {
 					src = src[ 2 ];
 				} else if ( -1 === values.element_content.indexOf( '<img' ) && '' !== values.element_content ) {
@@ -36515,6 +37624,36 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					contentAttr.alt = values.alt;
 				}
 
+				if ( '' !== values.aspect_ratio ) {
+					contentAttr[ 'class' ] = 'img-with-aspect-ratio';
+				}
+
+				let imageIdSize, imageId, imageSize;
+				if ( 'undefined' !== typeof values.image_id && '' !== values.image_id ) {
+					const self = this;
+					if ( -1 !== values.image_id.indexOf( '|' ) ) {
+						imageIdSize = values.image_id.split( '|' );
+						imageId     = imageIdSize[ 0 ];
+						imageSize   = imageIdSize[ 1 ];
+					} else {
+						imageId = values.image_id;
+					}
+
+					const media = wp.media.attachment( imageId );
+					if ( _.isUndefined( media.get( 'title' ) ) ) {
+						media.fetch().then( function() {
+							self.reRender();
+							self._refreshJs();
+						} );
+					} else if ( imageSize ) {
+						contentAttr.width  = media.attributes.sizes[ imageSize ].width;
+						contentAttr.height = media.attributes.sizes[ imageSize ].height;
+					} else {
+						contentAttr.width  = media.attributes.width;
+						contentAttr.height = media.attributes.height;
+					}
+				}
+
 				return contentAttr;
 			},
 
@@ -36529,7 +37668,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var borderRadius = '';
 
 				if ( values.borderradius && '' !== values.borderradius && 0 !== values.borderradius && '0' !== values.borderradius && '0px' !== values.borderradius ) {
-					borderRadius += '-webkit-border-radius:{' + values.borderradius + '};-moz-border-radius:{' + values.borderradius + '};border-radius:{' + values.borderradius + '};';
+					borderRadius += '-webkit-border-radius:' + values.borderradius + ';-moz-border-radius:' + values.borderradius + ';border-radius:' + values.borderradius + ';';
 				}
 
 				return borderRadius;
@@ -36544,7 +37683,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			buildImgStyles: function( atts ) {
 				var imgStyles = '';
-				if ( '' !== atts.borderRadius ) {
+				if ( atts.borderRadius ) {
 					imgStyles = ' style="' + atts.borderRadius + '"';
 				}
 
@@ -36622,6 +37761,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'liftup' === atts.values.hover_type || ( 'bottomshadow' === atts.values.style_type && ( 'none' === atts.values.hover_type || 'zoomin' === atts.values.hover_type || 'zoomout' === atts.values.hover_type ) ) ) {
 					if ( 'liftup' === atts.values.hover_type ) {
 						liftupClasses = 'imageframe-liftup';
+						if ( '' !== atts.values.aspect_ratio ) {
+							liftupClasses += ' liftup-with-aspect-ratio';
+						}
 						if ( ! this.isFlex ) {
 							if ( 'left' === atts.values.align ) {
 								liftupClasses += ' fusion-imageframe-liftup-left';
@@ -36633,6 +37775,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						if ( atts.borderRadius ) {
 							liftupClasses += ' imageframe-cid' + cid;
 						}
+
+						if ( '' !== atts.values.hover_type && '' !== atts.values.mask ) {
+							liftupClasses += ' awb-image-frame hover-with-mask';
+						}
+
 					} else {
 						liftupClasses += 'fusion-image-frame-bottomshadow image-frame-shadow-cid' + cid;
 					}
@@ -36641,6 +37788,123 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				return liftupClasses;
+			},
+
+			/**
+			 * Builds mask styles.
+			 *
+			 * @since 7.6
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildMaskStyles: function( atts ) {
+				var maskStyles = '',
+					cid = this.model.get( 'cid' );
+
+
+				if ( atts.values.mask ) {
+					const maskUrl = 'custom' === atts.values.mask ? atts.values.custom_mask
+									: `${builderConfig.fusion_builder_plugin_dir + '/assets/images/masks/'}${atts.values.mask}.svg`;
+
+					let maskStyle = hoverMaskStyle = '';
+					if ( atts.values.mask_size ) {
+						const maskSize = atts.values.mask_size;
+						if ( 'fit' === maskSize ) {
+							maskStyle += '-webkit-mask-size: contain;';
+							maskStyle += 'mask-size: contain;';
+
+							if ( 'liftup' ===  atts.values.hover_type ) {
+								hoverMaskStyle += 'background-size: contain;';
+							}
+						}
+						if ( 'fill' === maskSize ) {
+							maskStyle += '-webkit-mask-size: cover;';
+							maskStyle += 'mask-size: cover;';
+
+							if ( 'liftup' === atts.values.hover_type ) {
+								hoverMaskStyle += 'background-size: cover;';
+							}
+						}
+						if ( 'custom' === maskSize ) {
+							maskStyle += '-webkit-mask-size: ' + atts.values.mask_custom_size + ';';
+							maskStyle += 'mask-size: ' + atts.values.mask_custom_size + ';';
+
+							if ( 'liftup' === atts.values.hover_type ) {
+								hoverMaskStyle += 'background-size: ' + atts.values.mask_custom_size + ';';
+							}
+						}
+					}
+
+					if ( atts.values.mask_position ) {
+						const maskPosition = 'custom' !== atts.values.mask_position ? atts.values.mask_position.replace( '-', ' ' ) : atts.values.mask_custom_position;
+							maskStyle += '-webkit-mask-position: ' + maskPosition + ';';
+							maskStyle += 'mask-position: ' + maskPosition + ';';
+
+							if ( 'liftup' === atts.values.hover_type ) {
+								hoverMaskStyle += 'background-position: ' + maskPosition + ';';
+							}
+					}
+
+					if ( atts.values.mask_repeat ) {
+							maskStyle += '-webkit-mask-repeat: ' + atts.values.mask_repeat + ';';
+							maskStyle += 'mask-repeat: ' + atts.values.mask_repeat + ';';
+
+							if ( 'liftup' === atts.values.hover_type ) {
+								hoverMaskStyle += 'background-repeat: ' + atts.values.mask_repeat + ';';
+							}
+					}
+					maskStyles += maskUrl ? `.fusion-imageframe.imageframe-cid${cid} img {
+						-webkit-mask-image: url(${maskUrl});
+						mask-image: url(${maskUrl});
+						${maskStyle}
+					}` : '';
+
+					maskStyles += maskUrl && 'liftup' ===  atts.values.hover_type ? `.imageframe-liftup.imageframe-cid${cid}:before {
+						background-image: url(${maskUrl});
+						${hoverMaskStyle}
+					}` : '';
+				}
+
+				return maskStyles;
+			},
+
+			/**
+			 * Builds aspect ratio styles.
+			 *
+			 * @since 7.6
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildAspectRatioStyles: function() {
+				var selectors, aspectRatio, width, height;
+
+				if ( '' ===  this.values.aspect_ratio ) {
+					return '';
+				}
+
+				this.dynamic_css = {};
+				this.baseSelector = '.fusion-imageframe.imageframe-cid' +  this.model.get( 'cid' );
+				selectors = [ this.baseSelector + ' img' ];
+
+				// Calc Ratio
+				if ( 'custom' ===  this.values.aspect_ratio && '' !==  this.values.custom_aspect_ratio ) {
+					this.addCssProperty( selectors, 'aspect-ratio', `100 / ${this.values.custom_aspect_ratio}` );
+				} else {
+					aspectRatio = this.values.aspect_ratio.split( '-' );
+					width 		= aspectRatio[ 0 ] || '';
+					height 		= aspectRatio[ 1 ] || '';
+
+					this.addCssProperty( selectors, 'aspect-ratio', `${width} / ${height}` );
+				}
+
+				//Ratio Position
+				if ( '' !==  this.values.aspect_ratio_position ) {
+					this.addCssProperty( selectors, 'object-position', this.values.aspect_ratio_position );
+				}
+
+				const css = this.parseCSS();
+
+				return css;
 			},
 
 			/**
@@ -36659,12 +37923,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					liftupStyles += '.imageframe-liftup.imageframe-cid' + cid + ':before{' + atts.borderRadius + '}';
 				}
 
-				if ( '' !== atts.values.max_width ) {
-					liftupStyles += '.imageframe-cid' + cid + '{max-width:' + atts.values.max_width + '}';
+				if ( '' !== atts.values.max_width && '' === atts.values.aspect_ratio ) {
+					liftupStyles += '.imageframe-cid' + cid + '{max-width:' + _.fusionGetValueWithUnit( atts.values.max_width ) + '}';
 				}
 
 				if ( 'liftup' === atts.values.hover_type || ( 'bottomshadow' === atts.values.style_type && ( 'none' === atts.values.hover_type || 'zoomin' === atts.values.hover_type || 'zoomout' === atts.values.hover_type ) ) ) {
-					styleColor = ( 0 === atts.values.stylecolor.indexOf( '#' ) ) ? jQuery.Color( atts.values.stylecolor ).alpha( 0.4 ).toRgbaString() : jQuery.Color( atts.values.stylecolor ).toRgbaString();
+					styleColor = ( 0 === atts.values.stylecolor.indexOf( '#' ) ) ? jQuery.AWB_Color( atts.values.stylecolor ).alpha( 0.4 ).toRgbaString() : jQuery.AWB_Color( atts.values.stylecolor ).toRgbaString();
 
 					if ( 'liftup' === atts.values.hover_type ) {
 						if ( 'bottomshadow' === atts.values.style_type ) {
@@ -36733,9 +37997,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				responsiveStyles += this.buildCaptionStyles( atts );
 
-				if ( '' !== responsiveStyles ) {
-					responsiveStyles = '<style>' + responsiveStyles + '</style>';
-				}
 
 				return responsiveStyles;
 			},
@@ -37117,8 +38378,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					'style': ''
 				};
 
-				if ( '' !== values.max_width && -1 !== jQuery.inArray( values.caption_style, [ 'above', 'below' ] ) ) {
-					attr.style += 'max-width:' + values.max_width + ';';
+				if ( '' !== values.max_width && -1 !== jQuery.inArray( values.caption_style, [ 'above', 'below' ] ) && '' === values.aspect_ratio ) {
+					attr.style += 'max-width:' + _.fusionGetValueWithUnit( values.max_width ) + ';';
 				}
 
 				return attr;
@@ -37185,7 +38446,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		} );
 	} );
 }( jQuery ) );
-;var FusionPageBuilder = FusionPageBuilder || {};
+;/* global fusionAllElements */
+var FusionPageBuilder = FusionPageBuilder || {};
 
 ( function() {
 
@@ -37282,7 +38544,30 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					values.pic_borderradius = '50%';
 				}
 
-				this.stylecolor = ( '#' === values.pic_style_color.charAt( 0 ) ) ? jQuery.Color( values.pic_style_color ).alpha( 0.3 ).toRgbaString() : jQuery.Color( values.pic_style_color ).toRgbaString();
+				this.stylecolor = ( '#' === values.pic_style_color.charAt( 0 ) ) ? jQuery.AWB_Color( values.pic_style_color ).alpha( 0.3 ).toRgbaString() : jQuery.AWB_Color( values.pic_style_color ).toRgbaString();
+			},
+
+			/**
+			 * Modifies the values.
+			 *
+			 * @since 2.0
+			 * @param {Object} values - The values object.
+			 * @param {Object} extras - Extra args.
+			 * @return {void}
+			 */
+			validateValuesExtras: function( values, extras ) {
+				values.linktarget              = values.linktarget ? '_blank' : '_self';
+				values.social_media_icons      = extras.social_media_icons;
+				values.social_media_icons_icon = extras.social_media_icons.icon;
+				values.social_media_icons_url  = extras.social_media_icons.url;
+				values.icons_boxed_radius      = _.fusionValidateAttrValue( values.icons_boxed_radius, 'px' );
+				values.font_size               = _.fusionValidateAttrValue( values.font_size, 'px' );
+				values.boxed_padding           = _.fusionValidateAttrValue( extras.boxed_padding, 'px' );
+
+				if ( '' == values.color_type ) {
+					values.box_colors  = values.social_links_box_color;
+					values.icon_colors = values.social_links_icon_color;
+				}
 			},
 
 			/**
@@ -37330,6 +38615,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' !== values.id ) {
 					personShortcode.id = values.id;
 				}
+
+				//Animation
+				personShortcode = _.fusionAnimations( values, personShortcode );
 
 				return personShortcode;
 			},
@@ -37399,10 +38687,113 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					styles  += '-webkit-border-radius:' + values.pic_borderradius + ';-moz-border-radius:' + values.pic_borderradius + ';border-radius:' + values.pic_borderradius + ';';
 				}
 
+				styles += this.buildMarginStyles( values );
+				styles += this.getSocialStyle( values );
+
 				if ( '' !== styles ) {
 					styles = '<style>' + styles + '</style>';
 				}
 				return styles;
+			},
+
+			/**
+			 * Builds styles.
+			 *
+			 * @since  3.6
+			 * @param {Object} values - The values object.
+			 * @return {String}
+			 */
+			getSocialStyle: function( values ) {
+				var css, selectors;
+				this.baseSelector = '.fusion-person-' + this.model.get( 'cid' );
+				this.dynamic_css = {};
+
+				//Icon styles.
+				if ( 'brand' !== values.social_color_type ) {
+					selectors = [ this.baseSelector + ' .boxed-icons .fusion-social-network-icon' ];
+					if ( '' !== values.social_box_border_top ) {
+						this.addCssProperty( selectors, 'border-top-width', _.fusionGetValueWithUnit( values.social_box_border_top ), true );
+					}
+
+					if ( '' !== values.social_box_border_right ) {
+						this.addCssProperty( selectors, 'border-right-width', _.fusionGetValueWithUnit( values.social_box_border_right ), true );
+					}
+
+					if ( '' !== values.social_box_border_bottom ) {
+						this.addCssProperty( selectors, 'border-bottom-width', _.fusionGetValueWithUnit( values.social_box_border_bottom ), true );
+					}
+
+					if ( '' !== values.social_box_border_left ) {
+						this.addCssProperty( selectors, 'border-left-width', _.fusionGetValueWithUnit( values.social_box_border_left ), true );
+					}
+					if ( '' !== values.social_box_border_color ) {
+						this.addCssProperty( selectors, 'border-color', values.social_box_border_color, true );
+					}
+
+					selectors = [ this.baseSelector + ' .boxed-icons .fusion-social-network-icon:hover' ];
+					if ( '' !== values.social_box_colors_hover ) {
+						this.addCssProperty( selectors, 'background-color', values.social_box_colors_hover, true );
+					}
+					if ( '' !== values.social_box_border_color_hover ) {
+						this.addCssProperty( selectors, 'border-color', values.social_box_border_color_hover, true );
+					}
+
+					selectors = [ this.baseSelector + ' .fusion-social-network-icon:hover' ];
+					if ( '' !== values.social_icon_colors_hover ) {
+						this.addCssProperty( selectors, 'color', values.social_icon_colors_hover, true );
+					}
+				}
+
+				css = this.parseCSS();
+
+				return ( css ) ? css : '';
+			},
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values object.
+			 * @return {string}
+			 */
+			buildMarginStyles: function( values ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-person-' + this.model.get( 'cid' ),
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var marginStyles = '',
+						marginKey;
+
+					_.each( [ 'top', 'right', 'bottom', 'left' ], function( direction ) {
+
+						// Margin.
+						marginKey = 'margin_' + direction + ( 'large' === size ? '' : '_' + size );
+						if ( '' !== values[ marginKey ] ) {
+							marginStyles += 'margin-' + direction + ' : ' + _.fusionGetValueWithUnit( values[ marginKey ] ) + ';';
+						}
+
+					} );
+
+					if ( '' === marginStyles ) {
+						return;
+					}
+
+					// Wrap CSS selectors
+					if ( '' !== marginStyles ) {
+						marginStyles = elementSelector + ' {' + marginStyles + '}';
+					}
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === size ) {
+						responsiveStyles += marginStyles;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + marginStyles + '}';
+					}
+				} );
+
+				return responsiveStyles;
 			},
 
 			/**
@@ -37517,7 +38908,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					class: 'person-desc'
 				};
 
-				if ( values.background_color && 'transparent' !== values.background_color && 0 !== jQuery.Color( values.background_color ).alpha() ) {
+				if ( values.background_color && 'transparent' !== values.background_color && 0 !== jQuery.AWB_Color( values.background_color ).alpha() ) {
 					personDesc.style  = 'background-color:' + values.background_color + ';padding:40px;margin-top:0;';
 				}
 
@@ -37899,7 +39290,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if (!this.isDefault('transition_time')) {
-				  selectors = [ this.baseSelector + ' .fusion-menu-element-list', this.baseSelector + ' .fusion-menu-element-list .menu-item a', this.baseSelector + ' .fusion-menu-element-list > li', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button)', this.baseSelector + ' .fusion-overlay-search', this.baseSelector + ' .fusion-menu-element-list > li:not(.fusion-menu-item-button) > .background-default', this.baseSelector + ' .fusion-menu-element-list > li:not(.fusion-menu-item-button) > .background-active', this.baseSelector + '.expand-method-click.direction-row > ul > li > .fusion-open-nav-submenu', this.baseSelector + ':not(.submenu-mode-flyout) .fusion-menu-element-list li:not(.fusion-mega-menu) .sub-menu', this.baseSelector + ':not(.submenu-mode-flyout) .fusion-menu-element-list .fusion-megamenu-wrapper', this.baseSelector + ' .avada-menu-mobile-menu-trigger .collapsed-nav-icon-open', this.baseSelector + ' .avada-menu-mobile-menu-trigger .collapsed-nav-icon-close' ];
+				  selectors = [ this.baseSelector + ' .fusion-menu-element-list', this.baseSelector + ' .fusion-menu-element-list .menu-item a', this.baseSelector + ' .fusion-menu-element-list > li', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button)', this.baseSelector + ' .fusion-overlay-search', this.baseSelector + ' .fusion-menu-element-list > li:not(.fusion-menu-item-button) > .background-default', this.baseSelector + ' .fusion-menu-element-list > li:not(.fusion-menu-item-button) > .background-active', this.baseSelector + '.expand-method-click.direction-row > ul > li > .fusion-open-nav-submenu', this.baseSelector + ':not(.submenu-mode-flyout) .fusion-menu-element-list li:not(.fusion-mega-menu) .sub-menu', this.baseSelector + ':not(.submenu-mode-flyout) .fusion-menu-element-list .fusion-megamenu-wrapper', this.baseSelector + ' .avada-menu-mobile-menu-trigger .collapsed-nav-icon-open', this.baseSelector + ' .avada-menu-mobile-menu-trigger .collapsed-nav-icon-close', this.baseSelector + ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled' ];
 				  if ('never' !==  this.values['breakpoint']) {
 				    selectors.push( this.baseSelector + '.collapse-enabled.mobile-mode-collapse-to-button > ul');
 				    selectors.push( this.baseSelector + '.collapse-enabled .menu-item a > .fusion-button');
@@ -38693,6 +40084,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				  }
 				  else {
 				    selectors.push( this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button)');
+					selectors.push( this.baseSelector + ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled' );
+
 				  }
 
 				  this.addCssProperty(selectors, 'background-color',  this.values['submenu_bg']);
@@ -38756,7 +40149,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if (!this.isDefault('submenu_color')) {
-				  selectors = [ this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-title a', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-icon', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-widgets-container .widget_text .textwidget' ];
+				  selectors = [ this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-title a', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-icon', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu .fusion-megamenu-widgets-container .widget_text .textwidget', this.baseSelector + ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled' ];
 				  // In hover mode color is inherited from parent anchor.
 				  if ('click' ===  this.values['expand_method']) {
 				    selectors.push( this.baseSelector + ' ul ul .fusion-open-nav-submenu');
@@ -38833,7 +40226,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if (!this.isDefault('submenu_active_color')) {
 				  // Important ones.
-				  selectors = [ this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:hover > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus-within > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.expanded > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button).current-menu-item > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-ancestor > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-parent > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:hover > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus-within > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.expanded > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button).current-menu-item > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-ancestor > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-parent > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus-within > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.expanded > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-item > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-ancestor > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-parent > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:hover', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a.hover', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:active', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus-within', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a.hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:active > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus-within > .fusion-open-nav-submenu', this.baseSelector + '.submenu-mode-dropdown li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children:focus-within .fusion-open-nav-submenu', this.baseSelector + ' li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children .fusion-background-highlight:hover .fusion-open-nav-submenu', this.baseSelector + ' li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children:focus-within > .fusion-background-highlight', this.baseSelector + ' li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children .fusion-background-highlight:hover' ];
+				  selectors = [ this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:hover > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus-within > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button):hover > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover:not(.fusion-menu-item-button) > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button):focus > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button):focus-within > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.expanded > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button).current-menu-item > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-ancestor > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-parent > a', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:hover > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus-within > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.expanded > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button).current-menu-item > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-ancestor > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-parent > a .fusion-button', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:focus-within > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.expanded > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-item > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-ancestor > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li.current-menu-parent > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:hover', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a.hover', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:active', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus-within', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a.hover > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:active > .fusion-open-nav-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu > a:focus-within > .fusion-open-nav-submenu', this.baseSelector + '.submenu-mode-dropdown li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children:focus-within .fusion-open-nav-submenu', this.baseSelector + ' li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children .fusion-background-highlight:hover .fusion-open-nav-submenu', this.baseSelector + ' li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children:focus-within > .fusion-background-highlight', this.baseSelector + ' li ul.fusion-megamenu li.menu-item-has-children .sub-menu li.menu-item-has-children .fusion-background-highlight:hover' ];
 				  if (true) {
 				    selectors.push( this.baseSelector + ' .fusion-menu-cart-checkout:hover .fusion-menu-cart-link a');
 				    selectors.push( this.baseSelector + ' .fusion-menu-cart-checkout:hover .fusion-menu-cart-checkout-link a');
@@ -38871,7 +40264,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if (!this.isDefault('submenu_items_padding_right')) {
-				  selectors = [ this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button) > a', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .sub-menu a', this.baseSelector + ' .sub-menu .fusion-menu-cart a', this.baseSelector + ' .custom-menu-search-dropdown .fusion-menu-searchform-dropdown .fusion-search-form-content', this.baseSelector + ' ul ul .fusion-open-nav-submenu:before', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents form', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents .fusion-menu-login-box-register' ];
+				  selectors = [ this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button) > a', this.baseSelector + ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .sub-menu a', this.baseSelector + ' .sub-menu .fusion-menu-cart a', this.baseSelector + ' .custom-menu-search-dropdown .fusion-menu-searchform-dropdown .fusion-search-form-content', this.baseSelector + ' ul ul .fusion-open-nav-submenu:before', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents form', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents .fusion-menu-login-box-register' ];
 				  if ('never' !==  this.values['breakpoint']) {
 				    selectors.push( this.baseSelector + '.collapse-enabled .fusion-megamenu-holder');
 				  }
@@ -38906,7 +40299,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if (!this.isDefault('submenu_items_padding_left')) {
-				  selectors = [ this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button) > a', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .sub-menu a', this.baseSelector + ' .sub-menu .fusion-menu-cart a', this.baseSelector + ' .custom-menu-search-dropdown .fusion-menu-searchform-dropdown .fusion-search-form-content', this.baseSelector + ' ul ul .fusion-open-nav-submenu:before', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents form', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents .fusion-menu-login-box-register' ];
+				  selectors = [ this.baseSelector + ' .fusion-menu-element-list ul:not(.fusion-megamenu) > li:not(.fusion-menu-item-button) > a', this.baseSelector + ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .sub-menu a', this.baseSelector + ' .sub-menu .fusion-menu-cart a', this.baseSelector + ' .custom-menu-search-dropdown .fusion-menu-searchform-dropdown .fusion-search-form-content', this.baseSelector + ' ul ul .fusion-open-nav-submenu:before', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents form', this.baseSelector + ' .avada-menu-login-box .avada-custom-menu-item-contents .fusion-menu-login-box-register' ];
 				  if ('never' !==  this.values['breakpoint']) {
 				    selectors.push( this.baseSelector + '.collapse-enabled .fusion-megamenu-holder');
 				  }
@@ -38938,7 +40331,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if (!this.isDefault('submenu_sep_color')) {
 				  this.addCssProperty([ this.baseSelector + ':not(.collapse-enabled) .fusion-menu-element-list ul:not(.fusion-megamenu) > li' ], 'border-bottom-color',  this.values['submenu_sep_color']);
 				  this.addCssProperty([ this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-holder .fusion-megamenu .fusion-megamenu-submenu', this.baseSelector + ' .fusion-megamenu-wrapper .fusion-megamenu-submenu .fusion-megamenu-border' ], 'border-color',  this.values['submenu_sep_color']);
-				  this.addCssProperty( this.baseSelector + ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled', 'color',  this.values['submenu_sep_color']);
+				  this.addCssProperty( this.baseSelector + ' .fusion-megamenu-wrapper li .fusion-megamenu-title-disabled', 'border-color',  this.values['submenu_sep_color']);
 				}
 
 				if (!this.isDefault('submenu_font_size')) {
@@ -39007,22 +40400,22 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				  // Mobile background.
 				  if (  !  this.isDefault('mobile_bg')) {
 				    selectors = [ 
-						this.baseSelector + '.collapse-enabled ul li > a', this.baseSelector + '.collapse-enabled ul li:hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a',	this.baseSelector + '.collapse-enabled ul li.hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:active .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus-within .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-item .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.expanded .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.custom-menu-search-inline', this.baseSelector + '.collapse-enabled ul .fusion-menu-form-inline', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button', this.baseSelector + '.collapse-enabled ul', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li' ];
+						this.baseSelector + '.collapse-enabled ul li > a', this.baseSelector + '.collapse-enabled ul li:hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a',	this.baseSelector + '.collapse-enabled ul li.hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:active .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus-within .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-item .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.expanded .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.custom-menu-search-inline', this.baseSelector + '.collapse-enabled ul .fusion-menu-form-inline', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button', this.baseSelector + '.collapse-enabled ul', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li' ];
 				    this.addCssProperty(selectors, 'background',  this.values['mobile_bg'], true);
 				  }
 
 				  if (  !  this.isDefault('mobile_color')) {
-				    selectors = [ this.baseSelector + '.collapse-enabled ul li > a', this.baseSelector + '.collapse-enabled ul li > a .fusion-button', this.baseSelector + '.collapse-enabled ul li > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:active .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus-within .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-item .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.expanded .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li a', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li .awb-justify-title' ];
+				    selectors = [ this.baseSelector + '.collapse-enabled ul li > a', this.baseSelector + '.collapse-enabled ul li > a .fusion-button', this.baseSelector + '.collapse-enabled ul li > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.hover .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:active .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li:focus-within .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-item .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled ul li.expanded .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded) a', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li a', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li .awb-justify-title' ];
 				    this.addCssProperty(selectors, 'color',  this.values['mobile_color'], true);
 				  }
 
 				  if (  !  this.isDefault('mobile_active_bg')) {
-					selectors = [ this.baseSelector + '.collapse-enabled ul li:hover > a', this.baseSelector + '.collapse-enabled ul li.hover > a', this.baseSelector + '.collapse-enabled ul li:focus > a', this.baseSelector + '.collapse-enabled ul li:active > a', this.baseSelector + '.collapse-enabled ul li:focus-within > a', this.baseSelector + '.collapse-enabled ul li.current-menu-item > a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > a', this.baseSelector + '.collapse-enabled ul li.expanded > a', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:hover', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.hover', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:focus', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:active', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:focus-within', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.current-menu-item', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.current-menu-ancestor', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.current-menu-parent', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.expanded', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded).hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):active a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus-within a',	this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within' ];
+					selectors = [ this.baseSelector + '.collapse-enabled ul li:hover > a', this.baseSelector + '.collapse-enabled ul li.hover > a', this.baseSelector + '.collapse-enabled ul li:focus > a', this.baseSelector + '.collapse-enabled ul li:active > a', this.baseSelector + '.collapse-enabled ul li:focus-within > a', this.baseSelector + '.collapse-enabled ul li.current-menu-item > a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > a', this.baseSelector + '.collapse-enabled ul li.expanded > a', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:hover', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.hover', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:focus', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:active', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button:focus-within', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.current-menu-item', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.current-menu-ancestor', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.current-menu-parent', this.baseSelector + '.collapse-enabled ul li.fusion-menu-item-button.expanded', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded).hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):active a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus-within a',	this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within' ];
 					this.addCssProperty(selectors, 'background',  this.values['mobile_active_bg'], true);
 				  }
 
 				  if (  !  this.isDefault('mobile_active_color')) {
-					selectors = [ this.baseSelector + '.collapse-enabled ul li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:hover > a', this.baseSelector + '.collapse-enabled ul li.hover > a', this.baseSelector + '.collapse-enabled ul li:focus > a', this.baseSelector + '.collapse-enabled ul li:active > a', this.baseSelector + '.collapse-enabled ul li:focus-within > a', this.baseSelector + '.collapse-enabled ul li.current-menu-item > a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > a', this.baseSelector + '.collapse-enabled ul li.expanded > a', this.baseSelector + '.collapse-enabled ul li:hover > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.hover > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:focus > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:active > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:focus-within > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.current-menu-item > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.expanded > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.current-menu-item > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded).hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):active a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus-within a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-item > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-item > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-item > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item a', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover a', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active a', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus a', this.baseSelector + '.fusion-menu-element-wrapper.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within a' ];
+					selectors = [ this.baseSelector + '.collapse-enabled ul li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:hover > a', this.baseSelector + '.collapse-enabled ul li.hover > a', this.baseSelector + '.collapse-enabled ul li:focus > a', this.baseSelector + '.collapse-enabled ul li:active > a', this.baseSelector + '.collapse-enabled ul li:focus-within > a', this.baseSelector + '.collapse-enabled ul li.current-menu-item > a', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > a', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > a', this.baseSelector + '.collapse-enabled ul li.expanded > a', this.baseSelector + '.collapse-enabled ul li:hover > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.hover > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:focus > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:active > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:focus-within > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.current-menu-item > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > a .fusion-button', this.baseSelector + '.collapse-enabled ul li.expanded > a .fusion-button', this.baseSelector + '.collapse-enabled ul li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.current-menu-item > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.current-menu-parent > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li.current-menu-ancestor > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded).hover a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):active a', this.baseSelector + '.collapse-enabled ul li .sub-menu li:not(.current-menu-item):not(.current-menu-ancestor):not(.current-menu-parent):not(.expanded):focus-within a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-item > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > a', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-item > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > a:hover', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.hover > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:active > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li:focus-within > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-item > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-ancestor > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.current-menu-parent > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled ul.sub-menu.sub-menu li.expanded > .fusion-open-nav-submenu-on-click:before', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li.current-menu-item a', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover a', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active a', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus a', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus-within a', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover .fusion-megamenu-title', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:hover .fusion-megamenu-title .awb-justify-title', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active .fusion-megamenu-title', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:active .fusion-megamenu-title .awb-justify-title', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus .fusion-megamenu-title', this.baseSelector + '.collapse-enabled .fusion-megamenu-menu .fusion-megamenu-wrapper .fusion-megamenu-holder ul li:focus .fusion-megamenu-title .awb-justify-title' ];
 				    this.addCssProperty(selectors, 'color',  this.values['mobile_active_color'], true);
 				  }
 
@@ -39272,7 +40665,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 	} );
 }( jQuery ) );
 ;/* jshint -W024 */
-/* global fusionAllElements, FusionApp, FusionPageBuilderApp */
+/* global fusionAllElements, FusionApp, FusionPageBuilderApp, awbPalette */
 var FusionPageBuilder = FusionPageBuilder || {};
 
 ( function() {
@@ -39438,9 +40831,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( '' !== values.overlay_color ) {
-					alpha = jQuery.Color( values.overlay_color ).alpha();
+					values.overlay_color = awbPalette.getRealColor( values.overlay_color );
+					alpha = jQuery.AWB_Color( values.overlay_color ).alpha();
 					if ( 1 === alpha ) {
-						values.overlay_color = jQuery.Color( values.overlay_color ).alpha( 0.5 ).toRgbaString();
+						values.overlay_color = jQuery.AWB_Color( values.overlay_color ).alpha( 0.5 ).toRgbaString();
 					}
 					attr[ 'class' ] += ' fusion-video-overlay';
 					attr.style += 'background-color:' + values.overlay_color + ';';
@@ -40863,7 +42257,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						class: 'fusion-highlight',
 						style: ''
 					},
-					brightnessLevel = jQuery.Color( values.color ).lightness() * 100;
+					brightnessLevel = jQuery.AWB_Color( values.color ).lightness() * 100;
 
 				if ( values.text_color ) {
 					highlightShortcode[ 'class' ] += ' custom-textcolor';
@@ -42154,6 +43548,7 @@ jQuery( document ).ready( function() {
 				// Any extras that need passed on.
 				attributes.cid    = this.model.get( 'cid' );
 				attributes.values = atts.values;
+				attributes.percentage = this.sanitizePercentage( atts.values.percentage );
 
 				return attributes;
 			},
@@ -42213,7 +43608,8 @@ jQuery( document ).ready( function() {
 			 */
 			buildInlineEditorAttr: function() {
 				var attr = {
-					class: 'fusion-progressbar-text'
+					class: 'fusion-progressbar-text',
+					id: 'awb-progressbar-label-' + this.model.get( 'cid' )
 				};
 
 				attr = _.fusionInlineEditor( {
@@ -42240,7 +43636,7 @@ jQuery( document ).ready( function() {
 					style: ''
 				};
 
-				attr.style += 'width:' + values.percentage + '%;';
+				attr.style += 'width:' + this.sanitizePercentage( values.percentage ) + '%;';
 				attr.style += 'background-color:' + values.filledcolor + ';';
 
 				if ( '' !== values.filledbordersize && '' !== values.filledbordercolor ) {
@@ -42263,6 +43659,11 @@ jQuery( document ).ready( function() {
 					attr.style += 'border-bottom-right-radius:' + values.border_radius_bottom_right + ';';
 				}
 
+				attr.role               = 'progressbar';
+				attr[ 'aria-labelledby' ] = 'awb-progressbar-label-' + this.model.get( 'cid' );
+				attr[ 'aria-valuemin' ]   = '0';
+				attr[ 'aria-valuemax' ]   = '100';
+				attr[ 'aria-valuenow' ]   = values.percentage;
 
 				return attr;
 			},
@@ -42338,7 +43739,7 @@ jQuery( document ).ready( function() {
 				attr.style += 'color:' + values.textcolor + ';';
 
 				if ( 'on_bar' === values.text_position ) {
-					empty_percentage = 100 - values.percentage;
+					empty_percentage = 100 - this.sanitizePercentage( values.percentage );
 					if ( 66 > empty_percentage ) {
 						if ( ! extras.is_rtl ) {
 							attr.style += 'right: calc(15px + ' + empty_percentage + '%);';
@@ -42351,6 +43752,35 @@ jQuery( document ).ready( function() {
 				attr.style += _.fusionGetFontStyle( 'text_font', values );
 
 				return attr;
+			},
+
+			/**
+			 * Sanitize the percentage value, because this can come also from a
+			 * dynamic data which can be a string or a float.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values object.
+			 * @return {Object}
+			 */
+			sanitizePercentage: function( percentage ) {
+				percentage = parseFloat( percentage );
+
+				// percentage can be NaN if parseFloat failed.
+				if ( ! percentage ) {
+					percentage = 0;
+				}
+
+				percentage = Math.round( percentage );
+
+				if ( 0 > percentage ) {
+					percentage = 0;
+				}
+
+				if ( 100 < percentage ) {
+					percentage = 100;
+				}
+
+				return percentage;
 			}
 		} );
 	} );
@@ -43130,7 +44560,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					if ( 'shadow' !== values.grid_separator_style_type ) {
 						this.addCssProperty( selectors, 'border-color', values.grid_separator_color );
 					} else {
-						colors = jQuery.Color( values.grid_separator_color );
+						colors = jQuery.AWB_Color( values.grid_separator_color );
 						gradient = 'linear-gradient(to left, rgba({1}, {2}, {3}, 0) 0%, rgba({1}, {2}, {3}, 0) 15%, rgba({1}, {2}, {3}, 0.65) 50%, rgba({1}, {2}, {3}, 0) 85%, rgba({1}, {2}, {3}, 0) 100%)';
 						gradient = gradient.replace( /\{1\}/g, colors.red() ).replace( /\{2\}/g, colors.green() ).replace( /\{3\}/g, colors.blue() );
 						gradient_after = 'radial-gradient(ellipse at 50% -50%, rgba({1}, {2}, {3}, 0.5) 0, rgba(255, 255, 255, 0) 65%)';
@@ -44718,7 +46148,7 @@ responsive = '';
 				selectors = [ this.baseSelector + ' .awb-imageframe-caption-container .awb-imageframe-caption-title' ];
 				// title color.
 				if ( ! this.isDefault( 'caption_title_color' ) ) {
-					this.addCssProperty( selectors, 'color', atts.values.caption_title_color );
+					this.addCssProperty( selectors, 'color', atts.values.caption_title_color, true );
 				}
 				// title size.
 				if ( ! this.isDefault( 'caption_title_size' ) ) {
@@ -45721,7 +47151,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.background_image_front ) {
 					flipBoxShortcodeFrontBox.style += 'background-image: url(\'' + values.background_image_front + '\');';
 					if ( values.background_color_front ) {
-						alpha = jQuery.Color( values.background_color_front ).alpha();
+						alpha = jQuery.AWB_Color( values.background_color_front ).alpha();
 						if ( 1 > alpha && 0 !== alpha ) {
 							flipBoxShortcodeFrontBox.style += 'background-blend-mode: overlay;';
 						}
@@ -45761,7 +47191,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.background_image_back ) {
 					flipBoxShortcodeBackBox.style += 'background-image: url(\'' + values.background_image_back + '\');';
 					if ( values.background_color_back ) {
-						alpha = jQuery.Color( values.background_color_back ).alpha();
+						alpha = jQuery.AWB_Color( values.background_color_back ).alpha();
 						if ( 1 > alpha && 0 !== alpha ) {
 							flipBoxShortcodeBackBox.style += 'background-blend-mode: overlay;';
 						}
@@ -45908,11 +47338,44 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			buildStyles: function( values ) {
 				var styles = '',
+					title_styles,
 					cid = this.model.get( 'cid' );
 
+				// Title typography.
+				styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a {';
+
 				if ( '' !== values.title_font_size ) {
-					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a{ font-size: ' + values.title_font_size + ';}';
+					styles += 'font-size: ' + values.title_font_size + ';';
 				}
+
+				if ( ! _.isEmpty( values.title_color ) ) {
+					styles += 'color:' + values.title_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'title_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
+
+				// Content typography.
+				styles += '.fusion-accordian  #accordion-cid' + cid + ' .toggle-content {';
+
+				if ( '' !== values.content_font_size ) {
+					styles += 'font-size: ' + values.content_font_size + ';';
+				}
+
+				if ( ! _.isEmpty( values.content_color ) ) {
+					styles += 'color:' + values.content_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'content_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
 
 				if ( '' !== values.icon_size ) {
 					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a .fa-fusion-box:before{ font-size: ' + values.icon_size + '; width: ' + values.icon_size + ';}';
@@ -45931,18 +47394,20 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! _.isEmpty( values.toggle_hover_accent_color ) ) {
-					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode:hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
-					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a.hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode.hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
+					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active):hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode:hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
+					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active).hover, #accordion-cid' + cid + ' .fusion-toggle-boxed-mode.hover .panel-title a { color: ' + values.toggle_hover_accent_color + ';}';
 
 					if ( '1' === values.icon_boxed_mode || 'yes' === values.icon_boxed_mode ) {
-						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title .active .fa-fusion-box,';
-						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
-						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a.hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
+						if ( _.isEmpty( values.toggle_active_accent_color ) ) {
+							styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title .active .fa-fusion-box,';
+						}
+						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active):hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
+						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a:not(.active).hover .fa-fusion-box { background-color: ' + values.toggle_hover_accent_color + '!important;border-color: ' + values.toggle_hover_accent_color + '!important;}';
 					} else {
 						styles += '.fusion-accordian  #accordion-cid' + cid + ' .fusion-toggle-boxed-mode:hover .panel-title a .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ';}';
-						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
+						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:not(.active):hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
 						styles += '.fusion-accordian  #accordion-cid' + cid + ' .fusion-toggle-boxed-mode.hover .panel-title a .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ';}';
-						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a.hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
+						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a:not(.active).hover .fa-fusion-box{ color: ' + values.toggle_hover_accent_color + ' !important;}';
 					}
 				}
 
@@ -45965,6 +47430,28 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						styles += ' background-color:' + values.background_color + ';';
 					}
 					styles += ' }';
+				} else if ( '0' !== values.divider_line || 0 !== values.divider_line || 'no' !== values.divider_line ) {
+					if ( ! _.isEmpty( values.divider_hover_color ) ) {
+						styles += '#accordion-cid' + cid + ' .fusion-panel:hover{ border-color: ' + values.divider_hover_color + ' }';
+					}
+
+					styles += ' #accordion-cid' + cid + ' .fusion-panel {';
+
+					if ( ! _.isEmpty( values.divider_color ) ) {
+						styles += ' border-color:' + values.divider_color + ';';
+					}
+
+					styles += ' }';
+				}
+
+				if ( ! _.isEmpty( values.toggle_active_accent_color ) ) {
+					styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title a.active{ color: ' + values.toggle_active_accent_color + ' !important;}';
+
+					if ( '1' === values.icon_boxed_mode || 'yes' === values.icon_boxed_mode ) {
+						styles += '.fusion-accordian  #accordion-cid' + cid + ' .panel-title .active .fa-fusion-box { background-color: ' + values.toggle_active_accent_color + '!important;border-color: ' + values.toggle_active_accent_color + '!important;}';
+					} else {
+						styles += '.fusion-accordian  #accordion-cid' + cid + '.fusion-toggle-icon-unboxed .fusion-panel .panel-title a.active .fa-fusion-box{ color: ' + values.toggle_active_accent_color + ' !important;}';
+					}
 				}
 
 				return styles;
@@ -46037,6 +47524,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				attributes.contentAttr               = this.buildContentAttr( atts.values );
 				attributes.title                     = atts.values.title;
 				attributes.elementContent            = atts.values.element_content;
+				attributes.activeIcon                = '' !== parentValues.active_icon ? parentValues.active_icon : 'awb-icon-minus';
+				attributes.inActiveIcon              = '' !== parentValues.inactive_icon ? parentValues.inactive_icon : 'awb-icon-plus';
+				attributes.childStyles               = this.buildStyles( atts.values );
 
 				// Set selectors.
 				this.buildPanelAttr( atts.values, parentValues );
@@ -46096,6 +47586,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' !== values.id ) {
 					toggleShortcodePanel.id = values.id;
 				}
+
+				toggleShortcodePanel[ 'class' ] += ' panel-' + this.model.get( 'cid' );
 
 				if ( '1' == parentValues.boxed_mode || 'yes' === parentValues.boxed_mode ) {
 					toggleShortcodePanel[ 'class' ] += ' fusion-toggle-no-divider fusion-toggle-boxed-mode';
@@ -46180,6 +47672,58 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}, contentAttr );
 
 				return contentAttr;
+			},
+
+			/**
+			 * Builds the stylesheet.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values object.
+			 * @return {string}
+			 */
+			buildStyles: function( values ) {
+				var styles = '',
+					parentCID = this.model.get( 'parent' ),
+					cid       = this.model.get( 'cid' ),
+					title_styles;
+
+				// Title typography.
+				styles += '.fusion-accordian  #accordion-cid' + parentCID + ' .panel-' + cid + ' .panel-title a {';
+
+				if ( '' !== values.title_font_size ) {
+					styles += 'font-size: ' + values.title_font_size + ';';
+				}
+
+				if ( ! _.isEmpty( values.title_color ) ) {
+					styles += 'color:' + values.title_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'title_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
+
+				// Content typography.
+				styles += '.fusion-accordian  #accordion-cid' + parentCID + ' .panel-' + cid + ' .toggle-content {';
+
+				if ( '' !== values.content_font_size ) {
+					styles += 'font-size: ' + values.content_font_size + ';';
+				}
+
+				if ( ! _.isEmpty( values.content_color ) ) {
+					styles += 'color:' + values.content_color + ';';
+				}
+
+				title_styles = _.fusionGetFontStyle( 'content_font', values, 'object' );
+				jQuery.each( title_styles, function( rule, value ) {
+					styles += rule + ':' + value + ';';
+				} );
+
+				styles += '}';
+
+				return styles;
 			}
 		} );
 	} );
@@ -46285,6 +47829,37 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' === values.chart_type ) {
 					values.chart_type = 'bar';
 				}
+
+				// validate bg_colors.
+				if ( values.bg_colors ) {
+					values.bg_colors = this.validateGlobalColors( values.bg_colors );
+				}
+
+				// validate border_colors.
+				if ( values.border_colors ) {
+					values.border_colors = this.validateGlobalColors( values.border_colors );
+				}
+			},
+
+			/**
+			 * Validate global color variable.
+			 *
+			 * @since 3.6
+			 * @param {String} value - The value.
+			 * @return {Object|String}
+			 */
+			validateGlobalColors: function( value ) {
+				var colors    = value.split( '|' ),
+					newColors = [];
+
+				if ( colors ) {
+					_.each( colors, function( v ) {
+						var newValue = '' !== v ? jQuery.AWB_Color( v ).toRgbaString() : '';
+						newColors.push( newValue );
+					} );
+					return newColors.join( '|' );
+				}
+				return value;
 			},
 
 			/**
@@ -46363,19 +47938,19 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( '' !== values.chart_point_bg_color ) {
-					chartShortcode[ 'data-chart_point_bg_color' ] = values.chart_point_bg_color;
+					chartShortcode[ 'data-chart_point_bg_color' ] = jQuery.AWB_Color( values.chart_point_bg_color ).toRgbaString();
 				}
 
 				if ( '' !== values.chart_point_border_color ) {
-					chartShortcode[ 'data-chart_point_border_color' ] = values.chart_point_border_color;
+					chartShortcode[ 'data-chart_point_border_color' ] = jQuery.AWB_Color( values.chart_point_border_color ).toRgbaString();
 				}
 
 				if ( '' !== values.chart_axis_text_color ) {
-					chartShortcode[ 'data-chart_axis_text_color' ] = values.chart_axis_text_color;
+					chartShortcode[ 'data-chart_axis_text_color' ] = jQuery.AWB_Color( values.chart_axis_text_color ).toRgbaString();
 				}
 
 				if ( '' !== values.chart_gridline_color ) {
-					chartShortcode[ 'data-chart_gridline_color' ] = values.chart_gridline_color;
+					chartShortcode[ 'data-chart_gridline_color' ] = jQuery.AWB_Color( values.chart_gridline_color ).toRgbaString();
 				}
 
 				if ( '' !== values[ 'class' ] ) {
@@ -46637,11 +48212,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( '' !== values.background_color ) {
-					chartDatasetShortcode[ 'data-background_color' ] = values.background_color;
+					chartDatasetShortcode[ 'data-background_color' ] = jQuery.AWB_Color( values.background_color ).toRgbaString();
 				}
 
 				if ( '' !== values.border_color ) {
-					chartDatasetShortcode[ 'data-border_color' ] = values.border_color;
+					chartDatasetShortcode[ 'data-border_color' ] = jQuery.AWB_Color( values.border_color ).toRgbaString();
 				}
 
 				return chartDatasetShortcode;
@@ -46979,7 +48554,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							styles += 'border-color:' + color + ' !important;';
 							styles += '}';
 						} else if ( values.handle_type && '' !== values.handle_type && 'circle' === values.handle_type ) {
-							colorObj = jQuery.Color( color );
+							colorObj = jQuery.AWB_Color( color );
 
 							styles += '.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-handle-circle {';
 							styles += 'background:' + color + ' !important;';
@@ -47007,7 +48582,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							styles += 'border-color:' + color + ' !important;';
 							styles += '}';
 						} else if ( values.handle_type && '' !== values.handle_type && 'circle' === values.handle_type ) {
-							colorObj = jQuery.Color( color );
+							colorObj = jQuery.AWB_Color( color );
 
 							styles += '.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-handle-circle {';
 							styles += 'background:' + color + ' !important;';
@@ -47068,7 +48643,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.accent_color && '' !== values.accent_color && 'before_after' === values.type ) {
 
 					color     = values.accent_color;
-					colorObj = jQuery.Color( color );
+					colorObj = jQuery.AWB_Color( color );
 					styles += '.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-before-label:before';
 					styles += ',.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-after-label:before';
 					if ( 'out-image-up-down' === values.label_placement ) {
@@ -47873,7 +49448,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				circleHoverAccentColor = values.hover_accent_color;
 
-				if ( 'transparent' === values.circlecolor || 0 === jQuery.Color( values.circlecolor ).alpha() || 'no' === values.icon_circle ) {
+				if ( 'transparent' === values.circlecolor || 0 === jQuery.AWB_Color( values.circlecolor ).alpha() || 'no' === values.icon_circle ) {
 					circleHoverAccentColor = 'transparent';
 				}
 
@@ -48438,7 +50013,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					parentValues      = atts.parentValues,
 					marginDirection   = '',
 					margin            = '',
-					transparentCircle = 'transparent' === values.circlecolor || 0 === jQuery.Color( values.circlecolor ).alpha();
+					transparentCircle = 'transparent' === values.circlecolor || 0 === jQuery.AWB_Color( values.circlecolor ).alpha();
 
 				if ( values.icon ) {
 
@@ -48695,7 +50270,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					positionTop = fullIconSize / 2;
 
-					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						positionTop += 35;
 					}
 
@@ -48734,7 +50309,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					positionTop        = fullIconSize;
 					positionHorizontal = fullIconSize / 2;
-					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						positionTop        += 35;
 						positionHorizontal += 35;
 					}
@@ -48799,7 +50374,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.backgroundcolor ) {
 					attr.style = 'background-color:' + values.backgroundcolor + ';';
 
-					if ( 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						attr[ 'class' ] += '-background';
 					}
 				}
@@ -48865,7 +50440,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					transparentChild       = '',
 					hoverAccentColor       = '';
 
-				if ( 'transparent' === values.circlecolor || 0 === jQuery.Color( values.backgroundcolor ).alpha() || 'no' === parentValues.icon_circle ) {
+				if ( 'transparent' === values.circlecolor || 0 === jQuery.AWB_Color( values.backgroundcolor ).alpha() || 'no' === parentValues.icon_circle ) {
 					transparentChild = true;
 				}
 
@@ -48931,7 +50506,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'button-bar' === parentValues.link_type && 'timeline-vertical' === parentValues.layout && readmore ) {
 
 					additionMargin = 20 + 15;
-					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.Color( values.backgroundcolor ).alpha() ) {
+					if ( values.backgroundcolor && 'transparent' !== values.backgroundcolor && 0 !== jQuery.AWB_Color( values.backgroundcolor ).alpha() ) {
 						additionMargin += 35;
 					}
 
@@ -48998,7 +50573,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		} );
 	} );
 }( jQuery ) );
-;/* global FusionApp */
+;/* global FusionApp, fusionAllElements */
 
 var FusionPageBuilder = FusionPageBuilder || {};
 
@@ -49069,14 +50644,48 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * Builds styles.
 			 *
 			 * @since  2.4
-			 * @param  {Object} values - The values object.
 			 * @return {String}
 			 */
 			buildStyleBlock: function( ) {
-				var css;
-				this.baseSelector = '.fusion-social-links-' +  this.counter + '';
+				var css, selectors;
+				this.baseSelector = '.fusion-social-links-' +  this.counter;
 				this.dynamic_css = {};
 
+				//Icon styles.
+				if ( 'brand' !== this.values.color_type ) {
+					selectors = [ this.baseSelector + ' .boxed-icons .fusion-social-network-icon' ];
+					if ( '' !==  this.values.box_border_top ) {
+						this.addCssProperty( selectors, 'border-top-width',  _.fusionGetValueWithUnit( this.values.box_border_top ), true );
+					}
+
+					if ( '' !==  this.values.box_border_right ) {
+						this.addCssProperty( selectors, 'border-right-width',  _.fusionGetValueWithUnit( this.values.box_border_right ), true );
+					}
+
+					if ( '' !==  this.values.box_border_bottom ) {
+						this.addCssProperty( selectors, 'border-bottom-width',  _.fusionGetValueWithUnit( this.values.box_border_bottom ), true );
+					}
+
+					if ( '' !==  this.values.box_border_left ) {
+						this.addCssProperty( selectors, 'border-left-width',  _.fusionGetValueWithUnit( this.values.box_border_left ), true );
+					}
+					if ( '' !==  this.values.box_border_color ) {
+						this.addCssProperty( selectors, 'border-color',  this.values.box_border_color, true );
+					}
+
+					selectors = [ this.baseSelector + ' .boxed-icons .fusion-social-network-icon:hover' ];
+					if ( '' !==  this.values.box_colors_hover ) {
+						this.addCssProperty( selectors, 'background-color',  this.values.box_colors_hover, true );
+					}
+					if ( '' !==  this.values.box_border_color_hover ) {
+						this.addCssProperty( selectors, 'border-color',  this.values.box_border_color_hover, true );
+					}
+
+					selectors = [ this.baseSelector + ' .fusion-social-network-icon:hover' ];
+					if ( '' !==  this.values.icon_colors_hover ) {
+						this.addCssProperty( selectors, 'color',  this.values.icon_colors_hover, true );
+					}
+				}
 
 				if ( ! this.isDefault( 'alignment' ) ) {
 					this.addCssProperty( [ this.baseSelector ], 'text-align',  this.values.alignment, true );
@@ -49099,8 +50708,56 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					css += '@media only screen and (max-width:' + FusionApp.settings.visibility_small + 'px){' + this.parseCSS() + ' }';
 				}
 
+				css += this.buildMarginStyles( this.values );
 
 				return ( css ) ? '<style type="text/css">' + css + '</style>' : '';
+			},
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @since 3.6
+			 * @param {Object} values - The values object.
+			 * @return {string}
+			 */
+			buildMarginStyles: function( values ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-social-links-' +  this.counter,
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var marginStyles = '',
+						marginKey;
+
+					_.each( [ 'top', 'right', 'bottom', 'left' ], function( direction ) {
+
+						// Margin.
+						marginKey = 'margin_' + direction + ( 'large' === size ? '' : '_' + size );
+						if ( '' !== values[ marginKey ] ) {
+							marginStyles += 'margin-' + direction + ' : ' + _.fusionGetValueWithUnit( values[ marginKey ] ) + ';';
+						}
+
+					} );
+
+					if ( '' === marginStyles ) {
+						return;
+					}
+
+					// Wrap CSS selectors
+					if ( '' !== marginStyles ) {
+						marginStyles = elementSelector + ' {' + marginStyles + '}';
+					}
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === size ) {
+						responsiveStyles += marginStyles;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + marginStyles + '}';
+					}
+				} );
+
+				return responsiveStyles;
 			},
 
 			/**
@@ -49147,6 +50804,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( '' !== values.id ) {
 					socialLinksShortcode.id = values.id;
 				}
+
+				//Animation
+				socialLinksShortcode = _.fusionAnimations( values, socialLinksShortcode );
 
 				return socialLinksShortcode;
 			},
@@ -49252,7 +50912,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					attr.style += 'font-size:' + values.font_size + ';';
 
 					if ( 'yes' === values.icons_boxed ) {
-						attr.style += 'width:calc(' + values.font_size + ' + (2 * (' + values.boxed_padding + ')) + 2px);';
+						attr.style += 'width:calc(' + values.font_size + ' + (2 * (' + values.boxed_padding + ')) + 2px + ' + _.fusionGetValueWithUnit( values.box_border_right ) + ' + ' + _.fusionGetValueWithUnit( values.box_border_left ) + ');';
 					}
 				}
 
@@ -49312,8 +50972,14 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var html                     = '',
 					rating                   = this.getRating( values ),
 					maximumRating            = values.maximum_rating,
-					isPerfectRoundRating     = ( parseInt( rating ) === rating ),
+					isPerfectRoundRating,
 					currentStar              = 1;
+
+				if ( '0decimals' === values.rating_number_rounding && 'yes' === values.display_rating_text ) {
+					rating = parseInt( rating.toFixed( 0 ) );
+				}
+
+				isPerfectRoundRating = ( parseInt( rating ) === rating );
 
 				while ( currentStar <= maximumRating ) {
 					html += '<i ' + _.fusionGetAttributes( this.getIconAttributes( values, currentStar ) ) + '>';
@@ -49343,10 +51009,45 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					rating = maximumRating;
 				}
 
-				rating = Number( rating ).toFixed( 2 );
+				rating = Number( rating ).toFixed( this.getNumberToRound( values, rating ) );
 
 				html += '<span>' + rating + '</span> / <span>' + maximumRating + '</span>';
 				return html;
+			},
+
+			getNumberToRound: function( values, rating ) {
+				var numParts,
+					numToRound;
+
+				if ( '0decimals' === values.rating_number_rounding ) {
+					return 0;
+				} else if ( '1decimal' === values.rating_number_rounding ) {
+					return 1;
+				} else if ( '2decimals' === values.rating_number_rounding ) {
+					return 2;
+				}
+
+				// 'rating_number_rounding' is set to 'auto' if here.
+
+				if ( Math.floor( rating ) === rating ) {
+					return 0;
+				}
+
+				numParts = rating.toString().trimEnd( '0' ).split( '.' );
+
+				if ( numParts[ 1 ] ) {
+					numToRound = numParts[ 1 ].length || 0;
+				} else {
+					numToRound = 0;
+				}
+
+				if ( 0 === numToRound ) {
+					return 0;
+				} else if ( 1 === numToRound ) {
+					return 1;
+				}
+
+				return 2;
 			},
 
 			/**
@@ -49393,8 +51094,15 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						'class': _.fusionFontAwesome( values.icon )
 					},
 					rating                = this.getRating( values ),
-					isPerfectRoundRating  = ( parseInt( rating ) === rating ),
-					iconIsPartiallyFilled = ( ( parseInt( rating ) + 1 ) === currentIconNum );
+					isPerfectRoundRating,
+					iconIsPartiallyFilled;
+
+				if ( '0decimals' === values.rating_number_rounding && 'yes' === values.display_rating_text ) {
+					rating = parseInt( rating.toFixed( 0 ) );
+				}
+
+				isPerfectRoundRating  = ( parseInt( rating ) === rating ),
+				iconIsPartiallyFilled = ( ( parseInt( rating ) + 1 ) === currentIconNum );
 
 				if ( currentIconNum <= rating ) {
 					attr[ 'class' ] += ' awb-stars-rating-filled-icon';
@@ -49669,7 +51377,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			buildTickerAttr: function( values ) {
 				var attr = {
 					'class': 'awb-news-ticker awb-news-ticker-' + this.model.get( 'cid' ),
-					'aria-role': 'marquee'
+					'role': 'marquee'
 				};
 
 				if ( 'marquee' === values.ticker_type ) {
@@ -50569,7 +52277,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				},
 				bgColor;
 
-				if ( values.heading_text && values.subheading_text ) {
+				if ( values.heading_text || values.subheading_text ) {
 					wrapperAttributes[ 'class' ] += ' fusion-countdown-has-heading';
 				}
 
@@ -50579,7 +52287,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				wrapperAttributes = _.fusionVisibilityAtts( values.hide_on_mobile, wrapperAttributes );
 
-				bgColor = jQuery.Color( values.background_color );
+				bgColor = jQuery.AWB_Color( values.background_color );
 				if ( ! values.background_image && ( ! values.background_color || 0 === bgColor.alpha() || 'transparent' === values.background_color ) ) {
 					wrapperAttributes[ 'class' ] += ' fusion-no-bg';
 				}
@@ -50611,6 +52319,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					s,
 					date,
 					month;
+
+				if ( ! values.subheading_text && ! values.heading_text && ! values.link_url ) {
+					counterAttributes.style = 'flex-grow: 1;';
+				}
 
 				if ( 'site_time' === values.timezone ) {
 					counterAttributes[ 'data-gmt-offset' ] = extras.gmt_offset;
@@ -50703,7 +52415,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					values.dash_titles = 'long';
 				}
 
-				counterBoxColor = jQuery.Color( values.counter_box_color );
+				counterBoxColor = jQuery.AWB_Color( values.counter_box_color );
 				if ( ! values.counter_box_color || 0 === counterBoxColor.alpha() || 'transparent' === values.counter_box_color ) {
 					dashClass = ' fusion-no-bg';
 				}
@@ -50760,7 +52472,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( values.counter_box_spacing ) {
 					counterBoxSpacing = parseFloat( values.counter_box_spacing );
-					styles += '.fusion-countdown-cid' + cid + ' .fusion-dash-wrapper  {padding:' + ( counterBoxSpacing / 2 ) + values.counter_box_spacing.replace( counterBoxSpacing, '' ) + ';}';
+					styles += '.fusion-countdown-cid' + cid + ' .fusion-dash-wrapper {padding:' + ( counterBoxSpacing / 2 ) + values.counter_box_spacing.replace( counterBoxSpacing, '' ) + ';}';
+					styles += '.fusion-countdown-cid' + cid + ' .fusion-countdown-counter-wrapper {margin: 0 calc(7.5px - ' + ( counterBoxSpacing / 2 ) + values.counter_box_spacing.replace( counterBoxSpacing, '' ) + ');}';
 				}
 
 				if ( values.counter_box_color ) {
@@ -51456,7 +53169,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				values.show_user    = ( 'yes' === values.show_user ) ? 'true' : 'false';
 
 				if ( values.color ) {
-					values.color = jQuery.Color( values.color ).toHexString();
+					values.color = jQuery.AWB_Color( values.color ).toHexString();
 					values.color = values.color.replace( '#', '' );
 				}
 			},
@@ -53135,7 +54848,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					};
 
 					if ( 'masonry' === values.layout ) {
-						color    = jQuery.Color( values.grid_box_color );
+						color    = jQuery.AWB_Color( values.grid_box_color );
 						colorCSS = color.toRgbaString();
 						if ( 0 === color.alpha() ) {
 							colorCSS = color.toHexString();
@@ -53152,9 +54865,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						blogFusionPostWrapper.style += 'border-color:' + values.grid_element_color + ';';
 
 					} else if ( 'grid' === values.layout ) {
-						color       = jQuery.Color( values.grid_box_color );
+						color       = jQuery.AWB_Color( values.grid_box_color );
 						colorCSS    = color.toRgbaString();
-						borderColor = jQuery.Color( values.grid_element_color );
+						borderColor = jQuery.AWB_Color( values.grid_element_color );
 
 						if ( 0 === borderColor.alpha() || 'transparent' === values.grid_element_color ) {
 							blogFusionPostWrapper.style += 'border:none;';
@@ -53166,7 +54879,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						blogFusionPostWrapper.style += 'border-color:' + values.grid_element_color + ';';
 
 					} else if ( 'timeline' === values.layout ) {
-						color    = jQuery.Color( values.grid_box_color );
+						color    = jQuery.AWB_Color( values.grid_box_color );
 						colorCSS = color.toRgbaString();
 						blogFusionPostWrapper.style = 'background-color:' + colorCSS + ';';
 					}
@@ -54257,7 +55970,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_text_color' ) ) {
-					placeholderColor = jQuery.Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
+					placeholderColor = jQuery.AWB_Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
 					this.addCssProperty( inputs, 'color',  this.values.field_text_color, true );
 
 					placeHolderInputs = [ this.baseSelector + ' input::placeholder', this.baseSelector + ' textarea::placeholder' ];
@@ -54274,7 +55987,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 			if ( ! this.isDefault( 'field_border_focus_color' ) ) {
-				hoverColor = jQuery.Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
+				hoverColor = jQuery.AWB_Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
 				hoverInputs = [ this.baseSelector + ' input:hover', this.baseSelector + ' select:hover', this.baseSelector + ' textarea:hover' ];
 				this.addCssProperty( hoverInputs, 'border-color', hoverColor, true );
 				focusInputs = [ this.baseSelector + ' input:focus', this.baseSelector + ' select:focus', this.baseSelector + ' textarea:focus' ];
@@ -54540,7 +56253,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_text_color' ) ) {
-					placeholderColor = jQuery.Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
+					placeholderColor = jQuery.AWB_Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
 					this.addCssProperty( inputs, 'color',  this.values.field_text_color );
 
 					// Select 2.
@@ -54560,7 +56273,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_border_focus_color' ) ) {
-					hoverColor = jQuery.Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
+					hoverColor = jQuery.AWB_Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
 					hoverInputs = [ this.baseSelector + ' input:hover', this.baseSelector + ' select:hover', this.baseSelector + ' textarea:hover' ];
 					this.addCssProperty( hoverInputs, 'border-color', hoverColor );
 					focusInputs = [ this.baseSelector + ' input:focus', this.baseSelector + ' select:focus', this.baseSelector + ' textarea:focus' ];
@@ -54792,7 +56505,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_text_color' ) ) {
-					placeholderColor = jQuery.Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
+					placeholderColor = jQuery.AWB_Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
 					this.addCssProperty( inputs, 'color',  this.values.field_text_color, true );
 
 					placeHolderInputs = [ this.baseSelector + ' input::placeholder', this.baseSelector + ' textarea::placeholder' ];
@@ -54808,7 +56521,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_border_focus_color' ) ) {
-					hoverColor = jQuery.Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
+					hoverColor = jQuery.AWB_Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
 					hoverInputs = [ this.baseSelector + ' input:hover', this.baseSelector + ' select:hover', this.baseSelector + ' textarea:hover' ];
 					this.addCssProperty( hoverInputs, 'border-color', hoverColor );
 					focusInputs = [ this.baseSelector + ' input:focus', this.baseSelector + ' select:focus', this.baseSelector + ' textarea:focus' ];
@@ -54974,7 +56687,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				  this.addCssProperty( this.baseSelector + ' a:hover', 'color',  this.values.link_hover_color );
 				}
 
-				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li label';
+				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li > label';
 				if ( !this.isDefault( 'label_padding_top' ) ) {
 				  this.addCssProperty( selector, 'padding-top',  this.values.label_padding_top );
 				}
@@ -55004,7 +56717,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					this.addCssProperty( this.baseSelector + ' ul li input:checked+label', 'color',  this.values.label_hover_color );
 				}
 
-				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li:hover label';
+				selector =  this.baseSelector + ' .woocommerce-checkout-payment ul.wc_payment_methods li:hover > label';
 				if ( !this.isDefault( 'label_bg_hover_color' ) ) {
 				  this.addCssProperty( selector, 'background',  this.values.label_bg_hover_color );
 				}
@@ -55610,7 +57323,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_text_color' ) ) {
-					placeholderColor = jQuery.Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
+					placeholderColor = jQuery.AWB_Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
 					this.addCssProperty( inputs, 'color',  this.values.field_text_color );
 
 					placeHolderInputs = [ this.baseSelector + ' input::placeholder', this.baseSelector + ' textarea::placeholder' ];
@@ -55622,7 +57335,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_border_focus_color' ) ) {
-					hoverColor = jQuery.Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
+					hoverColor = jQuery.AWB_Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
 					hoverInputs = [ this.baseSelector + ' input:hover', this.baseSelector + ' select:hover', this.baseSelector + ' textarea:hover' ];
 					this.addCssProperty( hoverInputs, 'border-color', hoverColor );
 					focusInputs = [ this.baseSelector + ' input:focus', this.baseSelector + ' select:focus', this.baseSelector + ' textarea:focus' ];
@@ -55773,7 +57486,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_text_color' ) ) {
-					placeholderColor = jQuery.Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
+					placeholderColor = jQuery.AWB_Color( this.values.field_text_color ).alpha( 0.5 ).toRgbaString();
 					this.addCssProperty( inputs, 'color',  this.values.field_text_color, true );
 
 					placeHolderInputs = [ this.baseSelector + ' input::placeholder', this.baseSelector + ' textarea::placeholder' ];
@@ -55789,7 +57502,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( ! this.isDefault( 'field_border_focus_color' ) ) {
-					hoverColor = jQuery.Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
+					hoverColor = jQuery.AWB_Color( this.values.field_border_focus_color ).alpha( 0.5 ).toRgbaString();
 
 					hoverInputs = [
 						this.baseSelector + ' input:hover',
@@ -57207,7 +58920,7 @@ self = this;
 				} );
 
 				if ( !this.isDefault( 'line_height' ) ) {
-				  this.addCssProperty( this.baseSelector, 'line-height',  _.fusionGetValueWithUnit( this.values.line_height ) );
+				  this.addCssProperty( this.baseSelector, 'line-height', this.values.line_height );
 				}
 
 				if ( !this.isDefault( 'letter_spacing' ) ) {
@@ -57377,6 +59090,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				// Validate values.
 				this.validateValues( atts.values );
 				this.values = atts.values;
+				this.extras = atts.extras;
 
 				// Any extras that need passed on.
 				attributes.cid         = this.model.get( 'cid' );
@@ -57444,10 +59158,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					attr.style += 'margin-left:' + values.margin_left + ';';
 				}
 
-				if ( '' !== values.alignment && 'stacked' !== values.layout ) {
-					attr.style += 'justify-content:' + values.alignment + ';';
-				}
-
 				if ( '' !== values.stacked_vertical_align && 'floated' !== values.layout ) {
 					attr.style += 'justify-content:' + values.stacked_vertical_align + ';';
 				}
@@ -57512,7 +59222,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * @return {String}
 			 */
 			buildStyleBlock: function() {
-				var selectors, css;
+				var selectors, css, media;
 				this.baseSelector = '.fusion-meta-tb.fusion-meta-tb-' +  this.model.get( 'cid' );
 				this.dynamic_css  = {};
 
@@ -57523,6 +59233,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( !this.isDefault( 'link_color' ) ) {
 				  this.addCssProperty( [ this.baseSelector + ' span a' ], 'color',  this.values.link_color );
+				}
+
+				// Alignment.
+				if ( '' !== this.values.alignment && 'stacked' !== this.values.layout ) {
+					this.addCssProperty( [ this.baseSelector ], 'justify-content', this.values.alignment );
 				}
 
 				selectors = [ this.baseSelector + ' a:hover', this.baseSelector + ' span a:hover' ];
@@ -57609,6 +59324,22 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				css = this.parseCSS();
+
+				// Responsive Alignment.
+				if ( 'stacked' !== this.values.layout ) {
+					_.each( [ 'medium', 'small' ], function( size ) {
+						var key = 'alignment_' + size;
+						media = '@media only screen and (max-width:' + this.extras[ 'visibility_' + size ] + 'px)';
+
+						if ( '' === this.values[ key ] ) {
+							return;
+						}
+
+						this.dynamic_css = {};
+						this.addCssProperty( [ this.baseSelector ], 'justify-content', this.values[ key ] );
+						css += media + '{' + this.parseCSS() + '}';
+					}, this );
+				}
 				return ( css ) ? '<style type="text/css">' + css + '</style>' : '';
 			}
 		} );
@@ -58892,7 +60623,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				  if (  !  this.isDefault( 'swatch_border_color_active' ) ) {
 				    this.addCssProperty( active_swatches, 'border-color',  this.values.swatch_border_color_active );
-				    hover_color = jQuery.Color( this.values.swatch_border_color_active ).alpha( 0.5 ).toRgbaString();
+				    hover_color = jQuery.AWB_Color( this.values.swatch_border_color_active ).alpha( 0.5 ).toRgbaString();
 				    this.addCssProperty( hover_swatches, 'border-color', hover_color );
 				  }
 
@@ -61226,12 +62957,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 * Calculate color scheme depend on hex color.
 			 *
 			 * @since 2.0.0
-			 * @param {string} hexColor - The hex color code to calculate color scheme against.
+			 * @param {string} color - The hex color code to calculate color scheme against.
 			 * @return {string}
 			 */
-			getColorScheme: function( hexColor ) {
-				hexColor = 'string' !== typeof hexColor ? '#ffffff' : hexColor.replace( '#', '' );
-				return ( parseInt( hexColor, 16 ) > 0xffffff / 2 ) ? 'light' : 'dark';
+			getColorScheme: function( color ) {
+				return 0.5 < jQuery.AWB_Color( color ).lightness() ? 'light' : 'dark';
 			},
 
 			/**
@@ -62200,7 +63930,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( '' !== values.active_color ) {
 					styles += base_selector + ' .fusion-form-image-select .fusion-form-input:checked + label{border-color:' + values.active_color + ';}';
-					styles += base_selector + ' .fusion-form-image-select .fusion-form-input:hover:not(:checked) + label{border-color:' + jQuery.Color( values.active_color ).alpha( 0.5 ).toRgbaString() + ';}';
+					styles += base_selector + ' .fusion-form-image-select .fusion-form-input:hover:not(:checked) + label{border-color:' + jQuery.AWB_Color( values.active_color ).alpha( 0.5 ).toRgbaString() + ';}';
 				}
 
 				// Padding.
@@ -62419,7 +64149,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				// CSS for .rating-icon:hover, .rating-icon:checked
 				if ( values.active_icon_color ) {
-					hoverColor = jQuery.Color( values.active_icon_color ).alpha( 0.5 ).toRgbaString();
+					hoverColor = jQuery.AWB_Color( values.active_icon_color ).alpha( 0.5 ).toRgbaString();
 					styles += '.fusion-form-form-wrapper .fusion-form-field .fusion-form-rating-area-' + this.model.get( 'cid' ) + '.fusion-form-rating-area .fusion-form-input:checked~label i{ color: ' + values.active_icon_color + ';}';
 
 					styles += '.fusion-form-form-wrapper .fusion-form-field .fusion-form-rating-area-' + this.model.get( 'cid' ) + '.fusion-form-rating-area .fusion-form-input:checked:hover ~ label i,';
@@ -62499,7 +64229,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
                 }
 
                 // Create attribute
-                attributes.html = this.btnInstance.render().$el.html();
+                attributes.html = this.generateFormFieldHtml( this.btnInstance.render().$el.html() );
 
 				return attributes;
 			}
@@ -63731,6 +65461,961 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				return ( css ) ? '<style>' + css + '</style>' : '';
 			}
+		} );
+	} );
+}( jQuery ) );
+;/* global fusionAllElements, FusionApp */
+var FusionPageBuilder = FusionPageBuilder || {};
+
+( function() {
+
+	jQuery( document ).ready( function() {
+
+		// Alert Element View.
+		FusionPageBuilder.fusion_facebook_page = FusionPageBuilder.ElementView.extend( {
+
+			/**
+			 * Modify template attributes.
+			 *
+			 * @since 2.0
+			 * @param {Object} atts - The attributes object.
+			 * @return {Object}
+			 */
+			filterTemplateAtts: function( atts ) {
+				var attributes = {};
+
+
+				// Create attribute objects
+				attributes.atts   = this.buildAttr( atts.values );
+
+				// Any extras that need passed on.
+				attributes.cid    = this.model.get( 'cid' );
+				attributes.values = atts.values;
+				attributes.styles  = this.buildStyles( atts );
+
+
+				return attributes;
+			},
+
+			/**
+			 * Builds attributes.
+			 *
+			 * @since 2.0
+			 * @param {Object} values - The values object.
+			 * @return {Object}
+			 */
+			buildAttr: function( values ) {
+				var attr = {};
+
+				if ( '' !== values.id ) {
+					attr.id = values.id;
+				}
+
+				attr[ 'class' ] = 'fusion-facebook-page fb-page fusion-facebook-page-' + this.model.get( 'cid' ) + ' ' + values[ 'class' ];
+
+				attr  = _.fusionVisibilityAtts( values.hide_on_mobile, attr );
+				if ( '' !== values.href ) {
+					attr[ 'data-href' ] = values.href;
+				}
+				if ( '' !== values.tabs ) {
+					attr[ 'data-tabs' ] = values.tabs;
+				}
+
+				if ( '' !== values.width ) {
+					attr[ 'data-width' ] = values.width;
+				}
+
+				if ( '' !== values.height ) {
+					attr[ 'data-height' ] = values.height;
+				}
+
+				if ( 'small' === values.header ) {
+					attr[ 'data-small_header' ] = 'true';
+				}
+
+				if ( 'hide' === values.cover ) {
+					attr[ 'data-hide_cover' ] = 'true';
+				}
+
+				if ( 'hide' === values.cta ) {
+					attr[ 'data-hide_cta' ] = 'true';
+				}
+
+				if ( 'on' === values.lazy ) {
+					attr[ 'data-lazy' ] = 'true';
+				}
+
+				if ( 'hide' === values.facepile ) {
+					attr[ 'data-show_facepile' ] = 'false';
+				}
+
+				//Animation
+				attr = _.fusionAnimations( values, attr );
+
+				return attr;
+			},
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildMarginStyles: function( atts ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-facebook-page-' + this.model.get( 'cid' ),
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var marginStyles = '',
+						marginKey;
+
+					_.each( [ 'top', 'right', 'bottom', 'left' ], function( direction ) {
+
+						// Margin.
+						marginKey = 'margin_' + direction + ( 'large' === size ? '' : '_' + size );
+						if ( '' !== atts.values[ marginKey ] ) {
+							marginStyles += 'margin-' + direction + ' : ' + _.fusionGetValueWithUnit( atts.values[ marginKey ] ) + ';';
+						}
+
+					} );
+
+					if ( '' === marginStyles ) {
+						return;
+					}
+
+					// Wrap CSS selectors
+					if ( '' !== marginStyles ) {
+						marginStyles = elementSelector + ' {' + marginStyles + '}';
+					}
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === size ) {
+						responsiveStyles += marginStyles;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + marginStyles + '}';
+					}
+				} );
+
+
+				return responsiveStyles;
+			},
+
+			/**
+			 * Builds styles.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The atts object
+			 * @return {string}
+			 */
+			buildStyles: function( atts ) {
+					var selectors;
+					var values = atts.values;
+					var style;
+					this.dynamic_css = {};
+					this.baseSelector = '.fusion-facebook-page-' + this.model.get( 'cid' );
+
+					selectors = [ this.baseSelector ];
+
+					if ( '' !==  values.alignment ) {
+						this.addCssProperty( selectors, 'display',  'flex' );
+						this.addCssProperty( selectors, 'justify-content',  values.alignment );
+					}
+
+					style = this.parseCSS();
+					style += this.buildMarginStyles( atts );
+
+					return style ? '<style>' + style + '</style>' : '';
+			},
+
+			/**
+			 * Triggers a refresh.
+			 *
+			 * @since 2.0.0
+			 * @return void
+			 */
+			refreshJs: function() {
+				if ( 'undefined' !== typeof FusionApp.previewWindow.FB ) {
+					FusionApp.previewWindow.FB.XFBML.parse();
+				}
+			},
+
+			onInit: function() {
+				this._refreshJs();
+			},
+			onRender: function() {
+				this._refreshJs();
+			},
+			afterPatch: function() {
+				this._refreshJs();
+			}
+		} );
+	} );
+}( jQuery ) );
+;/* global fusionAllElements, FusionApp */
+var FusionPageBuilder = FusionPageBuilder || {};
+
+( function() {
+
+	jQuery( document ).ready( function() {
+		// Fusion twitter timeline.
+		FusionPageBuilder.fusion_twitter_timeline = FusionPageBuilder.FormComponentView.extend( {
+
+			/**
+			 * Modify template attributes.
+			 *
+			 * @since 2.0
+			 * @param {Object} atts - The attributes object.
+			 * @return {Object}
+			 */
+			filterTemplateAtts: function( atts ) {
+				var attributes = {};
+
+
+				// Create attribute objects
+				attributes.atts   = this.buildAttr( atts.values );
+				attributes.iframeAtts   = this.buildIframeAttr( atts.values );
+
+				// Any extras that need passed on.
+				attributes.values = atts.values;
+				attributes.styles  = this.buildStyles( atts );
+
+
+				return attributes;
+			},
+
+			/**
+			 * Builds attributes.
+			 *
+			 * @since 2.0
+			 * @param {Object} values - The values object.
+			 * @return {Object}
+			 */
+			buildAttr: function( values ) {
+				var attr         = _.fusionVisibilityAtts( values.hide_on_mobile, {
+					class: 'fusion-twitter-timeline fusion-twitter-timeline-' + this.model.get( 'cid' ) + ' ' + values[ 'class' ]
+				} );
+
+				if ( '' !== values.id ) {
+					attr.id = values.id;
+				}
+
+
+				//Animation
+				attr = _.fusionAnimations( values, attr );
+
+				return attr;
+			},
+
+			/**
+			 * Builds Iframe attributes.
+			 *
+			 * @since 2.0
+			 * @param {Object} values - The values object.
+			 * @return {Object}
+			 */
+			buildIframeAttr: function( values ) {
+				var attr         = {};
+
+				attr[ 'class' ] = 'twitter-timeline';
+
+				attr.href = 'https://twitter.com/' + values.username;
+
+				if ( '' !== values.language ) {
+					attr[ 'data-lang' ] = values.language;
+				}
+
+				if ( '' !== values.width ) {
+					attr[ 'data-width' ] = values.width;
+				}
+
+				if ( '' !== values.height ) {
+					attr[ 'data-height' ] = values.height;
+				}
+
+				if ( '' !== values.theme ) {
+					attr[ 'data-theme' ] = values.theme;
+				}
+
+				if ( 'hide' !== values.borders && '' !== values.border_color ) {
+					attr[ 'data-border-color' ] = values.border_color;
+				}
+
+				let chrome = '';
+				if ( 'hide' === values.header ) {
+					chrome += ' noheader';
+				}
+				if ( 'hide' === values.footer ) {
+					chrome += ' nofooter';
+				}
+				if ( 'hide' === values.borders ) {
+					chrome += ' noborders';
+				}
+				if ( 'hide' === values.scrollbar ) {
+					chrome += ' noscrollbar';
+				}
+				if ( 'yes' === values.transparent ) {
+					chrome += ' transparent';
+				}
+
+				if ( '' !== chrome ) {
+					attr[ 'data-chrome' ] = chrome;
+				}
+				return attr;
+			},
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildMarginStyles: function( atts ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-twitter-timeline-' + this.model.get( 'cid' ),
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var marginStyles = '',
+						marginKey;
+
+					_.each( [ 'top', 'right', 'bottom', 'left' ], function( direction ) {
+
+						// Margin.
+						marginKey = 'margin_' + direction + ( 'large' === size ? '' : '_' + size );
+						if ( '' !== atts.values[ marginKey ] ) {
+							marginStyles += 'margin-' + direction + ' : ' + _.fusionGetValueWithUnit( atts.values[ marginKey ] ) + ';';
+						}
+
+					} );
+
+					if ( '' === marginStyles ) {
+						return;
+					}
+
+					// Wrap CSS selectors
+					if ( '' !== marginStyles ) {
+						marginStyles = elementSelector + ' {' + marginStyles + '}';
+					}
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === size ) {
+						responsiveStyles += marginStyles;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + marginStyles + '}';
+					}
+				} );
+
+
+				return responsiveStyles;
+			},
+
+			/**
+			 * Builds styles.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The atts object
+			 * @return {string}
+			 */
+			buildStyles: function( atts ) {
+				var selectors;
+				var style;
+				var values = atts.values;
+				this.dynamic_css = {};
+				this.baseSelector = '.fusion-twitter-timeline-' + this.model.get( 'cid' );
+
+				selectors = [ this.baseSelector ];
+
+				if ( '' !==  values.alignment ) {
+					this.addCssProperty( selectors, 'display',  'flex' );
+					this.addCssProperty( selectors, 'justify-content',  values.alignment );
+				}
+
+				style = this.parseCSS();
+				style += this.buildMarginStyles( atts );
+
+				return style ? '<style>' + style + '</style>' : '';
+			},
+
+			/**
+			 * Triggers a refresh.
+			 *
+			 * @since 2.0.0
+			 * @return void
+			 */
+			refreshJs: function() {
+				if ( 'undefined' !== typeof FusionApp.previewWindow.twttr ) {
+					FusionApp.previewWindow.twttr.widgets.load();
+				}
+			},
+			onInit: function() {
+				this._refreshJs();
+			},
+			onRender: function() {
+				this._refreshJs();
+			},
+			afterPatch: function() {
+				this._refreshJs();
+			}
+		} );
+	} );
+}( jQuery ) );
+;/* globals fusionAllElements, FusionApp */
+var FusionPageBuilder = FusionPageBuilder || {};
+
+( function() {
+
+	jQuery( document ).ready( function() {
+		// Fusion flickr.
+		FusionPageBuilder.fusion_flickr = FusionPageBuilder.FormComponentView.extend( {
+
+			/**
+			 * Modify template attributes.
+			 *
+			 * @since 2.0
+			 * @param {Object} atts - The attributes object.
+			 * @return {Object}
+			 */
+			filterTemplateAtts: function( atts ) {
+				var attributes = {};
+
+
+				// Create attribute objects
+				attributes.atts   = this.buildAttr( atts.values );
+
+				// Any extras that need passed on.
+				attributes.cid    = this.model.get( 'cid' );
+				attributes.values = atts.values;
+				attributes.columnStyles  = this.buildColumnStyles( atts );
+				attributes.marginStyles  = this.buildMarginStyles( atts );
+				attributes.aspectRatio  = this.buildAspectRatioStyles( atts.values );
+
+				attributes.flickrItems  = FusionApp.previewWindow.fusionFlickrItems;
+				return attributes;
+			},
+
+			/**
+			 * Builds attributes.
+			 *
+			 * @since 2.0
+			 * @param {Object} values - The values object.
+			 * @return {Object}
+			 */
+			buildAttr: function( values ) {
+				var attr = {};
+				attr[ 'class' ] = 'fusion-flickr-element flickr-' + this.model.get( 'cid' ) + ' ' + values[ 'class' ];
+
+				attr  = _.fusionVisibilityAtts( values.hide_on_mobile, attr );
+
+
+				if ( '' !== values.id ) {
+					attr.id = values.id;
+				}
+
+				if ( '' !== values.hover_type ) {
+					attr[ 'class' ] += ' hover-' + values.hover_type;
+				}
+
+				attr.style = '';
+				if ( '' !== values.columns ) {
+					attr.style += '--flickr-grid-columns:' + values.columns + ';';
+				}
+				if ( '' !== values.columns_medium ) {
+					attr.style += '--flickr-grid-md-columns:' + values.columns_medium + ';';
+				}
+				if ( '' !== values.columns_small ) {
+					attr.style += '--flickr-grid-sm-columns:' + values.columns_small + ';';
+				}
+
+				if ( '' !== values.columns_spacing ) {
+					attr.style += '--flickr-grid-gap:' + _.fusionGetValueWithUnit( values.columns_spacing ) + ';';
+				}
+				if ( '' !== values.columns_spacing_medium ) {
+					attr.style += '--flickr-grid-md-gap:' + _.fusionGetValueWithUnit( values.columns_spacing_medium ) + ';';
+				}
+				if ( '' !== values.columns_spacing_small ) {
+					attr.style += '--flickr-grid-sm-gap:' + _.fusionGetValueWithUnit( values.columns_spacing_small ) + ';';
+				}
+
+				if ( '' !== values.flickr_id ) {
+					attr[ 'data-id' ] = values.flickr_id;
+				}
+				if ( '' !== values.type ) {
+					attr[ 'data-type' ] = values.type;
+				}
+				if ( '' !== values.album_id ) {
+					attr[ 'data-album_id' ] = values.album_id;
+				}
+				if ( '' !== values.count ) {
+					attr[ 'data-count' ] = values.count;
+				}
+				if ( '' !== values.api_key ) {
+					attr[ 'data-api_key' ] = values.api_key;
+				}
+				if ( '' !== values.link_type ) {
+					attr[ 'data-link_type' ] = values.link_type;
+				}
+				if ( 'page' === values.link_type && '_blank' === values.link_target ) {
+					attr[ 'data-link_target' ] = values.link_target;
+				}
+
+				//Animation
+				attr = _.fusionAnimations( values, attr );
+
+				return attr;
+			},
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildMarginStyles: function( atts ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-flickr-element.flickr-' + this.model.get( 'cid' ),
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var marginStyles = '',
+						marginKey;
+
+					_.each( [ 'top', 'right', 'bottom', 'left' ], function( direction ) {
+
+						// Margin.
+						marginKey = 'margin_' + direction + ( 'large' === size ? '' : '_' + size );
+						if ( '' !== atts.values[ marginKey ] ) {
+							marginStyles += 'margin-' + direction + ' : ' + _.fusionGetValueWithUnit( atts.values[ marginKey ] ) + ';';
+						}
+
+					} );
+
+					if ( '' === marginStyles ) {
+						return;
+					}
+
+					// Wrap CSS selectors
+					if ( '' !== marginStyles ) {
+						marginStyles = elementSelector + ' {' + marginStyles + '}';
+					}
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === size ) {
+						responsiveStyles += marginStyles;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + marginStyles + '}';
+					}
+				} );
+
+				if ( '' !== responsiveStyles ) {
+					responsiveStyles = '<style>' + responsiveStyles + '</style>';
+				}
+
+				return responsiveStyles;
+			},
+
+			/**
+			 * Builds column styles.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildColumnStyles: function( atts ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-flickr-element.flickr-' + this.model.get( 'cid' ),
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var columns 		= ( 'large' === size ) ?  atts.values.columns :  atts.values[ 'columns_' + size ],
+						columns_spacing = ( 'large' === size ) ?  atts.values.columns_spacing :  atts.values[ 'columns_spacing_' + size ],
+						columns_style 	= '';
+
+					if ( '' !== columns ) {
+						columns_style += 'grid-template-columns: repeat(' + columns + ', 1fr);';
+					}
+
+					if ( '' !== columns_spacing ) {
+						columns_style += 'grid-gap:' +  _.fusionGetValueWithUnit( columns_spacing ) + ';';
+					}
+
+					if ( '' !== columns_style ) {
+						columns_style = elementSelector + '{' + columns_style + '}';
+					}
+
+					if ( 'large' === size ) {
+						responsiveStyles += columns_style;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + columns_style + '}';
+					}
+				} );
+
+				if ( '' !== responsiveStyles ) {
+					responsiveStyles = '<style>' + responsiveStyles + '</style>';
+				}
+
+				return responsiveStyles;
+			},
+
+			/**
+			 * Builds aspect ratio styles.
+			 *
+			 * @since 7.6
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildAspectRatioStyles: function( values ) {
+				var selectors, aspectRatio, width, height, padding;
+
+				if ( '' ===  values.aspect_ratio ) {
+					return '';
+				}
+
+				this.dynamic_css = {};
+				this.baseSelector = '.fusion-flickr-element.flickr-' +  this.model.get( 'cid' ) + ' .flickr-image';
+				selectors = [ this.baseSelector ];
+
+				// Calc Ratio
+				if ( 'custom' ===  values.aspect_ratio && '' !==  values.custom_aspect_ratio ) {
+					this.addCssProperty( selectors, 'padding-top', values.custom_aspect_ratio + '%' );
+				} else {
+					aspectRatio = values.aspect_ratio.split( '-' );
+					width 		= aspectRatio[ 0 ] || '';
+					height 		= aspectRatio[ 1 ] || '';
+					padding 	= '' !== width && '' !== height ?  ( height / width ) * 100 : '';
+
+					this.addCssProperty( selectors, 'padding-top', padding + '%' );
+				}
+
+				//Ratio Position
+				selectors = [ this.baseSelector + ' img' ];
+				const x = '' !==  values.aspect_ratio_position_x ? values.aspect_ratio_position_x + '%' : '50%';
+				const y = '' !==  values.aspect_ratio_position_y ? values.aspect_ratio_position_y + '%' : '50%';
+
+				this.addCssProperty( selectors, 'object-position', x + ' ' + y );
+
+				const css = this.parseCSS();
+
+				return '<style>' + css + '</style>';
+			},
+
+			/**
+			 * Things to do, places to go when options change.
+			 *
+			 * @since 2.0.0
+			 * @param {string} paramName - The name of the parameter that changed.
+			 * @param {mixed}  paramValue - The value of the option that changed.
+			 * @param {Object} event - The event triggering the option change.
+			 * @return {void}
+			 */
+			onOptionChange: function( paramName ) {
+				if ( 'flickr_id' === paramName || 'count' === paramName ) {
+					FusionApp.previewWindow.fusionFlickrItems = '';
+				}
+			}
+		} );
+	} );
+}( jQuery ) );
+;/* global fusionAllElements */
+var FusionPageBuilder = FusionPageBuilder || {};
+
+( function() {
+
+	jQuery( document ).ready( function() {
+
+		FusionPageBuilder.fusion_tagcloud = FusionPageBuilder.ElementView.extend( {
+
+			/**
+			 * Modify template attributes.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The attributes.
+			 * @return {Object}
+			 */
+			filterTemplateAtts: function( atts ) {
+				var attributes  = {};
+
+				this.values = atts.values;
+
+				attributes.tagcloudAttr   = this.buildtagcloudAttr( atts.values );
+				attributes.marginStyles   = this.buildMarginStyles( atts );
+				attributes.styles         = this.getStyleTag( atts.values );
+				attributes.tagCloudItems  = atts.query_data;
+
+
+				return attributes;
+			},
+
+			/**
+			 * Build the tagcloud element attributes.
+			 *
+			 * @since 3.5
+			 * @param {Object} values
+			 * @return {Object}
+			 */
+			buildtagcloudAttr: function( values ) {
+				var attr = {
+					'class': 'fusion-tagcloud-element fusion-tagcloud-cid-' + this.model.get( 'cid' )
+				};
+				attr  = _.fusionVisibilityAtts( values.hide_on_mobile, attr );
+				if ( '' !== values.id ) {
+					attr.id = values.id;
+				}
+				if ( '' !== values.style ) {
+					attr[ 'class' ] += ' style-' + values.style;
+				}
+
+				if ( 'variable' === values.font_size_type ) {
+					attr[ 'class' ] += ' variable-font-size';
+				}
+
+				//Animation
+				attr = _.fusionAnimations( values, attr );
+				return attr;
+			},
+
+			/**
+			 * Builds margin styles.
+			 *
+			 * @since 3.5
+			 * @param {Object} atts - The atts object.
+			 * @return {string}
+			 */
+			buildMarginStyles: function( atts ) {
+				var extras = jQuery.extend( true, {}, fusionAllElements.fusion_imageframe.extras ),
+					elementSelector = '.fusion-tagcloud-cid-' + this.model.get( 'cid' ),
+					responsiveStyles = '';
+
+				_.each( [ 'large', 'medium', 'small' ], function( size ) {
+					var marginStyles = '',
+						marginKey;
+
+					_.each( [ 'top', 'right', 'bottom', 'left' ], function( direction ) {
+
+						// Margin.
+						marginKey = 'margin_' + direction + ( 'large' === size ? '' : '_' + size );
+						if ( '' !== atts.values[ marginKey ] ) {
+							marginStyles += 'margin-' + direction + ' : ' + _.fusionGetValueWithUnit( atts.values[ marginKey ] ) + ';';
+						}
+
+					} );
+
+					if ( '' === marginStyles ) {
+						return;
+					}
+
+					// Wrap CSS selectors
+					if ( '' !== marginStyles ) {
+						marginStyles = elementSelector + ' {' + marginStyles + '}';
+					}
+
+					// Large styles, no wrapping needed.
+					if ( 'large' === size ) {
+						responsiveStyles += marginStyles;
+					} else {
+						// Medium and Small size screen styles.
+						responsiveStyles += '@media only screen and (max-width:' + extras[ 'visibility_' + size ] + 'px) {' + marginStyles + '}';
+					}
+				} );
+
+				if ( '' !== responsiveStyles ) {
+					responsiveStyles = '<style>' + responsiveStyles + '</style>';
+				}
+
+				return responsiveStyles;
+			},
+
+			/**
+			 * Get style element.
+			 *
+			 * @since 3.5
+			 * @param {object} values
+			 * @param {object} extras
+			 * @return string
+			 */
+			getStyleTag: function( values ) {
+				var selectors;
+
+				this.dynamic_css = {};
+				this.baseSelector = '.fusion-tagcloud-cid-' +  this.model.attributes.cid;
+
+				selectors = [ this.baseSelector ];
+
+				if ( '' !==  values.alignment ) {
+					this.addCssProperty( selectors, 'justify-content',  values.alignment, true );
+				}
+
+				if ( '' !==  values.tags_spacing ) {
+					this.addCssProperty( selectors, 'gap',  _.fusionGetValueWithUnit( values.tags_spacing ), true );
+				}
+
+				selectors = [ this.baseSelector + ' a.tag-cloud-link' ];
+				if ( '' !==  values.font_size && 'variable' !==  values.font_size_type ) {
+					this.addCssProperty( selectors, 'font-size',  _.fusionGetValueWithUnit( values.font_size ), true );
+				}
+
+				if ( '' !==  values.letter_spacing ) {
+					this.addCssProperty( selectors, 'letter-spacing',  _.fusionGetValueWithUnit( values.letter_spacing ), true );
+				}
+
+			//padding
+			if ( 'arrows' !== values.style ) {
+				if ( '' !==  values.padding_top ) {
+					this.addCssProperty( selectors, 'padding-top',  _.fusionGetValueWithUnit( values.padding_top ), true );
+				}
+
+				if ( '' !==  values.padding_right ) {
+					this.addCssProperty( selectors, 'padding-right',  _.fusionGetValueWithUnit( values.padding_right ), true );
+				}
+
+				if ( '' !==  values.padding_bottom ) {
+					this.addCssProperty( selectors, 'padding-bottom',  _.fusionGetValueWithUnit( values.padding_bottom ), true );
+				}
+
+				if ( '' !==  values.padding_left ) {
+					this.addCssProperty( selectors, 'padding-left',  _.fusionGetValueWithUnit( values.padding_left ), true );
+				}
+			}
+
+			//borders
+			if ( 'arrows' !== values.style ) {
+				if ( '' !==  values.border_top ) {
+					this.addCssProperty( selectors, 'border-top-width',  _.fusionGetValueWithUnit( values.border_top ), true );
+				}
+
+				if ( '' !==  values.border_right ) {
+					this.addCssProperty( selectors, 'border-right-width',  _.fusionGetValueWithUnit( values.border_right ), true );
+				}
+
+				if ( '' !==  values.border_bottom ) {
+					this.addCssProperty( selectors, 'border-bottom-width',  _.fusionGetValueWithUnit( values.border_bottom ), true );
+				}
+
+				if ( '' !==  values.border_left ) {
+					this.addCssProperty( selectors, 'border-left-width',  _.fusionGetValueWithUnit( values.border_left ), true );
+				}
+
+				if ( '' !==  values.border_radius_top_left ) {
+					this.addCssProperty( selectors, 'border-top-left-radius',  _.fusionGetValueWithUnit( values.border_radius_top_left ), true );
+				}
+
+				if ( '' !==  values.border_radius_top_right ) {
+					this.addCssProperty( selectors, 'border-top-right-radius',  _.fusionGetValueWithUnit( values.border_radius_top_right ), true );
+				}
+
+				if ( '' !==  values.border_radius_bottom_left ) {
+					this.addCssProperty( selectors, 'border-bottom-left-radius',  _.fusionGetValueWithUnit( values.border_radius_bottom_left ), true );
+				}
+
+				if ( '' !==  values.border_radius_bottom_right ) {
+					this.addCssProperty( selectors, 'border-bottom-right-radius',  _.fusionGetValueWithUnit( values.border_radius_bottom_right ), true );
+				}
+			}
+			if ( 'arrows' === values.style ) {
+				if ( '' !==  values.arrows_border_radius_top_right ) {
+					this.addCssProperty( selectors, 'border-top-right-radius',  _.fusionGetValueWithUnit( values.arrows_border_radius_top_right ), true );
+				}
+
+				if ( '' !==  values.arrows_border_radius_bottom_right ) {
+					this.addCssProperty( selectors, 'border-bottom-right-radius',  _.fusionGetValueWithUnit( values.arrows_border_radius_bottom_right ), true );
+				}
+			}
+
+			//colors
+			const randomColors = '' !== values.random_colors ? values.random_colors : '';
+			if ( '' !==  values.background_color && !randomColors.includes( 'background' ) ) {
+				this.addCssProperty( selectors, '--tag-color',  values.background_color, true );
+			}
+
+			if ( '' !==  values.text_color && !randomColors.includes( 'text' ) ) {
+				this.addCssProperty( selectors, '--tag-text-color',  values.text_color, true );
+			}
+
+			if ( '' !==  values.border_color && 'arrows' !== values.style && !randomColors.includes( 'background' ) ) {
+				this.addCssProperty( selectors, 'border-color',  values.border_color, true );
+			}
+
+			selectors = [ this.baseSelector + ' a.tag-cloud-link:hover' ];
+
+			if ( '' !==  values.background_hover_color && !randomColors.includes( 'background' ) ) {
+				this.addCssProperty( selectors, '--tag-color-hover',  values.background_hover_color, true );
+			}
+
+			if ( '' !==  values.text_hover_color && !randomColors.includes( 'text' ) ) {
+				this.addCssProperty( selectors, '--tag-text-color-hover',  values.text_hover_color, true );
+			}
+			if ( '' !==  values.border_hover_color && 'arrows' !== values.style && !randomColors.includes( 'background' ) ) {
+				this.addCssProperty( selectors, 'border-color',  values.border_hover_color, true );
+			}
+
+			// padding for arrows style.
+			if ( 'arrows' === values.style ) {
+				selectors = [ this.baseSelector + '.style-arrows a.tag-cloud-link .text' ];
+
+				if ( '' !==  values.padding_top ) {
+					this.addCssProperty( selectors, 'padding-top',  _.fusionGetValueWithUnit( values.padding_top ), true );
+				}
+				if ( '' !==  values.padding_right ) {
+					this.addCssProperty( selectors, 'padding-right',  _.fusionGetValueWithUnit( values.padding_right ), true );
+				}
+				if ( '' !==  values.padding_bottom ) {
+					this.addCssProperty( selectors, 'padding-bottom',  _.fusionGetValueWithUnit( values.padding_bottom ), true );
+				}
+				if ( '' !==  values.padding_left ) {
+					this.addCssProperty( selectors, 'padding-left',  _.fusionGetValueWithUnit( values.padding_left ), true );
+				}
+
+				if ( '' !== values.padding_top || '' !== values.padding_bottom ) {
+					selectors = [ this.baseSelector + '.style-arrows a.tag-cloud-link' ];
+
+					let tags_height = 'calc(2.4em'; // 2.4em the default height from the css file.
+					if ( '' !== values.padding_top ) {
+						tags_height += ' + ' + _.fusionGetValueWithUnit( values.padding_top );
+					}
+					if ( '' !== values.padding_bottom ) {
+						tags_height += ' + ' + _.fusionGetValueWithUnit( values.padding_bottom );
+					}
+					tags_height += ')';
+					this.addCssProperty( selectors, 'height',  tags_height, true );
+				}
+			}
+
+			const style = this.parseCSS();
+
+			return style ? '<style>' + style + '</style>' : '';
+
+			},
+
+			/**
+			 * Init.
+			 *
+			 * @since 3.5
+			 * @return {void}
+			 */
+			onInit: function() {
+				// Also refresh on init, since the onPageLoad event don't trigger sometimes.
+				var previewBody = jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' );
+				previewBody.trigger( 'fusion-element-render-fusion_tagcloud', this.model.attributes.cid );
+			},
+
+			/**
+			 * Runs after view DOM is patched.
+			 *
+			 * @since 3.5
+			 * @return {void}
+			 */
+			afterPatch: function() {
+				var previewBody = jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' );
+				previewBody.trigger( 'fusion-element-render-fusion_tagcloud', this.model.attributes.cid );
+			}
+
 		} );
 	} );
 }( jQuery ) );

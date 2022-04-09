@@ -327,7 +327,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							styles += 'border-color:' + color + ' !important;';
 							styles += '}';
 						} else if ( values.handle_type && '' !== values.handle_type && 'circle' === values.handle_type ) {
-							colorObj = jQuery.Color( color );
+							colorObj = jQuery.AWB_Color( color );
 
 							styles += '.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-handle-circle {';
 							styles += 'background:' + color + ' !important;';
@@ -355,7 +355,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							styles += 'border-color:' + color + ' !important;';
 							styles += '}';
 						} else if ( values.handle_type && '' !== values.handle_type && 'circle' === values.handle_type ) {
-							colorObj = jQuery.Color( color );
+							colorObj = jQuery.AWB_Color( color );
 
 							styles += '.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-handle-circle {';
 							styles += 'background:' + color + ' !important;';
@@ -416,7 +416,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( values.accent_color && '' !== values.accent_color && 'before_after' === values.type ) {
 
 					color     = values.accent_color;
-					colorObj = jQuery.Color( color );
+					colorObj = jQuery.AWB_Color( color );
 					styles += '.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-before-label:before';
 					styles += ',.fusion-image-before-after-cid' + cid + ' .fusion-image-before-after-after-label:before';
 					if ( 'out-image-up-down' === values.label_placement ) {

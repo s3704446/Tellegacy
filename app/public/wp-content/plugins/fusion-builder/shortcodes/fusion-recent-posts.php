@@ -909,7 +909,7 @@ function fusion_element_recent_posts() {
 				'icon'       => 'fusiona-feather',
 				'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-recent-posts-preview.php',
 				'preview_id' => 'fusion-builder-block-module-recent-posts-preview-template',
-				'help_url'   => 'https://theme-fusion.com/documentation/fusion-builder/elements/recent-posts-element/',
+				'help_url'   => 'https://theme-fusion.com/documentation/avada/elements/recent-posts-element/',
 				'params'     => [
 					[
 						'type'        => 'radio_button_set',

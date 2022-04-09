@@ -22,8 +22,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					'click .fusion-builder-table-delete-column': 'removeTableColumn',
 					'click .fusion-builder-table-delete-row': 'removeTableRow',
 					'click .fusion-builder-open-colorpicker': 'openColorPicker',
-					'click .fusion-colorpicker-icon': 'closeColorPicker',
-					'change .fusion-builder-color-picker-hex': 'updateColorPreview'
+					'click': 'handleCloseAllPickers',
+					'change .fusion-builder-color-picker-hex': 'updateColorPreview',
+					'fusion-change .fusion-builder-color-picker-hex': 'updateColorPreview'
 				} );
 			},
 
@@ -47,19 +48,32 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}, 10 );
 			},
 
-			closeColorPicker: function( event ) {
-				var $parent = jQuery( event.target ).closest( '.fusion-builder-option.fusion-color-picker-opened' ),
-					currentColor = $parent.find( '.fusion-builder-color-picker-hex' ).val();
+			handleCloseAllPickers: function( event ) {
+				var openedPickers = this.$el.find( '.fusion-builder-option.fusion-color-picker-opened' ),
+					closeColorPicker = Object.getPrototypeOf( this ).closeColorPicker;
 
 				event.preventDefault();
 
+				// Filter all open clickers where the click doesn't came from within.
+				openedPickers = openedPickers.filter( function() {
+					return ! jQuery( this ).has( event.target ).length;
+				} );
+
+				openedPickers.each( function() {
+					closeColorPicker( jQuery( this ) );
+				} );
+			},
+
+			closeColorPicker: function( $picker ) {
+				var currentColor = $picker.find( '.fusion-builder-color-picker-hex' ).val();
+
 				if ( '' === currentColor ) {
 					currentColor = 'rgba(0,0,0,0)';
-					$parent.find( '.fusion-builder-color-picker-hex' ).val( currentColor );
+					$picker.find( '.fusion-builder-color-picker-hex' ).val( currentColor );
 				}
 
-				$parent.find( '.fusion-builder-open-colorpicker' ).css( 'background-color', currentColor );
-				$parent.removeClass( 'fusion-color-picker-opened' );
+				$picker.find( '.fusion-builder-open-colorpicker' ).css( 'background-color', currentColor );
+				$picker.removeClass( 'fusion-color-picker-opened' );
 			},
 
 			updateColorPreview: function( event ) {
@@ -70,7 +84,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var self = this;
 
 				jQuery.each( self.$el.find( '.fusion-builder-color-picker-hex-new' ), function() {
-					jQuery( this ).wpColorPicker( {
+					jQuery( this ).awbColorPicker( {
+						allowToggle: false,
 						change: function() {
 							self.updateTablePreview();
 						}
@@ -236,7 +251,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					defaultColor = '';
 				}
 
-				return '<a href="#" class="fusion-builder-open-colorpicker" style="background-color: ' + defaultColor + ';"><span class="fusiona-color-dropper" aria-label="' + label + '"></span></a><div class="option-field fusion-builder-option-container"><span class="fusion-builder-colorpicker-title">' + label + '</span><div class="fusion-colorpicker-container"><input type="text" value="' + defaultColor + '" class="fusion-builder-color-picker-hex-new color-picker fusion-always-update" data-alpha="true" /><span class="wp-picker-input-container"><label><input class="color-picker color-picker-placeholder" type="text" value="' + defaultColor + '"></label><input type="button" class="button button-small wp-picker-clear" value="Clear"></span></span><span class="fusion-colorpicker-icon fusiona-color-dropper"></span><button class="button button-small wp-picker-clear"><i class="fusiona-eraser-solid" aria-hidden="true"></i></button></div></div>';
+				return '<a href="#" class="fusion-builder-open-colorpicker" style="background-color: ' + defaultColor + ';"><span class="fusiona-color-dropper" aria-label="' + label + '"></span></a><div class="option-field fusion-builder-option-container"><span class="fusion-builder-colorpicker-title">' + label + '</span><div class="fusion-colorpicker-container"><input type="text" value="' + defaultColor + '" class="fusion-builder-color-picker-hex-new color-picker fusion-always-update" data-alpha="true" data-globals="false" data-hide="false" /></div></div>';
 			},
 
 			updateTablePreview: function() {

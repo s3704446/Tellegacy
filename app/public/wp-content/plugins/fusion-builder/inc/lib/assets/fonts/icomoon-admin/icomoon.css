@@ -1,10 +1,9 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?y9zdy4');
-  src:  url('fonts/icomoon.eot?y9zdy4#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?y9zdy4') format('truetype'),
-    url('fonts/icomoon.woff?y9zdy4') format('woff'),
-    url('fonts/icomoon.svg?y9zdy4#icomoon') format('svg');
+  src:
+    url('icomoon.ttf') format('truetype'),
+    url('icomoon.woff') format('woff'),
+    url('icomoon.svg') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +24,96 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.fusiona-mask-1:before {
+  content: "\e99a";
+}
+.fusiona-mask-2:before {
+  content: "\e99b";
+}
+.fusiona-mask-3:before {
+  content: "\e99c";
+}
+.fusiona-mask-4:before {
+  content: "\e99d";
+}
+.fusiona-mask-5:before {
+  content: "\e99e";
+}
+.fusiona-mask-6:before {
+  content: "\e99f";
+}
+.fusiona-mask-7:before {
+  content: "\e9a0";
+}
+.fusiona-mask-8:before {
+  content: "\e9a1";
+}
+.fusiona-mask-9:before {
+  content: "\e9a2";
+}
+.fusiona-mask-10:before {
+  content: "\e9a3";
+}
+.fusiona-mask-11:before {
+  content: "\e9a4";
+}
+.fusiona-mask-12:before {
+  content: "\e9a5";
+}
+.fusiona-mask-13:before {
+  content: "\e9a6";
+}
+.fusiona-mask-14:before {
+  content: "\e9a7";
+}
+.fusiona-mask-15:before {
+  content: "\e9a8";
+}
+.fusiona-mask-16:before {
+  content: "\e9a9";
+}
+.fusiona-mask-17:before {
+  content: "\e9aa";
+}
+.fusiona-mask-18:before {
+  content: "\e9ab";
+}
+.fusiona-extras:before {
+  content: "\e998";
+}
+.fusiona-general-options:before {
+  content: "\e999";
+}
+.fusiona-rules:before {
+  content: "\e995";
+}
+.fusiona-overlay:before {
+  content: "\e996";
+}
+.fusiona-conditions:before {
+  content: "\e997";
+}
+.fusiona-arrow-down:before {
+  content: "\e994";
+}
+.fusiona-preferences:before {
+  content: "\e993";
+}
+.fusiona-facebook-feed:before {
+  content: "\e98f";
+}
+.fusiona-flickr-feed:before {
+  content: "\e990";
+}
+.fusiona-tag-cloud:before {
+  content: "\e991";
+}
+.fusiona-twtiter-feed:before {
+  content: "\e992";
+}
+.fusiona-off-canvas:before {
+  content: "\e98e";
+}
 .fusiona-lowercase:before {
   content: "\e98b";
 }

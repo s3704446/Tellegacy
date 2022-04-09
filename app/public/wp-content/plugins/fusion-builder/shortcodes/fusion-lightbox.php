@@ -211,7 +211,7 @@ function fusion_element_lightbox() {
 			'name'      => esc_attr__( 'Lightbox', 'fusion-builder' ),
 			'shortcode' => 'fusion_lightbox',
 			'icon'      => 'fusiona-uniF602',
-			'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/lightbox-element/',
+			'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/lightbox-element/',
 			'params'    => [
 				[
 					'type'         => 'upload',

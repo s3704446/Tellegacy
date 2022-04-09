@@ -45,7 +45,7 @@ function avada_custom_fonts_font_faces( $css = '' ) {
 				}
 			}
 			// If we don't have any files to process then skip this item.
-			if ( ! $process ) {
+			if ( ! $process || empty( $label ) ) {
 				continue;
 			}
 

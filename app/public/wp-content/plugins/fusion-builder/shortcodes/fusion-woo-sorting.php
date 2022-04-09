@@ -589,7 +589,7 @@ function fusion_element_woo_sorting() {
 					'name'      => esc_attr__( 'Woo Sorting', 'fusion-builder' ),
 					'shortcode' => 'fusion_woo_sorting',
 					'icon'      => 'fusiona-sorting-boxes',
-					'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/woocommerce-product-carousel-element/',
+					'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/woocommerce-product-carousel-element/',
 					'params'    => [
 						[
 							'type'        => 'multiple_select',
@@ -604,7 +604,7 @@ function fusion_element_woo_sorting() {
 							'default'     => 'name,price,date,popularity,rating',
 							'heading'     => esc_html__( 'Sorting Options', 'fusion-builder' ),
 							/* translators: WooCommerce lookup table link. */
-							'description' => sprintf( __( 'Select sorting options that you want to be displayed in the sorting list box. NOTE: If Order by Price is not working, please regenerate the Product Lookup Tables <a href="%s" target="_blank">here</a>.', 'fusion-builder' ), $lookup_table_link ),
+							'description' => sprintf( __( 'Select sorting options that you want to be displayed in the sorting list box. <strong>NOTE:</strong> If Order by Price is not working, please regenerate the Product Lookup Tables <a href="%s" target="_blank">here</a>.', 'fusion-builder' ), $lookup_table_link ),
 							'callback'    => [
 								'function' => 'fusion_ajax',
 								'action'   => 'get_fusion_woo_sorting',

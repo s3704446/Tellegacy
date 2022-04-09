@@ -507,7 +507,7 @@ class Fusion_Custom_Icon_Set {
 									'<a href="https://icomoon.io/app/" target="_blank" rel="noreferrer">Icomoon</a>',
 									'<br>',
 									'<strong>' . esc_html__( 'Note:', 'fusion-builder' ) . '</strong>',
-									'<a href="https://theme-fusion.com/documentation/fusion-builder/settings-tools/how-to-upload-and-use-custom-icons-in-avada/" target="_blank" rel="noreferrer">Custom Icon documentation</a>'
+									'<a href="https://theme-fusion.com/documentation/avada/how-to/how-to-upload-and-use-custom-icons-in-avada/" target="_blank" rel="noreferrer">Custom Icon documentation</a>'
 								);
 								?>
 							</p>

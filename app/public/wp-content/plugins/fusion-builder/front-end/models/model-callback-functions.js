@@ -644,6 +644,25 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			} );
 		},
 
+		woo_get_cart_total: function( args ) {
+
+			return jQuery.ajax( {
+				url: fusionAppConfig.ajaxurl,
+				type: 'get',
+				dataType: 'json',
+				data: {
+					action: 'ajax_dynamic_data_default_callback',
+					callback: FusionApp.data.dynamicOptions[ args.data ].callback[ 'function' ],
+					args: args,
+					fusion_load_nonce: fusionAppConfig.fusion_load_nonce,
+					post_id: FusionApp.getDynamicPost( 'post_id' )
+				}
+			} )
+			.done( function( response ) {
+				FusionPageBuilderApp.dynamicValues.setValue( args, response.content );
+			} );
+		},
+
 		defaultDynamicCallback: function( args ) {
 			return jQuery.ajax( {
 				url: fusionAppConfig.ajaxurl,
@@ -764,7 +783,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					parallaxStyles       = _.getGradientString( values, 'parallax' );
 					fadedStyles          = _.getGradientString( values, 'fade' );
 					overlayStyles        = _.getGradientString( values );
-					alphaBackgroundColor = jQuery.Color( values.background_color ).alpha();
+					alphaBackgroundColor = jQuery.AWB_Color( values.background_color ).alpha();
 
 					if ( '' === mainBGStyles && '' !== values.background_image && 'yes' !== values.fade ) {
 						mainBGStyles = 'url(\'' + values.background_image + '\')';
@@ -793,7 +812,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				case 'fusion_builder_column':
 				case 'fusion_builder_column_inner':
 					mainBGStyles         = _.getGradientString( values, 'column' );
-					alphaBackgroundColor = jQuery.Color( values.background_color ).alpha();
+					alphaBackgroundColor = jQuery.AWB_Color( values.background_color ).alpha();
 
 					if ( '' === mainBGStyles && '' !== values.background_image ) {
 						mainBGStyles = 'url(\'' + values.background_image + '\')';

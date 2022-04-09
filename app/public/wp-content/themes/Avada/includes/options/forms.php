@@ -97,7 +97,7 @@ function avada_options_section_forms( $sections ) {
 						'label'       => esc_html__( 'Form Field Background Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the background color of form fields.', 'Avada' ),
 						'id'          => 'form_bg_color',
-						'default'     => '#ffffff',
+						'default'     => 'var(--awb-color1)',
 						'type'        => 'color-alpha',
 						'css_vars'    => [
 							[
@@ -111,7 +111,7 @@ function avada_options_section_forms( $sections ) {
 						'label'       => esc_html__( 'Form Text Color', 'Avada' ),
 						'description' => esc_html__( 'Controls the color of the form text.', 'Avada' ),
 						'id'          => 'form_text_color',
-						'default'     => '#9ea0a4',
+						'default'     => 'var(--awb-color8)',
 						'type'        => 'color-alpha',
 						'css_vars'    => [
 							[
@@ -170,7 +170,7 @@ function avada_options_section_forms( $sections ) {
 						'label'           => esc_html__( 'Form Border Color', 'Avada' ),
 						'description'     => esc_html__( 'Controls the border color of the form fields.', 'Avada' ),
 						'id'              => 'form_border_color',
-						'default'         => '#e2e2e2',
+						'default'         => 'var(--awb-color3)',
 						'type'            => 'color-alpha',
 						'soft_dependency' => true,
 						'css_vars'        => [
@@ -185,7 +185,7 @@ function avada_options_section_forms( $sections ) {
 						'label'           => esc_html__( 'Form Border Color On Focus', 'Avada' ),
 						'description'     => esc_html__( 'Controls the border color of the form fields when they have focus.', 'Avada' ),
 						'id'              => 'form_focus_border_color',
-						'default'         => '#65bc7b',
+						'default'         => 'var(--awb-color4)',
 						'type'            => 'color-alpha',
 						'soft_dependency' => true,
 						'css_vars'        => [

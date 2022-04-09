@@ -605,7 +605,7 @@ function fusion_element_widget() {
 				'front_end_custom_settings_view_js' => FUSION_BUILDER_PLUGIN_URL . 'inc/templates/custom/front-end/js/fusion-widget-settings.js',
 				'admin_enqueue_js'                  => FUSION_BUILDER_PLUGIN_URL . 'shortcodes/js/fusion-widget.js',
 				'on_save'                           => 'widgetShortcodeFilter',
-				'help_url'                          => 'https://theme-fusion.com/documentation/fusion-builder/elements/widget/',
+				'help_url'                          => 'https://theme-fusion.com/documentation/avada/elements/widget/',
 				'preview'                           => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-widget-preview.php',
 				'preview_id'                        => 'fusion-builder-block-module-widget-preview-template',
 				'params'                            => [

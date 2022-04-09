@@ -1213,7 +1213,7 @@ if ( fusion_is_element_enabled( 'fusion_login' ) ||
 				if ( $this->args['form_background_color'] ) {
 					$attr['style'] = 'background-color:' . $this->args['form_background_color'] . ';';
 
-					if ( fusion_is_color_transparent( $this->args['form_background_color'] ) ) {
+					if ( Fusion_Color::new_color( $this->args['form_background_color'] )->is_color_transparent() ) {
 						$attr['style'] .= 'padding:0;';
 					}
 				}
@@ -1376,7 +1376,7 @@ if ( fusion_is_element_enabled( 'fusion_login' ) ||
 								'label'       => esc_html__( 'User Login Form Background Color', 'fusion-builder' ),
 								'description' => esc_html__( 'Controls the color of the form background.', 'fusion-builder' ),
 								'id'          => 'user_login_form_background_color',
-								'default'     => '#f9f9fb',
+								'default'     => 'var(--awb-color2)',
 								'type'        => 'color-alpha',
 								'transport'   => 'postMessage',
 							],
@@ -1438,7 +1438,7 @@ function fusion_element_login() {
 				'description' => esc_html__( 'Enter some content for this block', 'fusion-builder' ),
 				'shortcode'   => 'fusion_login',
 				'icon'        => 'fusiona-calendar-check-o',
-				'help_url'    => 'https://theme-fusion.com/documentation/fusion-builder/elements/user-login-element/',
+				'help_url'    => 'https://theme-fusion.com/documentation/avada/elements/user-login-element/',
 				'params'      => [
 					[
 						'type'        => 'radio_button_set',
@@ -1639,7 +1639,7 @@ function fusion_element_lost_password() {
 				'name'      => esc_html__( 'User Lost Password', 'fusion-builder' ),
 				'shortcode' => 'fusion_lost_password',
 				'icon'      => 'fusiona-calendar-check-o',
-				'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/user-lost-password-element/',
+				'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/user-lost-password-element/',
 				'params'    => [
 					[
 						'type'        => 'radio_button_set',
@@ -1802,7 +1802,7 @@ function fusion_element_register() {
 				'name'      => esc_html__( 'User Register', 'fusion-builder' ),
 				'shortcode' => 'fusion_register',
 				'icon'      => 'fusiona-calendar-check-o',
-				'help_url'  => 'https://theme-fusion.com/documentation/fusion-builder/elements/user-register-element/',
+				'help_url'  => 'https://theme-fusion.com/documentation/avada/elements/user-register-element/',
 				'params'    => [
 					[
 						'type'        => 'radio_button_set',

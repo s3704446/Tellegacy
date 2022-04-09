@@ -406,12 +406,18 @@ function fusion_component_woo_additional_info() {
 		fusion_builder_frontend_data(
 			'FusionTB_Woo_Additional_Info',
 			[
-				'name'      => esc_attr__( 'Woo Additional Information', 'fusion-builder' ),
-				'shortcode' => 'fusion_tb_woo_additional_info',
-				'icon'      => 'fusiona-woo-additional-info',
-				'component' => true,
-				'templates' => [ 'content', 'post_cards', 'page_title_bar' ],
-				'params'    => [
+				'name'         => esc_attr__( 'Woo Additional Information', 'fusion-builder' ),
+				'shortcode'    => 'fusion_tb_woo_additional_info',
+				'icon'         => 'fusiona-woo-additional-info',
+				'component'    => true,
+				'templates'    => [ 'content', 'post_cards', 'page_title_bar' ],
+				'subparam_map' => [
+					'heading_font'      => 'hcell_typography',
+					'heading_font_size' => 'hcell_typography',
+					'text_font'         => 'text_typography',
+					'text_font_size'    => 'text_typography',
+				],
+				'params'       => [
 					[
 						'type'        => 'radio_button_set',
 						'heading'     => esc_attr__( 'Show Heading', 'fusion-builder' ),
@@ -524,6 +530,30 @@ function fusion_component_woo_additional_info() {
 						],
 					],
 					[
+						'type'             => 'typography',
+						'remove_from_atts' => true,
+						'global'           => true,
+						'heading'          => esc_attr__( 'Heading Cell Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the heading cell.', 'fusion-builder' ),
+						'param_name'       => 'hcell_typography',
+						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
+						'choices'          => [
+							'font-family'    => 'heading_font',
+							'font-size'      => 'heading_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
+						],
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '',
+							'font-size'   => '',
+						],
+						'callback'         => [
+							'function' => 'fusion_style_block',
+						],
+					],
+					[
 						'type'        => 'colorpickeralpha',
 						'heading'     => esc_attr__( 'Heading Cell Text Color', 'fusion-builder' ),
 						'description' => esc_html__( 'Controls the color of the heading text, ex: #000.' ),
@@ -535,28 +565,26 @@ function fusion_component_woo_additional_info() {
 						],
 					],
 					[
-						'type'             => 'font_family',
+						'type'             => 'typography',
 						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Heading Cell Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the heading.', 'fusion-builder' ),
-						'param_name'       => 'heading_font',
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '',
-						],
+						'global'           => true,
+						'heading'          => esc_attr__( 'Text Typography', 'fusion-builder' ),
+						'description'      => esc_html__( 'Controls the typography of the text.', 'fusion-builder' ),
+						'param_name'       => 'text_typography',
 						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'         => [
-							'function' => 'fusion_style_block',
+						'choices'          => [
+							'font-family'    => 'text_font',
+							'font-size'      => 'text_font_size',
+							'line-height'    => false,
+							'letter-spacing' => false,
+							'text-transform' => false,
 						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Heading Cell Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'heading_font_size',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'    => [
+						'default'          => [
+							'font-family' => '',
+							'variant'     => '',
+							'font-size'   => '',
+						],
+						'callback'         => [
 							'function' => 'fusion_style_block',
 						],
 					],
@@ -565,32 +593,6 @@ function fusion_component_woo_additional_info() {
 						'heading'     => esc_attr__( 'Text Color', 'fusion-builder' ),
 						'description' => esc_html__( 'Controls the color of the text, ex: #000.' ),
 						'param_name'  => 'text_color',
-						'value'       => '',
-						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'    => [
-							'function' => 'fusion_style_block',
-						],
-					],
-					[
-						'type'             => 'font_family',
-						'remove_from_atts' => true,
-						'heading'          => esc_attr__( 'Text Font Family', 'fusion-builder' ),
-						'description'      => esc_html__( 'Controls the font family of the text.', 'fusion-builder' ),
-						'param_name'       => 'text_font',
-						'default'          => [
-							'font-family'  => '',
-							'font-variant' => '',
-						],
-						'group'            => esc_attr__( 'Design', 'fusion-builder' ),
-						'callback'         => [
-							'function' => 'fusion_style_block',
-						],
-					],
-					[
-						'type'        => 'textfield',
-						'heading'     => esc_attr__( 'Text Font Size', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the font size of the text. Enter value including any valid CSS unit, ex: 20px.', 'fusion-builder' ),
-						'param_name'  => 'text_font_size',
 						'value'       => '',
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 						'callback'    => [
@@ -623,7 +625,7 @@ function fusion_component_woo_additional_info() {
 						'preview_selector' => '.fusion-woo-additional-info-tb',
 					],
 				],
-				'callback'  => [
+				'callback'     => [
 					'function' => 'fusion_ajax',
 					'action'   => 'get_fusion_tb_woo_additional_info',
 					'ajax'     => true,

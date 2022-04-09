@@ -201,7 +201,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				circleHoverAccentColor = values.hover_accent_color;
 
-				if ( 'transparent' === values.circlecolor || 0 === jQuery.Color( values.circlecolor ).alpha() || 'no' === values.icon_circle ) {
+				if ( 'transparent' === values.circlecolor || 0 === jQuery.AWB_Color( values.circlecolor ).alpha() || 'no' === values.icon_circle ) {
 					circleHoverAccentColor = 'transparent';
 				}
 
