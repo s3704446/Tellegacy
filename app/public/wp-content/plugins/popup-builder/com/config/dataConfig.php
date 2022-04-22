@@ -907,7 +907,7 @@ class SgpbDataConfig
 		$options[] = array('name' => 'sgpb-enable-popup-overlay', 'type' => 'checkbox', 'defaultValue' => 'on', 'min-version' => SGPB_POPUP_PRO_MIN_VERSION, 'min-pkg' => SGPB_POPUP_PKG_SILVER);
 		$options[] = array('name' => 'sgpb-overlay-custom-class', 'type' => 'text', 'defaultValue' => 'sgpb-popup-overlay');
 		$options[] = array('name' => 'sgpb-overlay-color', 'type' => 'text', 'defaultValue' => '');
-		$options[] = array('name' => 'sgpb-background-color', 'type' => 'text', 'defaultValue' => '');
+		$options[] = array('name' => 'sgpb-background-color', 'type' => 'text', 'defaultValue' => '#FFFFFF');
 		$options[] = array('name' => 'sgpb-overlay-opacity', 'type' => 'text', 'defaultValue' => 0.8);
 		$options[] = array('name' => 'sgpb-content-opacity', 'type' => 'text', 'defaultValue' => 0.8);
 		$options[] = array('name' => 'sgpb-background-image', 'type' => 'text', 'defaultValue' => '');

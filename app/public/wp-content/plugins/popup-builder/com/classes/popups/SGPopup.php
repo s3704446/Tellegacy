@@ -307,7 +307,7 @@ abstract class SGPopup
 		}
 		$savedData = apply_filters('sgpbPopupSavedData', $savedData);
 
-		if (empty($savedData)) {
+		if (empty($savedData) && $currentPostStatus !== 'trash') {
 			return false;
 		}
 

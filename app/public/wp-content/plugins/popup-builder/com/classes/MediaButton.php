@@ -97,10 +97,12 @@ class MediaButton
 		ob_end_clean();
 
 		$showCurrentUser = AdminHelper::showMenuForCurrentUser();
-
-		if (!$showCurrentUser) {
+		$screen = get_current_screen();
+		$hideInNewsletter = isset($screen) ? $screen->id === 'popupbuilder_page_sgpbNewsletter' : false;
+		if (!$showCurrentUser || $hideInNewsletter) {
 			return '';
 		}
+
 		$buttonTitle = __('Insert popup', SG_POPUP_TEXT_DOMAIN);
 
 		$img = '<span class="dashicons dashicons-welcome-widgets-menus" style="padding: 3px 2px 0px 0px"></span>';

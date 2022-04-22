@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitd9203d08b0a67dd5970cc5c15966adca
+class ComposerStaticInit0cf10ff8ef1c9b1b224c16c24dda9b9a
 {
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
@@ -19,6 +19,7 @@ class ComposerStaticInitd9203d08b0a67dd5970cc5c15966adca
         'SeriouslySimplePodcasting\\Controllers\\Onboarding_Controller' => __DIR__ . '/../..' . '/php/classes/controllers/class-onboarding-controller.php',
         'SeriouslySimplePodcasting\\Controllers\\Options_Controller' => __DIR__ . '/../..' . '/php/classes/controllers/class-options-controller.php',
         'SeriouslySimplePodcasting\\Controllers\\Players_Controller' => __DIR__ . '/../..' . '/php/classes/controllers/class-players-controller.php',
+        'SeriouslySimplePodcasting\\Controllers\\Podcast_Post_Types_Controller' => __DIR__ . '/../..' . '/php/classes/controllers/class-podcast-post-types-controller.php',
         'SeriouslySimplePodcasting\\Controllers\\Schema_Controller' => __DIR__ . '/../..' . '/php/classes/controllers/class-schema-controller.php',
         'SeriouslySimplePodcasting\\Controllers\\Settings_Controller' => __DIR__ . '/../..' . '/php/classes/controllers/class-settings-controller.php',
         'SeriouslySimplePodcasting\\Controllers\\Shortcodes_Controller' => __DIR__ . '/../..' . '/php/classes/controllers/class-shortcodes-controller.php',
@@ -29,6 +30,7 @@ class ComposerStaticInitd9203d08b0a67dd5970cc5c15966adca
         'SeriouslySimplePodcasting\\Handlers\\Feed_Handler' => __DIR__ . '/../..' . '/php/classes/handlers/class-feed-handler.php',
         'SeriouslySimplePodcasting\\Handlers\\Images_Handler' => __DIR__ . '/../..' . '/php/classes/handlers/class-images-handler.php',
         'SeriouslySimplePodcasting\\Handlers\\Options_Handler' => __DIR__ . '/../..' . '/php/classes/handlers/class-options-handler.php',
+        'SeriouslySimplePodcasting\\Handlers\\Podping_Handler' => __DIR__ . '/../..' . '/php/classes/handlers/class-podping-handler.php',
         'SeriouslySimplePodcasting\\Handlers\\Roles_Handler' => __DIR__ . '/../..' . '/php/classes/handlers/class-roles-handler.php',
         'SeriouslySimplePodcasting\\Handlers\\Series_Handler' => __DIR__ . '/../..' . '/php/classes/handlers/class-series-handler.php',
         'SeriouslySimplePodcasting\\Handlers\\Settings_Handler' => __DIR__ . '/../..' . '/php/classes/handlers/class-settings-handler.php',
@@ -72,7 +74,7 @@ class ComposerStaticInitd9203d08b0a67dd5970cc5c15966adca
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->classMap = ComposerStaticInitd9203d08b0a67dd5970cc5c15966adca::$classMap;
+            $loader->classMap = ComposerStaticInit0cf10ff8ef1c9b1b224c16c24dda9b9a::$classMap;
 
         }, null, ClassLoader::class);
     }

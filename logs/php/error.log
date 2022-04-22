@@ -1,0 +1,126 @@
+[22-Apr-2022 06:31:41 UTC] PHP Warning:  An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>. (WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/update.php on line 413
+[22-Apr-2022 06:31:41 UTC] PHP Stack trace:
+[22-Apr-2022 06:31:41 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:0
+[22-Apr-2022 06:31:41 UTC] PHP   2. do_action_ref_array() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:138
+[22-Apr-2022 06:31:41 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:522
+[22-Apr-2022 06:31:41 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 06:31:41 UTC] PHP   5. wp_update_plugins() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 06:31:41 UTC] PHP   6. trigger_error() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/update.php:413
+[22-Apr-2022 06:31:41 UTC] PHP Warning:  An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>. (WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/update.php on line 693
+[22-Apr-2022 06:31:41 UTC] PHP Stack trace:
+[22-Apr-2022 06:31:41 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:0
+[22-Apr-2022 06:31:41 UTC] PHP   2. do_action_ref_array() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:138
+[22-Apr-2022 06:31:41 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:522
+[22-Apr-2022 06:31:41 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 06:31:41 UTC] PHP   5. wp_update_themes() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 06:31:41 UTC] PHP   6. trigger_error() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/update.php:693
+[22-Apr-2022 06:31:42 UTC] PHP Warning:  An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>. (WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/update.php on line 175
+[22-Apr-2022 06:31:42 UTC] PHP Stack trace:
+[22-Apr-2022 06:31:42 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:0
+[22-Apr-2022 06:31:42 UTC] PHP   2. do_action_ref_array() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:138
+[22-Apr-2022 06:31:42 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:522
+[22-Apr-2022 06:31:42 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 06:31:42 UTC] PHP   5. wp_version_check() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 06:31:42 UTC] PHP   6. trigger_error() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/update.php:175
+[22-Apr-2022 06:31:42 UTC] PHP Warning:  An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>. (WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/update.php on line 143
+[22-Apr-2022 06:31:42 UTC] PHP Stack trace:
+[22-Apr-2022 06:31:42 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:0
+[22-Apr-2022 06:31:42 UTC] PHP   2. do_action_ref_array() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-cron.php:138
+[22-Apr-2022 06:31:42 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:522
+[22-Apr-2022 06:31:42 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 06:31:42 UTC] PHP   5. WP_Site_Health->wp_cron_scheduled_check() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 06:31:42 UTC] PHP   6. WP_Site_Health->perform_test() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/class-wp-site-health.php:2781
+[22-Apr-2022 06:31:42 UTC] PHP   7. WP_Site_Health->get_test_background_updates() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/class-wp-site-health.php:192
+[22-Apr-2022 06:31:42 UTC] PHP   8. WP_Site_Health_Auto_Updates->run_tests() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/class-wp-site-health.php:1806
+[22-Apr-2022 06:31:42 UTC] PHP   9. WP_Site_Health_Auto_Updates->test_all_files_writable() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/class-wp-site-health-auto-updates.php:37
+[22-Apr-2022 06:31:42 UTC] PHP  10. get_core_checksums() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/class-wp-site-health-auto-updates.php:332
+[22-Apr-2022 06:31:42 UTC] PHP  11. trigger_error() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/update.php:143
+[22-Apr-2022 10:41:14 UTC] PHP Fatal error:  Cannot redeclare wfu_get_request_uri() (previously declared in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wp-file-upload/wordpress_file_upload.php:38) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/wordpress_file_upload.php on line 38
+[22-Apr-2022 10:41:14 UTC] PHP Stack trace:
+[22-Apr-2022 10:41:14 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:0
+[22-Apr-2022 10:41:14 UTC] PHP   2. activate_plugin() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:58
+[22-Apr-2022 10:41:14 UTC] PHP   3. plugin_sandbox_scrape() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/plugin.php:659
+[22-Apr-2022 10:41:16 UTC] PHP Fatal error:  Cannot redeclare wfu_get_request_uri() (previously declared in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wp-file-upload/wordpress_file_upload.php:38) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/wordpress_file_upload.php on line 38
+[22-Apr-2022 10:41:16 UTC] PHP Stack trace:
+[22-Apr-2022 10:41:16 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:0
+[22-Apr-2022 10:41:16 UTC] PHP   2. plugin_sandbox_scrape() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:192
+[22-Apr-2022 10:41:16 UTC] PHP Fatal error:  Cannot redeclare wfu_get_request_uri() (previously declared in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wp-file-upload/wordpress_file_upload.php:38) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/wordpress_file_upload.php on line 38
+[22-Apr-2022 10:41:16 UTC] PHP Stack trace:
+[22-Apr-2022 10:41:16 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:0
+[22-Apr-2022 10:41:16 UTC] PHP   2. plugin_sandbox_scrape() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:192
+[22-Apr-2022 10:41:34 UTC] PHP Fatal error:  Cannot redeclare wfu_get_request_uri() (previously declared in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wp-file-upload/wordpress_file_upload.php:38) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/wordpress_file_upload.php on line 38
+[22-Apr-2022 10:41:34 UTC] PHP Stack trace:
+[22-Apr-2022 10:41:34 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:0
+[22-Apr-2022 10:41:34 UTC] PHP   2. activate_plugin() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:58
+[22-Apr-2022 10:41:34 UTC] PHP   3. plugin_sandbox_scrape() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/includes/plugin.php:659
+[22-Apr-2022 10:41:37 UTC] PHP Fatal error:  Cannot redeclare wfu_get_request_uri() (previously declared in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wp-file-upload/wordpress_file_upload.php:38) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/wordpress_file_upload.php on line 38
+[22-Apr-2022 10:41:37 UTC] PHP Stack trace:
+[22-Apr-2022 10:41:37 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:0
+[22-Apr-2022 10:41:37 UTC] PHP   2. plugin_sandbox_scrape() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:192
+[22-Apr-2022 10:41:37 UTC] PHP Fatal error:  Cannot redeclare wfu_get_request_uri() (previously declared in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wp-file-upload/wordpress_file_upload.php:38) in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/wordpress_file_upload.php on line 38
+[22-Apr-2022 10:41:37 UTC] PHP Stack trace:
+[22-Apr-2022 10:41:37 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:0
+[22-Apr-2022 10:41:37 UTC] PHP   2. plugin_sandbox_scrape() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/plugins.php:192
+[22-Apr-2022 15:08:55 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 15:08:55 UTC] PHP Stack trace:
+[22-Apr-2022 15:08:55 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 15:08:55 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 15:08:55 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 15:08:55 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 15:08:55 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 15:12:50 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 15:12:50 UTC] PHP Stack trace:
+[22-Apr-2022 15:12:50 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 15:12:50 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 15:12:50 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 15:12:50 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 15:12:50 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 15:12:50 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 15:12:50 UTC] PHP Stack trace:
+[22-Apr-2022 15:12:50 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 15:12:50 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 15:12:50 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 15:12:50 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 15:12:50 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 15:12:50 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 15:12:50 UTC] PHP Stack trace:
+[22-Apr-2022 15:12:50 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 15:12:50 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 15:12:50 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 15:12:50 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 15:12:50 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 15:12:50 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 15:12:50 UTC] PHP Stack trace:
+[22-Apr-2022 15:12:50 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 15:12:50 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 15:12:50 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 15:12:50 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 15:12:50 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 15:12:50 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 15:12:50 UTC] PHP Stack trace:
+[22-Apr-2022 15:12:50 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 15:12:50 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 15:12:50 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 15:12:50 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 15:12:50 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 16:41:37 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 16:41:37 UTC] PHP Stack trace:
+[22-Apr-2022 16:41:37 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 16:41:37 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 16:41:37 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 16:41:37 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 16:41:37 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 16:41:37 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 16:41:37 UTC] PHP Stack trace:
+[22-Apr-2022 16:41:37 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 16:41:37 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 16:41:37 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 16:41:37 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 16:41:37 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
+[22-Apr-2022 17:21:48 UTC] PHP Warning:  Invalid argument supplied for foreach() in /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-content/plugins/wordpress-file-upload-pro/lib/wfu_ajaxactions.php on line 1448
+[22-Apr-2022 17:21:48 UTC] PHP Stack trace:
+[22-Apr-2022 17:21:48 UTC] PHP   1. {main}() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:0
+[22-Apr-2022 17:21:48 UTC] PHP   2. do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-admin/admin-ajax.php:187
+[22-Apr-2022 17:21:48 UTC] PHP   3. WP_Hook->do_action() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/plugin.php:474
+[22-Apr-2022 17:21:48 UTC] PHP   4. WP_Hook->apply_filters() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:331
+[22-Apr-2022 17:21:48 UTC] PHP   5. wfu_ajax_action_delete_file() /Users/juventiuswu/Local Sites/tellegacy/app/public/wp-includes/class-wp-hook.php:307
